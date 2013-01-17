@@ -14,9 +14,9 @@ import org.bukkit.inventory.ItemStack;
 /**
  * class manager class
  * 
- * @version v0.3.0 
+ * @version v0.4.4.2
  * 
- * @author slipcor
+ * @author slipcor / krglok
  */
 
 public class ClassManager {

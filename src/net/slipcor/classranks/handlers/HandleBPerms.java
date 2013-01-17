@@ -23,6 +23,7 @@ import de.bananaco.bpermissions.api.util.CalculableType;
  * @author slipcor
  */
 
+@SuppressWarnings("deprecation")
 public class HandleBPerms extends CRHandler {
 	private final ClassRanks plugin;
 	private final DebugManager db;
@@ -34,7 +35,8 @@ public class HandleBPerms extends CRHandler {
 
 	@Override
 	public boolean isInGroup(String world, String permName, String player) {
-		return ApiLayer.hasGroupRecursive(world, CalculableType.USER, player,
+		//ApiLayer.hasGroup(world, type, name, group)
+		return ApiLayer.hasGroup(world, CalculableType.USER, player,
 				permName);
 	}
 
@@ -134,6 +136,7 @@ public class HandleBPerms extends CRHandler {
 		}
 		for (int i = 0; i < worlds.length; i++) {
 			try {
+				
 				ApiLayer.removeGroup(worlds[i], CalculableType.USER, player,
 						cString);
 				db.i("removed rank " + cString + " from player " + player

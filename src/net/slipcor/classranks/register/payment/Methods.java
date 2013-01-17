@@ -42,13 +42,13 @@ public class Methods {
      * Implement all methods along with their respective name & class.
      */
     private static void _init() {
-        addMethod("iConomy", new net.slipcor.classranks.register.payment.methods.iCo6());
-        addMethod("iConomy", new net.slipcor.classranks.register.payment.methods.iCo5());/*
+        addMethod("iConomy", new net.slipcor.classranks.register.payment.methods.iCo6());/*
+        addMethod("iConomy", new net.slipcor.classranks.register.payment.methods.iCo5());
         addMethod("iConomy", new praxis.classranks.register.payment.methods.iCo4());
-        addMethod("BOSEconomy", new praxis.classranks.register.payment.methods.BOSE6());*/
+        addMethod("BOSEconomy", new praxis.classranks.register.payment.methods.BOSE6());
         addMethod("BOSEconomy", new net.slipcor.classranks.register.payment.methods.BOSE7());
         addMethod("Essentials", new net.slipcor.classranks.register.payment.methods.EE17());
-        addMethod("Currency", new net.slipcor.classranks.register.payment.methods.MCUR());
+        addMethod("Currency", new net.slipcor.classranks.register.payment.methods.MCUR());*/
         Dependencies.add("MultiCurrency");
     }
 

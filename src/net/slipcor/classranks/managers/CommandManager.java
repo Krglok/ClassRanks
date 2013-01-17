@@ -34,7 +34,7 @@ public class CommandManager {
 	public boolean rankpublic; // do we spam changed to the public?
 	public boolean defaultrankallworlds; // do ppl rank themselves in all
 											// worlds?
-	public boolean onlyoneclass; // only maintain one class
+	public boolean onlyoneclass; // only maintain oneass
 	public ItemStack[][] rankItems;
 	public String[] signCheck = { null, null, null }; // SignCheck variable
 
@@ -52,8 +52,7 @@ public class CommandManager {
 	 * new rank
 	 */
 	public boolean rank(String[] args, Player comP) {
-		db.i("ranking " + comP.getName() + " : "
-				+ FormatManager.formatStringArray(args));
+		db.i("ranking " + comP.getName() + " : " + FormatManager.formatStringArray(args));
 		int cDown = pm.coolDownCheck(comP);
 		if (cDown > 0) {
 			plugin.msg(comP,
@@ -155,11 +154,11 @@ public class CommandManager {
 
 				if (ClassRanks.economy != null) {
 					
-					if (ClassRanks.economy.hasAccount(comP.getName())) {
-						plugin.log("Account not found: " + comP.getName(),
-								Level.SEVERE);
-						return true;
-					}
+//					if (ClassRanks.economy.hasAccount(comP.getName())) {
+//						plugin.log("Account not found: " + comP.getName(),
+//								Level.SEVERE);
+//						return true;
+//					}
 					if (!ClassRanks.economy.has(comP.getName(), rank_cost)) {
 						// no money, no ranking!
 						plugin.msg(comP,
@@ -304,18 +303,43 @@ public class CommandManager {
 	 */
 	public boolean parseCommand(Player pPlayer, String[] args) {
 
-		db.i("parsing player " + pPlayer + ", command: "
-				+ FormatManager.formatStringArray(args));
+		db.i("parsing player " + pPlayer + ", command: " + FormatManager.formatStringArray(args));
 		if (args.length > 1) {
-			if (args[0].equalsIgnoreCase("get")) {
+			if (args[0].equalsIgnoreCase("list")) {
+				// Command list of Ranks in the Class
+				ArrayList<Class> classes = ClassManager.getClasses();
+				plugin.msg(pPlayer, ChatColor.YELLOW+"Class / Rank List");
+				plugin.msg(pPlayer, ChatColor.YELLOW+"--------------------");
+				
+				for (Class c : classes) {
+					if (c.name.startsWith("%") && !pPlayer.isOp()) {
+						continue;
+					}
+					if (args[1].equalsIgnoreCase(c.name)) {
+						plugin.msg(pPlayer, "Class "+ ChatColor.GREEN + c.name);
+						for (Rank r : c.ranks) {
+							plugin.msg(pPlayer, "=> " + r.getColor() + r.getDispName());
+						}
+					}
+				}
+				return true;
+				
+			} else  if (args[0].equalsIgnoreCase("get")) {
+				// Command Get
 				String world = pPlayer.getWorld().getName();
 				if (args.length > 2) {
 					world = args[2];
+				} else {
+					world = "all";
 				}
+				if (args.length == 1) {
+					args[1] = pPlayer.getName();
+				}
+				
 				args[1] = PlayerManager.search(args[1]);
 
-				Rank rank = ClassManager.getRankByPermName(plugin.perms
-						.getPermNameByPlayer(world, args[1]));
+				plugin.msg(pPlayer, "Player " + fm.formatPlayer(args[1])+ " Get in " + fm.formatWorld(world) + "!");
+				Rank rank = ClassManager.getRankByPermName(plugin.perms.getPermNameByPlayer(world, args[1]));
 
 				if (rank == null) {
 					plugin.msg(pPlayer, "Player " + fm.formatPlayer(args[1])
@@ -376,7 +400,10 @@ public class CommandManager {
 					world = args[3];
 				} else if (args.length == 3) {
 					// => /class add *name* *classname*
-					self = false;
+					String[] tArgs = { args[0], args[1] , args[2] };
+
+					args = tArgs; // override : without world //krglok 01.2013
+//					self = false;
 				} else if (args.length == 2) {
 					// => /class add *classname*
 
@@ -493,11 +520,11 @@ public class CommandManager {
 				}
 			}
 			// ADD
-			Rank tempRank = ClassManager.getRankByPermName(args[2]);
+			Rank tempRank = ClassManager.getRankByPermName( ClassManager.getFirstPermNameByClassName(args[2]));
 
 			if (tempRank == null) {
 				plugin.msg(pPlayer,
-						"The class you have entered does not exist!");
+						"The class you have entered does not exist!"+args[2]);
 				return true;
 			}
 
@@ -518,7 +545,8 @@ public class CommandManager {
 				String sRank = tempRank.getPermName();
 				plugin.perms.rankAdd(world, args[1], sRank);
 			} else {
-				plugin.perms.classAdd(world, args[1], cPermName);
+				plugin.perms.rankAdd(world, args[1], cPermName);
+//				plugin.perms.classAdd(world, args[1], cPermName);
 			}
 
 			if ((rankpublic) || (!pPlayer.getName().equalsIgnoreCase(args[1]))) {
@@ -535,6 +563,7 @@ public class CommandManager {
 			// only ONE argument!
 
 			if (args[0].equalsIgnoreCase("reload")) {
+				// Command reload 
 				if (pPlayer.isOp()) {
 					plugin.load_config();
 					plugin.msg(pPlayer, "Config reloaded!");
@@ -545,6 +574,7 @@ public class CommandManager {
 			}
 
 			if (args[0].equalsIgnoreCase("rankup")) {
+				// Command rankup
 				if (!plugin.perms.hasPerms(pPlayer, "classranks.self.rank",
 						pPlayer.getWorld().getName())) {
 					plugin.msg(pPlayer,
@@ -553,6 +583,7 @@ public class CommandManager {
 				}
 				return rank(args, pPlayer);
 			} else if (args[0].equalsIgnoreCase("rankdown")) {
+				// Command  rank down
 				if (!plugin.perms.hasPerms(pPlayer, "classranks.self.rank",
 						pPlayer.getWorld().getName())) {
 					plugin.msg(pPlayer,
@@ -561,6 +592,7 @@ public class CommandManager {
 				}
 				return rank(args, pPlayer);
 			} else if (args[0].equalsIgnoreCase("remove")) {
+				// Command remove
 				if (!plugin.perms.hasPerms(pPlayer,
 						"classranks.self.addremove", pPlayer.getWorld()
 								.getName())) {
@@ -597,22 +629,25 @@ public class CommandManager {
 										: pPlayer.getWorld().getName()) + "!");
 				return true;
 			} else if (args[0].equalsIgnoreCase("add")) {
-				plugin.msg(pPlayer, "Not enough arguments!");
+				// Command add 				
+				plugin.msg(pPlayer, ChatColor.RED+"Not enough arguments!");
+				plugin.msg(pPlayer, ChatColor.GRAY+"/class [add] {username} {classname} {world} | Add user to a class");
 				return true;
 
 			} else if (args[0].equalsIgnoreCase("list")) {
+				// Command  list Classes
 				ArrayList<Class> classes = ClassManager.getClasses();
-				plugin.msg(pPlayer, "Class List");
-				plugin.msg(pPlayer, "--------------------");
+				plugin.msg(pPlayer, ChatColor.YELLOW+"Class List");
+				plugin.msg(pPlayer, ChatColor.YELLOW+"--------------------");
 				
 				for (Class c : classes) {
 					if (c.name.startsWith("%") && !pPlayer.isOp()) {
 						continue;
 					}
-					plugin.msg(pPlayer, "Class §a" + c.name);
-					for (Rank r : c.ranks) {
-						plugin.msg(pPlayer, "=> " + r.getColor() + r.getDispName());
-					}
+					plugin.msg(pPlayer, "Class "+ ChatColor.GREEN + c.name);
+//					for (Rank r : c.ranks) {
+//						plugin.msg(pPlayer, "=> " + r.getColor() + r.getDispName());
+//					}
 				}
 				return true;
 			}

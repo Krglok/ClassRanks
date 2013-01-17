@@ -49,7 +49,7 @@ public class HandleSuperPerms extends CRHandler {
      */
 	@Override
     public boolean setupPermissions() {
-	    plugin.log("No permissions plugin found, defaulting to SuperPerms.", Level.INFO); // success!
+	    plugin.log("No permissions plugin found, No Permissions are used.", Level.INFO); // success!
     	return true;
     }
 
@@ -85,6 +85,7 @@ public class HandleSuperPerms extends CRHandler {
 		plugin.getConfig().set("players." + player + "." + cString, rank);
 		db.i("added rank " + rank + " to player " + player + ", no world support");
 		plugin.saveConfig();
+		plugin.log("SuperPerm PermName " + rank + ": user " + player + " set " + world, Level.INFO);
 	}
 
 	/*
@@ -127,6 +128,7 @@ public class HandleSuperPerms extends CRHandler {
 	@Override
 	public void rankAddGlobal(String player, String rank) {
 		rankAdd(null, player, rank);
+		plugin.log("SuperPerm PermName " + rank + ": user " + player , Level.INFO);
 	}
 
 	@Override
