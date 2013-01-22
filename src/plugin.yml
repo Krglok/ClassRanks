@@ -8,7 +8,7 @@ commands:
     class:
         description: Lets users choose a class / change classes
         usage: |
-           /class [classname] | Choose the class [classname]
+           /class [classname] | Choose the class [classname] for yourself
            /class [add] {username} {classname} {world} | Add user to a class
            /class [remove] {username} {world} | Remove user from a class
            /class [rankup/rankdown] [username] {world} | Rank user up/down 

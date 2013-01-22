@@ -297,6 +297,74 @@ public class CommandManager {
 		return true;
 	}
 
+	/**
+	 * printout Classas and/or Class Ranks
+	 * 
+	 * @param pPlayer
+	 * @param args
+	 */
+	private void cmdList (Player pPlayer, String[] args) {
+		ArrayList<Class> classes = ClassManager.getClasses();
+		plugin.msg(pPlayer, ChatColor.YELLOW+"Class / Rank List");
+		plugin.msg(pPlayer, ChatColor.YELLOW+"--------------------");
+		
+		for (Class c : classes) {
+			if (c.name.startsWith("%") && !pPlayer.isOp()) {
+				continue;
+			}
+			if (args[1].equalsIgnoreCase(c.name)) {
+				plugin.msg(pPlayer, "Class "+ ChatColor.GREEN + c.name);
+				for (Rank r : c.ranks) {
+					plugin.msg(pPlayer, "=> " + r.getColor() + r.getDispName());
+				}
+			}
+		}
+		
+	}
+
+	/**
+	 * printout player Class, Rank and world
+	 * 
+	 * @param pPlayer
+	 * @param args
+	 */
+	private void cmdGet (Player pPlayer, String[] args) {
+		String world = pPlayer.getWorld().getName();
+		if (args.length > 2) {
+			world = args[2];
+		} else {
+			world = "all";
+		}
+		if (args.length == 1) {
+			args[1] = pPlayer.getName();
+		}
+		
+		args[1] = PlayerManager.search(args[1]);
+
+		plugin.msg(pPlayer, "Player " + fm.formatPlayer(args[1])+ " Get in " + fm.formatWorld(world) + "!");
+		Rank rank = ClassManager.getRankByPermName(plugin.perms.getPermNameByPlayer(world, args[1]));
+
+		if (rank == null) {
+			plugin.msg(pPlayer, "Player " + fm.formatPlayer(args[1])
+					+ " has no class in " + fm.formatWorld(world) + "!");
+		} else {
+
+			String cDispName = rank.getDispName(); // Display rank name
+			ChatColor c_Color = rank.getColor(); // Rank color
+
+			plugin.msg(pPlayer, "Player " + fm.formatPlayer(args[1])
+					+ " is " + c_Color + cDispName + ChatColor.WHITE
+					+ " in " + fm.formatWorld(world) + "!");
+		}
+		
+	}
+	
+	private void cmdTemp (Player pPlayer, String[] args) {
+		
+	}
+	
+	
+	
 	/*
 	 * The main switch for the command usage. Check for known commands,
 	 * permissions, arguments, and commit whatever is wanted.
@@ -306,53 +374,13 @@ public class CommandManager {
 		db.i("parsing player " + pPlayer + ", command: " + FormatManager.formatStringArray(args));
 		if (args.length > 1) {
 			if (args[0].equalsIgnoreCase("list")) {
-				// Command list of Ranks in the Class
-				ArrayList<Class> classes = ClassManager.getClasses();
-				plugin.msg(pPlayer, ChatColor.YELLOW+"Class / Rank List");
-				plugin.msg(pPlayer, ChatColor.YELLOW+"--------------------");
-				
-				for (Class c : classes) {
-					if (c.name.startsWith("%") && !pPlayer.isOp()) {
-						continue;
-					}
-					if (args[1].equalsIgnoreCase(c.name)) {
-						plugin.msg(pPlayer, "Class "+ ChatColor.GREEN + c.name);
-						for (Rank r : c.ranks) {
-							plugin.msg(pPlayer, "=> " + r.getColor() + r.getDispName());
-						}
-					}
-				}
+				// Command list of Ranks in the Class  3.2
+				cmdList(pPlayer,args);
 				return true;
 				
 			} else  if (args[0].equalsIgnoreCase("get")) {
-				// Command Get
-				String world = pPlayer.getWorld().getName();
-				if (args.length > 2) {
-					world = args[2];
-				} else {
-					world = "all";
-				}
-				if (args.length == 1) {
-					args[1] = pPlayer.getName();
-				}
-				
-				args[1] = PlayerManager.search(args[1]);
-
-				plugin.msg(pPlayer, "Player " + fm.formatPlayer(args[1])+ " Get in " + fm.formatWorld(world) + "!");
-				Rank rank = ClassManager.getRankByPermName(plugin.perms.getPermNameByPlayer(world, args[1]));
-
-				if (rank == null) {
-					plugin.msg(pPlayer, "Player " + fm.formatPlayer(args[1])
-							+ " has no class in " + fm.formatWorld(world) + "!");
-				} else {
-
-					String cDispName = rank.getDispName(); // Display rank name
-					ChatColor c_Color = rank.getColor(); // Rank color
-
-					plugin.msg(pPlayer, "Player " + fm.formatPlayer(args[1])
-							+ " is " + c_Color + cDispName + ChatColor.WHITE
-							+ " in " + fm.formatWorld(world) + "!");
-				}
+				// Command Get   3.2
+				cmdGet(pPlayer, args);
 				return true;
 			}
 
@@ -382,6 +410,7 @@ public class CommandManager {
 				plugin.msg(pPlayer, "Argument " + args[0] + " unrecognized!");
 				return false;
 			}
+
 			// add / remove
 			boolean self = true;
 			String world = defaultrankallworlds ? "all" : pPlayer.getWorld()

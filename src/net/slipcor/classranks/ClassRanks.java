@@ -58,14 +58,16 @@ public class ClassRanks extends JavaPlugin {
 		@SuppressWarnings("unused")
 		ClassManager cm = new ClassManager(this);
 
+		// register commands
 		getCommand("class").setExecutor(new ClassCommand(this, cmdMgr));
-		getCommand("classadmin").setExecutor(
-				new ClassAdminCommand(this, cmdMgr));
+		getCommand("classadmin").setExecutor(new ClassAdminCommand(this, cmdMgr));
 		getCommand("rankup").setExecutor(new RankupCommand(this, cmdMgr));
 		getCommand("rankdown").setExecutor(new RankdownCommand(this, cmdMgr));
 
-		load_config(); // load the config file
+		// load the config file
+		load_config(); 
 
+		// load Vault 
 		if (pm.getPlugin("Vault") != null) {
 			db.i("Vault found!");
 			if (getConfig().getBoolean("vaultpermissions")) {
@@ -77,6 +79,7 @@ public class ClassRanks extends JavaPlugin {
 			}
 		}
 		
+		// backup permissions
 		if (this.perms == null || (this.perms != null && !this.perms.setupPermissions())) {
 		
 			if (pm.getPlugin("bPermissions") != null) {
@@ -97,7 +100,7 @@ public class ClassRanks extends JavaPlugin {
 		tracker.start();
 		Update.updateCheck(this);
 
-		log("v" + this.getDescription().getVersion() + " enabled", Level.INFO);
+		log("Version " + this.getDescription().getVersion() + " init ready", Level.INFO);
 	}
 
 	@Override
@@ -110,7 +113,7 @@ public class ClassRanks extends JavaPlugin {
 	 * (re)load the config
 	 */
 	public void load_config() {
-		String debugVersion = "0310";
+		String debugVersion = "0320";
 
 		if (getConfig() == null
 				|| !getConfig().getString("cversion").equals(debugVersion)) {
