@@ -13,7 +13,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import de.bananaco.bpermissions.api.ApiLayer;
-import de.bananaco.bpermissions.api.util.CalculableType;
+import de.bananaco.bpermissions.api.CalculableType;
 
 /**
  * bPermissions handler class
@@ -23,7 +23,6 @@ import de.bananaco.bpermissions.api.util.CalculableType;
  * @author slipcor
  */
 
-@SuppressWarnings("deprecation")
 public class HandleBPerms extends CRHandler {
 	private final ClassRanks plugin;
 	private final DebugManager db;
