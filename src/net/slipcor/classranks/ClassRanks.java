@@ -48,6 +48,8 @@ public class ClassRanks extends JavaPlugin {
 	public Method method = null; // eConomy access
     public static Economy economy = null;
 	public CRHandler perms; // Permissions access
+	
+	private Map<String, Object> classes;
 
 	@Override
 	public void onEnable() {
@@ -303,6 +305,7 @@ public class ClassRanks extends JavaPlugin {
 				}
 			}
 		}
+		setClasses(classRanks);
 
 		saveConfig();
 	}
@@ -400,4 +403,12 @@ public class ClassRanks extends JavaPlugin {
 
         return (economy != null);
     }
+
+	public Map<String, Object> getClasses() {
+		return classes;
+	}
+
+	private void setClasses(Map<String, Object> classes) {
+		this.classes = classes;
+	}
 }
