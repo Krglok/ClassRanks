@@ -298,25 +298,32 @@ public class CommandManager {
 	}
 
 	/**
-	 * printout Classas and/or Class Ranks
+	 * printout Class and/or Class Ranks
 	 * 
 	 * @param pPlayer
 	 * @param args
 	 */
 	private void cmdList (Player pPlayer, String[] args) {
 		ArrayList<Class> classes = ClassManager.getClasses();
-		plugin.msg(pPlayer, ChatColor.YELLOW+"Class / Rank List");
-		plugin.msg(pPlayer, ChatColor.YELLOW+"--------------------");
 		
-		for (Class c : classes) {
-			if (c.name.startsWith("%") && !pPlayer.isOp()) {
-				continue;
-			}
-			if (args[1].equalsIgnoreCase(c.name)) {
-				plugin.msg(pPlayer, "Class "+ ChatColor.GREEN + c.name);
-				for (Rank r : c.ranks) {
-					plugin.msg(pPlayer, "=> " + r.getColor() + r.getDispName());
+		pPlayer.sendMessage(ChatColor.YELLOW+"Class / Rank List");
+		pPlayer.sendMessage(ChatColor.YELLOW+"--------------------");
+		// check for Classlist or Classranklist
+		if (args.length > 1 ) {
+			// Do Class Rank List
+			for (Class c : classes) {
+				if (args[1].equalsIgnoreCase(c.name)) {
+					pPlayer.sendMessage("Class "+ ChatColor.GREEN + c.name);
+					for (Rank r : c.ranks) {
+						pPlayer.sendMessage("=> " + ChatColor.GREEN + r.getDispName());
+					}
 				}
+			}
+			
+		} else {
+			// Do Class List
+			for (Class c : classes) {
+				pPlayer.sendMessage("Class "+ ChatColor.GREEN + c.name);
 			}
 		}
 		
@@ -665,19 +672,7 @@ public class CommandManager {
 
 			} else if (args[0].equalsIgnoreCase("list")) {
 				// Command  list Classes
-				ArrayList<Class> classes = ClassManager.getClasses();
-				plugin.msg(pPlayer, ChatColor.YELLOW+"Class List");
-				plugin.msg(pPlayer, ChatColor.YELLOW+"--------------------");
-				
-				for (Class c : classes) {
-					if (c.name.startsWith("%") && !pPlayer.isOp()) {
-						continue;
-					}
-					plugin.msg(pPlayer, "Class "+ ChatColor.GREEN + c.name);
-//					for (Rank r : c.ranks) {
-//						plugin.msg(pPlayer, "=> " + r.getColor() + r.getDispName());
-//					}
-				}
+				cmdList(pPlayer, args);
 				return true;
 			}
 
