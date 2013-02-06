@@ -20,6 +20,11 @@ import org.bukkit.inventory.ItemStack;
  * @version v0.4.3
  * 
  * @author slipcor
+ * 
+ * issues
+ * id=14
+ * id=16
+ *   
  */
 
 public class CommandManager {
@@ -366,9 +371,9 @@ public class CommandManager {
 		
 	}
 	
-	private void cmdTemp (Player pPlayer, String[] args) {
-		
-	}
+//	private void cmdTemp (Player pPlayer, String[] args) {
+//		
+//	}
 	
 	
 	
@@ -672,7 +677,7 @@ public class CommandManager {
 
 			} else if (args[0].equalsIgnoreCase("list")) {
 				// Command  list Classes
-				cmdList(pPlayer, args);
+				cmdList(pPlayer, args);  // Krglok id=14
 				return true;
 			}
 
@@ -918,7 +923,7 @@ public class CommandManager {
 			 * *color*
 			 */
 
-			if (args.length != 9) {
+			if (args.length != 6) {		///krglok id=16
 				plugin.msg(
 						pPlayer,
 						"Wrong number of arguments ("

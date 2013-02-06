@@ -36,6 +36,9 @@ import net.slipcor.classranks.register.payment.Method;
  * @version v0.3.1
  * 
  * @author slipcor
+ * 
+ * issues
+ * id=15
  */
 
 public class ClassRanks extends JavaPlugin {
@@ -115,10 +118,12 @@ public class ClassRanks extends JavaPlugin {
 	 * (re)load the config
 	 */
 	public void load_config() {
-		String debugVersion = "0320";
-
-		if (getConfig() == null
-				|| !getConfig().getString("cversion").equals(debugVersion)) {
+		// default value for config check !!!
+		String debugVersion = "0320";   // Krgok id=15
+		// check for new config should be made
+		if (getConfig() == null ) {
+				//|| !getConfig().getString("cversion").equals(debugVersion)  //krglok id=15 not necessary
+				
 			log("creating default config.yml", Level.INFO);
 			getConfig().set("cversion", debugVersion);
 			getConfig().options().copyDefaults(true);
@@ -306,7 +311,7 @@ public class ClassRanks extends JavaPlugin {
 			}
 		}
 		setClasses(classRanks);
-
+		getConfig().set("cversion", debugVersion); // set new config version
 		saveConfig();
 	}
 
