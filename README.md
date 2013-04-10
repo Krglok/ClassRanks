@@ -6,7 +6,7 @@ Manage Permission groups and add ranking!
 CHANGELOG 
 
 * v0.4
-* 
+
 ** 0.4.5 - fix classadmin add, new command /class config / fix error in command description
 
 ** 0.4.4.4 - fix issue reload, class list, classadmin add
