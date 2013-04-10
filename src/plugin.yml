@@ -28,9 +28,7 @@ commands:
         description: Administrate the classes
         
         usage: |
-           add class and first rank
            /classadmin add class [classname] [permname] [displayname] [color] [item|0] [cost] [exp]
-           add rank for class 
            /classadmin add rank  [classname] [permname] [displayname] [color] [item|0] [cost] [exp]
            /classadmin change class [classname] [newname]
            /classadmin change rank  [classname] [rankname] [displayname] [color]

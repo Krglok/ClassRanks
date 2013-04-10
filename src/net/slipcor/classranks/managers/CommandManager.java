@@ -17,9 +17,9 @@ import org.bukkit.inventory.ItemStack;
 /**
  * command manager class
  * 
- * @version v0.4.3
+ * @version v0.4.5
  * 
- * @author slipcor
+ * @author Krglok
  */
 
 public class CommandManager {
