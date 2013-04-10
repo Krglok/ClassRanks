@@ -12,7 +12,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 /**
- * class manager class
+ * class manager class 
+ * - Array of Classes
  * 
  * @version v0.4.4.2
  * 
@@ -25,7 +26,7 @@ public class ClassManager {
 	private static DebugManager db;
 	
 	public ClassManager(ClassRanks cr) {
-		plugin = cr;
+		ClassManager.plugin = cr;
 		db = new DebugManager(cr);
 	}
 	
@@ -47,8 +48,9 @@ public class ClassManager {
 	public static String getFirstPermNameByClassName(String cString, String sPlayer) {
 		// extended version: get rank
 		for (Class c : classes) {
-			if (c.name.equals(cString))
+			if (c.name.equals(cString)) {
 				return c.ranks.get(ClassManager.loadClassProcess(Bukkit.getPlayer(sPlayer), c)).getPermName();
+			}
 		}
 		return null;
 	}
@@ -116,7 +118,7 @@ public class ClassManager {
 		if (cClass != null) {
 			classes.remove(cClass);
 			plugin.msg(pPlayer, "Class removed: " + sClassName);
-			plugin.save_config();
+			plugin.config.save_config();
 			return true;
 		}
 		plugin.msg(pPlayer, "Class not found: " + sClassName);
@@ -131,7 +133,7 @@ public class ClassManager {
 				ChatColor cColor = rank.getColor();
 				cClass.ranks.remove(rank);
 				plugin.msg(pPlayer, "Rank removed: " + cColor + sPermName);
-				plugin.save_config();
+				plugin.config.save_config();
 				return true;
 			}
 			plugin.msg(pPlayer, "Rank not found: " + sPermName);
@@ -144,7 +146,8 @@ public class ClassManager {
 
 	public static boolean configClassAdd(String sClassName, String sPermName, String sDispName, String sColor, ItemStack[] isItems, double dCost, int iExp, Player pPlayer) {
 		Class cClass = getClassbyClassName(sClassName);
-		if (cClass == null) {
+		if (cClass == null) 
+		{
 			Class c = new Class(sClassName);
 			c.add(sPermName, sDispName, (FormatManager.formatColor(sColor)), isItems, dCost, iExp);
 			classes.add(c);
@@ -152,14 +155,14 @@ public class ClassManager {
 				db.i("Class added: " + sClassName);
 			else
 				plugin.msg(pPlayer, "Class added: " + sClassName);
-			plugin.save_config();
+			plugin.config.save_config();
 			return true;
 			
 		}
 		if (pPlayer == null)
 			db.i("Class already exists: " + sClassName);
 		else
-			plugin.msg(pPlayer, "Class already exists: " + sClassName);
+			plugin.msg(pPlayer, "Class already exists for " + pPlayer);
 		return true;
 	}
 
@@ -168,10 +171,14 @@ public class ClassManager {
 		if (cClass != null) {
 			cClass.ranks.add(new Rank(sPermName, sDispName, (FormatManager.formatColor(sColor)), cClass, isItems, dCost, iExp));
 			if (pPlayer == null)
+			{
 				db.i("Rank added: " + (FormatManager.formatColor(sColor)) + sPermName);
-			else
-				plugin.msg(pPlayer, "Rank added: " + (FormatManager.formatColor(sColor)) + sPermName);
-			plugin.save_config();
+				plugin.config.save_config();
+			} else
+			{
+				plugin.msg(pPlayer, "Rank added: " + (FormatManager.formatColor(sColor)) + sPermName +"/"+pPlayer);
+			    plugin.config.save_config();
+			}
 			return true;
 		}
 		if (pPlayer == null)
@@ -186,7 +193,7 @@ public class ClassManager {
 		if (cClass != null) {
 			cClass.name = sClassNewName;
 			plugin.msg(pPlayer, "Class changed: " + sClassName + " => " + sClassNewName);
-			plugin.save_config();
+			plugin.config.save_config();
 			return true;
 		}
 		plugin.msg(pPlayer, "Class not found: " + sClassName);
@@ -201,7 +208,7 @@ public class ClassManager {
 				rank.setDispName(sDispName);
 				rank.setColor((FormatManager.formatColor(sColor)));
 				plugin.msg(pPlayer, "Rank updated: " + (FormatManager.formatColor(sColor)) + sPermName);
-				plugin.save_config();
+				plugin.config.save_config();
 				return true;
 			}
 			plugin.msg(pPlayer, "Rank not found: " + sPermName);

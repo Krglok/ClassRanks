@@ -16,6 +16,8 @@ import org.bukkit.inventory.ItemStack;
 
 /*
  * Player manager class
+ * - handles the cooldown , cooldown stored in yml
+ * - handles Inventory of player and Items
  * 
  * v0.2.0 - mayor rewrite; no SQL; multiPermissions
  * 
@@ -31,7 +33,7 @@ import org.bukkit.inventory.ItemStack;
 public class PlayerManager {
 	private final ClassRanks plugin;
 	private static DebugManager db;
-	public static int coolDown;
+//	public static int coolDown;
 	
 	public PlayerManager(ClassRanks plugin) {
 		this.plugin = plugin;
@@ -93,18 +95,18 @@ public class PlayerManager {
 	}
 
 	int coolDownCheck(Player comP) {
-		if ((comP.isOp()) || (coolDown == 0)) {
+		if ((comP.isOp()) || (plugin.config.getCoolDown() == 0)) {
 			return 0; // if we do not want/need to calculate the cooldown, get out of here!
 		}
 
 		db.i("calculating cooldown");
 		
 		File fConfig = new File(plugin.getDataFolder(),"cooldowns.yml");
-		YamlConfiguration config = new YamlConfiguration();
+		YamlConfiguration configCool = new YamlConfiguration();
         
         if(fConfig.isFile()){
         	try {
-				config.load(fConfig);
+        		configCool.load(fConfig);
 			} catch (FileNotFoundException e) {
 				plugin.log("File not found!", Level.SEVERE);
 				e.printStackTrace();
@@ -119,17 +121,17 @@ public class PlayerManager {
         } else {
         	Map<String, Object> cdx = new HashMap<String, Object>();
         	cdx.put("slipcor", 0);
-        	config.addDefault("cooldown", cdx);
+        	configCool.addDefault("cooldown", cdx);
         }
         
-        Map<String, Object> cds = (Map<String, Object>) config.getConfigurationSection("cooldown").getValues(true);
+        Map<String, Object> cds = (Map<String, Object>) configCool.getConfigurationSection("cooldown").getValues(true);
         int now = Math.round((System.currentTimeMillis() % (60*60*24*1000)) /1000);
 
         if (cds.containsKey(comP.getName())) {
     		db.i("player cooldown found!");
         	// Subtract the seconds waited from the needed seconds
-        	int cd = coolDown - (now - (Integer) cds.get(comP.getName()));
-        	if ((cd <= coolDown) && (cd > 0)) {
+        	int cd = plugin.config.getCoolDown() - (now - (Integer) cds.get(comP.getName()));
+        	if ((cd <= plugin.config.getCoolDown()) && (cd > 0)) {
         		db.i("cooldown still is: "+cd);
         		return cd; // we still have to wait, return how many seconds
         	}
@@ -140,9 +142,9 @@ public class PlayerManager {
     	cds.put(comP.getName(), now);
 		db.i("value set");
     	
-        config.set("cooldown", cds);
+		configCool.set("cooldown", cds);
 		try {
-			config.save(fConfig);
+			configCool.save(fConfig);
 		} catch (IOException e) {
 			plugin.log("IO Exception!", Level.SEVERE);
 			e.printStackTrace();

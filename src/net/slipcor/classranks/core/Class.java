@@ -7,6 +7,8 @@ import org.bukkit.inventory.ItemStack;
 
 /**
  * class class
+ * - ClassName
+ * - Array of Ranks
  * 
  * @version v0.3.0 
  * 

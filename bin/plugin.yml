@@ -1,9 +1,9 @@
 name: ClassRanks
 main: net.slipcor.classranks.ClassRanks
-version: 0.4.4.4
+version: 0.4.5
 author: slipcor
 website: http://dev.bukkit.org/server-mods/classranks/
-soft-depends: [Vault]
+soft-depends: [bPermissions,iConomy,BOSEconomy,MultiCurrency,Essentials,PermissionsEx,Vault]
 commands:
     class:
         description: Lets users choose a class / change classes
@@ -15,6 +15,7 @@ commands:
            /class [rankup/rankdown] | Rank yourself up/down
            /class get [username] {world} | Get the active rank of a user
            /class list {classname} | list of class or class / rank
+           /class config | list configuration
     rankdown:
         description: Rank down yourself or others
         usage: |
@@ -25,9 +26,12 @@ commands:
            /rankup [username] | Rank up yourself or username 
     classadmin:
         description: Administrate the classes
+        
         usage: |
-           /classadmin add class [classname] [permname] [displayname] [color]
-           /classadmin add rank  [classname] [permname] [displayname] [color]
+           add class and first rank
+           /classadmin add class [classname] [permname] [displayname] [color] [item|0] [cost] [exp]
+           add rank for class 
+           /classadmin add rank  [classname] [permname] [displayname] [color] [item|0] [cost] [exp]
            /classadmin change class [classname] [newname]
            /classadmin change rank  [classname] [rankname] [displayname] [color]
            /classadmin remove class [classname]

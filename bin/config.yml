@@ -95,7 +95,8 @@ players:
     Notch:
         Fighter: Warrior
 
-#------------------#
-# Config debugging #
-#------------------#
-cversion: '0310'
+#------------------------#
+# Config debugging       #
+# dont change the number #
+#------------------------#
+cversion: '0300'

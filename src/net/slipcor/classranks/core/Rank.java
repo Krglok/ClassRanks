@@ -7,12 +7,12 @@ import org.bukkit.inventory.ItemStack;
 
 /**
  * rank class
+ * - rank parameter 
  * 
  * @version v0.3.0 
  * 
  * @author slipcor
  */
-
 public class Rank {
 	String sPermissionName;
 	String sDisplayName;

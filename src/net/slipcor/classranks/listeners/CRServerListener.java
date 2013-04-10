@@ -63,7 +63,7 @@ public class CRServerListener implements Listener {
 
 		db.i("right block click!");
 		// we clicked a block
-		if (cmdMgr.signCheck[0] == null) {
+		if (plugin.config.isSigncheck() == null) {
 			return; // no sign usage => OUT
 		}
 		db.i("we want to check for sign usage!");
@@ -76,19 +76,19 @@ public class CRServerListener implements Listener {
 		// we clicked a sign!
 		Sign s = (Sign) bBlock.getState();
 
-		if (s.getLine(0).equals(cmdMgr.signCheck[0])) {
+		if (s.getLine(0).equals(plugin.config.getSigns()[0])) {
     		db.i("parsing command " + s.getLine(1));
 			String[] sArgs = {s.getLine(1)}; // parse the command!
 			cmdMgr.parseCommand(event.getPlayer(), sArgs);
 		} else {
     		db.i("searching for rank commands");
 			for (int i = 0 ; i <= 3; i++) {
-				if (s.getLine(i).equals(cmdMgr.signCheck[1])) {
+				if (s.getLine(i).equals(plugin.config.getSigns()[1])) {
 		    		db.i("rankup found, parsing...");
 					String[] sArgs = {"rankup"};
 					cmdMgr.parseCommand(event.getPlayer(), sArgs);
 					return;
-				} else if (s.getLine(i).equals(cmdMgr.signCheck[2])) {
+				} else if (s.getLine(i).equals(plugin.config.getSigns()[2])) {
 		    		db.i("rankup found, parsing");
 					String[] sArgs = {"rankdown"};
 					cmdMgr.parseCommand(event.getPlayer(), sArgs);
