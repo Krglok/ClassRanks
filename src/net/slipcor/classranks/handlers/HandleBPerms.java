@@ -206,4 +206,10 @@ public class HandleBPerms extends CRHandler {
 					group);
 		}
 	}
+
+	@Override
+	public  String[] getPlayerGroups(String player)
+	{
+		return  null;
+	}
 }

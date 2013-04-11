@@ -66,91 +66,106 @@ public class HandleVaultPerms extends CRHandler {
 
 	/*
 	 * Add a user to a given class in the given world
+	 * diese funktion ist wahrscheinlich unnötig !!
 	 */
 	@Override
-	public void classAdd(String world, String player, String cString) {
+	public void classAdd(String world, String player, String cString) 
+	{
 		
 		player = PlayerManager.search(player); // auto-complete playername
 
-		if (world.equalsIgnoreCase("all")) {
+		if (world.equalsIgnoreCase("all")) 
+		{
 			classAddGlobal(player, cString);
 			return;
 		}
-		try {
+		try 
+		{
 			permission.playerAddGroup(world, player, cString);
-			db.i("added group " + cString + " to player " + player
-					+ " in world " + world);
-		} catch (Exception e) {
-			plugin.log("PermName " + cString + " or user " + player
-					+ " not found in world " + world, Level.WARNING);
+			db.i("added group " + cString + " to player " + player+ " in world " + world);
+		} catch (Exception e) 
+		{
+			plugin.log("Exception Add Class " + cString + " or user " + player	+ " not found in world " + world, Level.WARNING);
 		}
 	}
 
 	/*
 	 * Add a user to a given rank in the given world
+	 * if world = all then rank added without world
+	 * stores player Rank also in the config
 	 */
 	@Override
-	public void rankAdd(String world, String player, String rank) {
+	public void rankAdd(String world, String player, String rank) 
+	{
 		player = PlayerManager.search(player); // auto-complete playername
 		if (world.equalsIgnoreCase("all")) 
 		{
 			rankAddGlobal(player, rank);
 			return;
 		}
-		String cString = ClassManager.getClassNameByPermName(rank);
-		plugin.getConfig().set("players." + player + "." + cString, rank);
-		plugin.getConfig().set("worlds." + world + "." + player, rank);
-		plugin.saveConfig();
-		db.i("Vault PermName " + rank + ": user " + player + " set " + world);
 
 		try 
 		{
 			if (permission.playerAddGroup(world, player, rank))//(permission.playerAddGroup(world, player, rank)) 
 			{
 				db.i("Vault added rank " + rank + " to player " + player	+ " in world " + world);
+				String cString = ClassManager.getClassNameByPermName(rank);
+				plugin.getConfig().set("players." + player + "." + cString, rank);
+				plugin.getConfig().set("worlds." + world + "." + player, rank);
+				plugin.saveConfig();
+				db.i("Vault PermName " + rank + ": user " + player + " set " + world);
+
 			} else {
 				db.i("ERROR Vault added rank " + rank + " to player " + player	+ " in world " + world);
 			}
 		} catch (Exception e) {
-			plugin.log("Vault Exception added rank " + rank + " or user " + player + " not found in world " + world, Level.WARNING);
+			plugin.log("Exception added rank " + rank + " or user " + player + " not found in world " + world, Level.WARNING);
 		}
 	}
 
 	/*
-	 * Remove a user from the class he has in the given world
+	 * Remove a user from the Rank he has in the given world
+	 * if world = all then rank added without world
+	 * Remove player Rank also in the config
 	 */
 	@Override
 	public void rankRemove(String world, String player, String cString) {
 		player = PlayerManager.search(player); // auto-complete playername
 
-		if (world.equalsIgnoreCase("all")) {
+		if (world.equalsIgnoreCase("all")) 
+		{
 			rankRemoveGlobal(player, cString);
 			return;
 		}
-		plugin.getConfig().set("players." + player, null);
-		plugin.getConfig().set("worlds." + world + "." + player, null);
-		plugin.saveConfig();
 
 		try {
-			permission.playerRemoveGroup(world, player, cString);
-			db.i("removed rank " + cString + " from player " + player
-					+ " in world " + world);
+			if (permission.playerRemoveGroup(world, player, cString))
+			{
+				db.i("removed rank " + cString + " from player " + player+ " in world " + world);
+				plugin.getConfig().set("players." + player, null);
+				plugin.getConfig().set("worlds." + world + "." + player, null);
+				plugin.saveConfig();
+			} else
+			{
+				
+			}
 		} catch (Exception e) {
-			plugin.log("PermName " + cString + " or user " + player
-					+ " not found in world " + world, Level.WARNING);
+			plugin.log("Exception Remove Rank " + cString + " or user " + player+ " not found in world " + world, Level.WARNING);
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see net.slipcor.classranks.handlers.CRHandler#getPermNameByPlayer(java.lang.String, java.lang.String)
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public String getPermNameByPlayer(String world, String player) {
-//		ArrayList<String> permGroups = new ArrayList<String>();
 		Map<String, Object> groups = null;
-		
         String cPerm = "";
         
 		if ((world == "") || (world == "all") ) {
-			try {
+			try 
+			{
 				groups = plugin.getConfig().getConfigurationSection("players." + player).getValues(true);
 			} catch (Exception e) {
 				db.i("Exception GetPermByPlayer : GetConfigurationSection");
@@ -188,35 +203,51 @@ public class HandleVaultPerms extends CRHandler {
 	}
 
 	@Override
-	public void classAddGlobal(String player, String cString) {
+	public void classAddGlobal(String player, String cString) 
+	{
 		player = PlayerManager.search(player); // auto-complete playername
-		try {
-			permission.playerAddGroup(Bukkit.getPlayer(player), cString);
-			db.i("added rank " + cString + " to player " + player);
+		String world = null;
+		try 
+		{
+			if (permission.playerAddGroup(world,player, cString)==false)
+			{
+				plugin.log("ERROR ADD PermName " + cString + " or user " + player + " ", Level.SEVERE);
+				
+			} else
+			{
+				plugin.log("Vault Global PermName " + cString + ": user " + player , Level.INFO);
+				db.i("Global added rank " + cString + " to player " + player);
+			}
 		} catch (Exception e) {
-			plugin.log("PermName " + cString + " or user " + player
-					+ " not found", Level.WARNING);
+			plugin.log("Exception Add Class Global " + cString + " or user " + player, Level.SEVERE);
 		}
 	}
 
 	@Override
 	public void rankAddGlobal(String player, String rank) 
 	{
+		plugin.log("ADD PermName " + rank + " or user " + player + " ", Level.INFO);
 		player = PlayerManager.search(player); // auto-complete playername
 		String cString = ClassManager.getClassNameByPermName(rank);
+		String world = null;
 		try 
 		{
-			permission.playerAddGroup(Bukkit.getPlayer(player), rank);
-			plugin.log("Vault Global PermName " + rank + ": user " + player , Level.INFO);
-			db.i("Global added rank " + rank + " to player " + player);
-
-			plugin.getConfig().set("players." + player + "." + cString, rank);
-			db.i("Vault added rank " + rank + " to player " + player + ", no world support");
-			plugin.saveConfig();
+			if (permission.playerAddGroup(world,player, rank)==false)
+			{
+				plugin.log("ERROR ADD PermName " + rank + " or user " + player + " ", Level.SEVERE);
+				
+			} else
+			{
+				plugin.log("Vault Global PermName " + rank + ": user " + player , Level.INFO);
+				db.i("Global added rank " + rank + " to player " + player);
+	
+				plugin.getConfig().set("players." + player + "." + cString, rank);
+				db.i("Vault added rank " + rank + " to player " + player + ", no world support");
+				plugin.saveConfig();
+			}
 		} catch (Exception e) 
 		{
-			plugin.log("PermName " + rank + " or user " + player
-					+ " not found", Level.WARNING);
+			plugin.log("Exception ADD GLOBAL RANK " + rank + " or user " + player, Level.SEVERE);
 		}
 	}
 
@@ -226,25 +257,28 @@ public class HandleVaultPerms extends CRHandler {
 		player = PlayerManager.search(player); // auto-complete playername
 		plugin.getConfig().set("players." + player, null);
 		plugin.saveConfig();
-	
-		try {
-			permission.playerRemoveGroup(Bukkit.getPlayer(player), cString);
+	    String world = null;
+		try 
+		{
+			permission.playerRemoveGroup(world,player, cString);
 			db.i("removed rank " + cString + " from player " + player);
 		} catch (Exception e) {
-			plugin.log("PermName " + cString + " or user " + player
-					+ " not found ", Level.WARNING);
+			plugin.log("Exception Remove Group Global" + cString + " or user " + player+ " not found ", Level.SEVERE);
 		}
 	}
 
 	@Override
-	public String getPermNameByPlayerGlobal(String player) {
+	public String getPermNameByPlayerGlobal(String player) 
+	{
 		player = PlayerManager.search(player); // auto-complete playername
 		ArrayList<String> permGroups = new ArrayList<String>();
 		
 		String[] list = permission.getPlayerGroups(Bukkit.getPlayer(player));
-		for (String sRank : list) {
+		for (String sRank : list) 
+		{
 			db.i("checking rank "+sRank);
-			if (ClassManager.rankExists(sRank)) {
+			if (ClassManager.rankExists(sRank)) 
+			{
 				permGroups.add(sRank);
 			}
 		}
@@ -252,8 +286,13 @@ public class HandleVaultPerms extends CRHandler {
 		return ClassManager.getLastPermNameByPermGroups(permGroups);
 	}
 
+	/**
+	 * This function remove ALL groups from the player 
+	 * 
+	 */
 	@Override
-	public void removeGroups(Player player) {
+	public void removeGroups(Player player) 
+	{
 		String[] list = permission.getPlayerGroups(player);
 		if (list != null) {
 			for (String sRank : list) {
@@ -262,5 +301,12 @@ public class HandleVaultPerms extends CRHandler {
 			}
 			plugin.saveConfig();
 		}
+	}
+
+	@Override
+	public  String[] getPlayerGroups(String player)
+	{
+		String world = null;
+		return  permission.getPlayerGroups(world,player);
 	}
 }

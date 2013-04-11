@@ -336,24 +336,23 @@ public class CommandManager {
 		} else {
 			world = "all";
 		}
-		if (args.length == 1) {
-			args[1] = pPlayer.getName();
+		String player = pPlayer.getName(); 
+		if (args.length > 1) {
+			player = args[1];
 		}
-		
-		args[1] = PlayerManager.search(args[1]);
 
-		plugin.msg(pPlayer, "Player " + fm.formatPlayer(args[1])+ " Get in " + fm.formatWorld(world) + "!");
-		Rank rank = ClassManager.getRankByPermName(plugin.perms.getPermNameByPlayer(world, args[1]));
+		plugin.msg(pPlayer, "Player " + fm.formatPlayer(player)+ " Get in " + fm.formatWorld(world) + "!");
+		Rank rank = ClassManager.getRankByPermName(plugin.perms.getPermNameByPlayer(world, player));
 
 		if (rank == null) {
-			plugin.msg(pPlayer, "Player " + fm.formatPlayer(args[1])
+			plugin.msg(pPlayer, "Player " + player
 					+ " has no class in " + fm.formatWorld(world) + "!");
 		} else {
 
 			String cDispName = rank.getDispName(); // Display rank name
 			ChatColor c_Color = rank.getColor(); // Rank color
 
-			plugin.msg(pPlayer, "Player " + fm.formatPlayer(args[1])
+			plugin.msg(pPlayer, "Player " + player
 					+ " is " + c_Color + cDispName + ChatColor.WHITE
 					+ " in " + fm.formatWorld(world) + "!");
 		}
@@ -364,11 +363,15 @@ public class CommandManager {
 	{
 		plugin.msg(pPlayer, ChatColor.YELLOW+"Class Config Data");
 		plugin.msg(pPlayer, ChatColor.YELLOW+"--------------------");
-		plugin.msg(pPlayer, ChatColor.GREEN+"Debug  : "+plugin.config.isDebug().toString());
-		plugin.msg(pPlayer, ChatColor.GREEN+"Prices : "+plugin.config.isCheckprices().toString());
-		plugin.msg(pPlayer, ChatColor.GREEN+"Items  : "+plugin.config.isCheckitems().toString());
-		plugin.msg(pPlayer, ChatColor.GREEN+"Exp     : "+plugin.config.isCheckexp().toString());
+		plugin.msg(pPlayer, ChatColor.RED+"Debug  : "+plugin.config.isDebug().toString());
+		plugin.msg(pPlayer, ChatColor.YELLOW+"Prices : "+plugin.config.isCheckprices().toString());
+		plugin.msg(pPlayer, ChatColor.YELLOW+"Items  : "+plugin.config.isCheckitems().toString());
+		plugin.msg(pPlayer, ChatColor.YELLOW+"Exp     : "+plugin.config.isCheckexp().toString());
+		plugin.msg(pPlayer, ChatColor.YELLOW+"CoolDown: "+plugin.config.getCoolDown());
 		plugin.msg(pPlayer, ChatColor.GREEN+"OneClass: "+plugin.config.isOnlyoneclass().toString());
+		plugin.msg(pPlayer, ChatColor.GREEN+"AllWorlds: "+plugin.config.isDefaultrankallworlds().toString());
+		plugin.msg(pPlayer, ChatColor.GREEN+"SignCheck: "+plugin.config.isSigncheck().toString());
+		plugin.msg(pPlayer, ChatColor.GREEN+"TrackRank: "+plugin.config.isTrackRanks().toString());
 		plugin.msg(pPlayer, ChatColor.YELLOW+"--------------------");
 		
 		Double[] MoneyCost = plugin.config.getMoneyCost();
@@ -378,6 +381,30 @@ public class CommandManager {
 			plugin.msg(pPlayer, ChatColor.YELLOW+": "+MoneyCost[i].toString());
 		}
 	}
+	
+	private void cmdUserGroups (Player pPlayer, String[] args)
+	{
+		String player = pPlayer.getName();
+		// is there a player parameter, get it
+		if (args.length > 1)
+		{
+			player = args[1];
+		}
+		String[] list = plugin.perms.getPlayerGroups(player);
+		if (list != null) 
+		{
+			int max = list.length;
+			plugin.msg(pPlayer, ChatColor.YELLOW+"User Groups "+ChatColor.DARK_GREEN+player);
+			plugin.msg(pPlayer, ChatColor.YELLOW+"--------------------");
+			for (int i = 0; i < list.length; i++) 
+			{
+				plugin.msg(pPlayer, ChatColor.YELLOW+": "+list[i]);
+			}
+			plugin.msg(pPlayer, ChatColor.YELLOW+"Count "+max+" ---------");
+		}
+		
+	}
+	
 //	private void cmdTemp (Player pPlayer, String[] args) {
 //		
 //	}
@@ -405,6 +432,15 @@ public class CommandManager {
 				cmdGet(pPlayer, args);
 				return true;
 			}
+			
+			if (args[0].equalsIgnoreCase("groups")) {
+				// Command list of Ranks in the Class  3.2
+				plugin.msg(pPlayer,"groups "+args[1]);
+				
+				cmdUserGroups(pPlayer, args);
+				return true;
+			}
+
 			// more than /class <classname> or /class rankup
 			if (!plugin.perms.hasPerms(pPlayer, "classranks.admin.rank",
 					pPlayer.getWorld().getName())) {
@@ -611,6 +647,10 @@ public class CommandManager {
 				return true;
 			}
 		}
+		
+		//---------------------------------------------------------------------------
+		// Simple Commands
+		//
 		if (args.length > 0) 
 		{
 			// only ONE argument!
@@ -620,6 +660,18 @@ public class CommandManager {
 				return true;
 			}
 
+			if (args[0].equalsIgnoreCase("get")) {
+				// Command Get   3.2
+				cmdGet(pPlayer, args);
+				return true;
+			}
+
+			if (args[0].equalsIgnoreCase("groups")) {
+				// Command list of Ranks in the Class  3.2
+				cmdUserGroups(pPlayer, args);
+				return true;
+			}
+			
 			if (args[0].equalsIgnoreCase("reload")) {
 				// Command reload 
 				if (pPlayer.isOp()) {
@@ -899,8 +951,7 @@ public class CommandManager {
 			}
 			return true;
 		}
-		plugin.msg(pPlayer,
-				"Not enough arguments (" + String.valueOf(args.length) + ")!");
+		plugin.msg(pPlayer,ChatColor.YELLOW+"Not enough arguments !");
 		return false;
 	}
 

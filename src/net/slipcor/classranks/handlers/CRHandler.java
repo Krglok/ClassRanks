@@ -23,4 +23,5 @@ public abstract class CRHandler {
 	public abstract String getPermNameByPlayer(String world, String player);
 	public abstract String getPermNameByPlayerGlobal(String player);
 	public abstract void removeGroups(Player player);
+	public abstract String[] getPlayerGroups(String player);
 }

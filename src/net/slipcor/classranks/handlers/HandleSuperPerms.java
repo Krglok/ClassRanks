@@ -146,4 +146,10 @@ public class HandleSuperPerms extends CRHandler {
 		plugin.getConfig().set("players."+player.getName(), null);
 		plugin.saveConfig();
 	}
+
+	@Override
+	public  String[] getPlayerGroups(String player)
+	{
+		return  null;
+	}
 }

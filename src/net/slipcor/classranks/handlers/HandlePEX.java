@@ -210,4 +210,10 @@ public class HandlePEX extends CRHandler {
 			permissionHandler.getUser(player).removeGroup(group);
 		}
 	}
+
+	@Override
+	public  String[] getPlayerGroups(String player)
+	{
+		return  null;
+	}
 }

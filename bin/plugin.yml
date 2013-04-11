@@ -11,11 +11,12 @@ commands:
            /class [classname] | Choose the class [classname] for yourself
            /class [add] {username} {classname} {world} | Add user to a class
            /class [remove] {username} {world} | Remove user from a class
-           /class [rankup/rankdown] [username] {world} | Rank user up/down 
-           /class [rankup/rankdown] | Rank yourself up/down
-           /class get [username] {world} | Get the active rank of a user
-           /class list {classname} | list of class or class / rank
-           /class config | list configuration
+           /class [rankup] {username} {world} | Rank user up
+           /class [rankdown]  {username} {world} | Rank user down
+           /class [get] {username} {world} | Show rank of user
+           /class [list] {classname} | list of class/ranks
+           /class [config] | list the configuration
+           /class [groups] {username} | list the groups of user
     rankdown:
         description: Rank down yourself or others
         usage: |
