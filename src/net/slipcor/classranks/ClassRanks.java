@@ -70,11 +70,18 @@ public class ClassRanks extends JavaPlugin {
 		// load Vault 
 		if (pm.getPlugin("Vault") != null) {
 			db.i("Vault found!");
-			if (getConfig().getBoolean("vaultpermissions")) {
+			if (getConfig().getBoolean("vaultpermissions")) 
+			{
 				this.perms = new HandleVaultPerms(this);
 			    log("ClassRank  Vault permissions plugin found", Level.INFO); // success!
-			    this.perms.setupPermissions();			}
-			if (getConfig().getBoolean("vaulteconomy")) {
+			    
+			    if (this.perms.setupPermissions() == false)
+			    {
+				    log("ClassRank  Vault permissions NOT initialized", Level.SEVERE); // success!
+			    }
+			}
+			if (getConfig().getBoolean("vaulteconomy")) 
+			{
 				setupEconomy();
 			}
 		}

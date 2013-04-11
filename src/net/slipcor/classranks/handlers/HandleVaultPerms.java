@@ -41,14 +41,18 @@ public class HandleVaultPerms extends CRHandler {
 	 * Function that tries to setup the permissions system, returns result
 	 */
 	@Override
-	public boolean setupPermissions() {
+	public boolean setupPermissions() 
+	{
 		// try to load permissions, return result
 		RegisteredServiceProvider<Permission> permissionProvider = Bukkit.getServicesManager().getRegistration(net.milkbowl.vault.permission.Permission.class);
-        if (permissionProvider != null) {
-        	try {
+        if (permissionProvider != null) 
+        {
+        	try 
+        	{
                 permission = permissionProvider.getProvider();
                 getPermNameByPlayer(Bukkit.getWorlds().get(0).getName(), "slipcor");
-        	} catch (Exception e) {
+        	} catch (Exception e) 
+        	{
         		permission = null;
         	}
         }
@@ -88,7 +92,8 @@ public class HandleVaultPerms extends CRHandler {
 	@Override
 	public void rankAdd(String world, String player, String rank) {
 		player = PlayerManager.search(player); // auto-complete playername
-		if (world.equalsIgnoreCase("all")) {
+		if (world.equalsIgnoreCase("all")) 
+		{
 			rankAddGlobal(player, rank);
 			return;
 		}
@@ -98,8 +103,10 @@ public class HandleVaultPerms extends CRHandler {
 		plugin.saveConfig();
 		db.i("Vault PermName " + rank + ": user " + player + " set " + world);
 
-		try {
-			if (permission.playerAddGroup(world, player, rank)) {
+		try 
+		{
+			if (permission.playerAddGroup(world, player, rank))//(permission.playerAddGroup(world, player, rank)) 
+			{
 				db.i("Vault added rank " + rank + " to player " + player	+ " in world " + world);
 			} else {
 				db.i("ERROR Vault added rank " + rank + " to player " + player	+ " in world " + world);
@@ -193,17 +200,21 @@ public class HandleVaultPerms extends CRHandler {
 	}
 
 	@Override
-	public void rankAddGlobal(String player, String rank) {
+	public void rankAddGlobal(String player, String rank) 
+	{
 		player = PlayerManager.search(player); // auto-complete playername
 		String cString = ClassManager.getClassNameByPermName(rank);
-		plugin.getConfig().set("players." + player + "." + cString, rank);
-		db.i("Vault added rank " + rank + " to player " + player + ", no world support");
-		plugin.saveConfig();
-		try {
+		try 
+		{
 			permission.playerAddGroup(Bukkit.getPlayer(player), rank);
-			plugin.log("Vault PermName " + rank + ": user " + player , Level.INFO);
-			db.i("added rank " + rank + " to player " + player);
-		} catch (Exception e) {
+			plugin.log("Vault Global PermName " + rank + ": user " + player , Level.INFO);
+			db.i("Global added rank " + rank + " to player " + player);
+
+			plugin.getConfig().set("players." + player + "." + cString, rank);
+			db.i("Vault added rank " + rank + " to player " + player + ", no world support");
+			plugin.saveConfig();
+		} catch (Exception e) 
+		{
 			plugin.log("PermName " + rank + " or user " + player
 					+ " not found", Level.WARNING);
 		}
