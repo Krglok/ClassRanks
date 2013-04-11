@@ -63,7 +63,8 @@ public class CRServerListener implements Listener {
 
 		db.i("right block click!");
 		// we clicked a block
-		if (plugin.config.isSigncheck() == null) {
+		if ((plugin.config.isSigncheck() == false) || (plugin.config.isSigncheck() == null)) 
+		{
 			return; // no sign usage => OUT
 		}
 		db.i("we want to check for sign usage!");
