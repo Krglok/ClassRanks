@@ -15,6 +15,10 @@ import net.slipcor.classranks.core.Rank;
  * this Class read the config and make it persistaned
  * each config node  will be stored here.
  * 
+ * @version v0.4.6
+ * 
+ * @author krglog
+ * 
  */
 public class ConfigManager {
 	public ClassRanks plugin;
@@ -28,7 +32,12 @@ public class ConfigManager {
 //	private void setClasses(Map<String, Object> classes) {
 //		this.classRanks = classes;
 //	}
-
+	private Boolean AutoUpdate;
+	
+	public Boolean isAutoUpdate() {
+		return AutoUpdate;
+	}
+	
 	private Map<String, Object> players;
 	
 	public Map<String, Object> getPlayers() {
@@ -199,6 +208,8 @@ public class ConfigManager {
 		}
 //		DebugManager.active = plugin.getConfig().getBoolean("debug", false);
 		debug = plugin.getConfig().getBoolean("debug", false);
+		// Update Config
+		AutoUpdate = plugin.getConfig().getBoolean("autoupdate", false);
 		
 		// check for section is available
 		checkprices = plugin.getConfig().getBoolean("checkprices", false);

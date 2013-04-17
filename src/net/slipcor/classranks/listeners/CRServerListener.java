@@ -26,9 +26,9 @@ import org.bukkit.event.server.PluginEnableEvent;
  * 
  * -
  * 
- * @version v0.4.0
+ * @version v0.4.6
  * 
- * @author slipcor
+ * @author slipcor/krglog
  */
 
 public class CRServerListener implements Listener {
@@ -128,5 +128,6 @@ public class CRServerListener implements Listener {
                 plugin.log("<3 " + plugin.method.getName() + " version: " + plugin.method.getVersion(),Level.INFO);
             }
         }
+        // Autoupdate are not used
     }
 }

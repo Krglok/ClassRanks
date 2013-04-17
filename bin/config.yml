@@ -1,6 +1,7 @@
 #------------------#
 # General Settings #
 #------------------#
+autoupdate: true
 rankpublic: true
 trackRanks: false
 defaultrankallworlds: false
