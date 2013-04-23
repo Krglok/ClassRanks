@@ -32,10 +32,16 @@ public class ConfigManager {
 //	private void setClasses(Map<String, Object> classes) {
 //		this.classRanks = classes;
 //	}
-	private Boolean AutoUpdate;
+	private Boolean autoUpdate;
 	
 	public Boolean isAutoUpdate() {
-		return AutoUpdate;
+		return autoUpdate;
+	}
+
+	private Boolean updateCheck;
+	
+	public Boolean isUpdateCheck() {
+		return updateCheck;
 	}
 	
 	private Map<String, Object> players;
@@ -208,8 +214,10 @@ public class ConfigManager {
 		}
 //		DebugManager.active = plugin.getConfig().getBoolean("debug", false);
 		debug = plugin.getConfig().getBoolean("debug", false);
-		// Update Config
-		AutoUpdate = plugin.getConfig().getBoolean("autoupdate", false);
+		// AutoUpdate Config
+		autoUpdate = plugin.getConfig().getBoolean("autoupdate", false);
+		// UpdateCheck Config
+		updateCheck = plugin.getConfig().getBoolean("updatecheck", false);
 		
 		// check for section is available
 		checkprices = plugin.getConfig().getBoolean("checkprices", false);

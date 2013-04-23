@@ -102,11 +102,13 @@ public class ClassRanks extends JavaPlugin {
 			this.perms.setupPermissions();
 		}
 
-
-		Tracker tracker = new Tracker(this);
-		tracker.start();
-		Update.updateCheck(this);
-
+		if(config.isUpdateCheck())
+		{
+		    log(" UpdateCheck", Level.INFO); // success!
+			Tracker tracker = new Tracker(this);
+			tracker.start();
+			Update.updateCheck(this);
+		}
 		log("Version " + this.getDescription().getVersion() + " init ready", Level.INFO);
 	}
 

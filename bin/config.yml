@@ -1,7 +1,10 @@
 #------------------#
 # General Settings #
 #------------------#
-autoupdate: true
+# updatecheck, check for new version and give a message to the server console #
+updatecheck: true
+# autoupdate, is not implemented now and should always false #
+autoupdate: false
 rankpublic: true
 trackRanks: false
 defaultrankallworlds: false
@@ -25,7 +28,9 @@ prefix: ClassRanks
 #----------------#
 playercolor: '&e'
 worldcolor: '&6'
-
+#-------------------#
+# classes and ranks #
+#-------------------#
 classes:
     Fighter:
         Warrior:
@@ -56,8 +61,6 @@ classes:
             name: 'Trader III'
             color: '&2'
             price: 100.00
-
-
 #---------------------#
 # Money Cost Settings #
 #---------------------#
@@ -65,7 +68,6 @@ prices:
     I: '10.00'
     II: '50.00'
     III: '100.00'
-
 #--------------------#
 # Item Cost Settings #
 #--------------------#
@@ -79,7 +81,6 @@ items:
     III:
     - 'DIAMOND:5'
     - 'LAPIS_BLOCK:5'
-
 #-------------------#
 # EXP Cost Settings #
 #-------------------#
@@ -87,17 +88,17 @@ exp:
     I: '10'
     II: '50'
     III: '100'
-
-#---------#
-# Players #
-#---------#
-
+#-----------------------------------------#
+# Players                                 #
+# neede when no permission plugin present #
+#-----------------------------------------#
 players:
     Notch:
         Fighter: Warrior
 
-#------------------------#
-# Config debugging       #
-# dont change the number #
-#------------------------#
+#-------------------------------------------#
+# Config debugging                          #
+# dont change the number                    #
+# will be used to check for new config file #
+#-------------------------------------------#
 cversion: '0300'
