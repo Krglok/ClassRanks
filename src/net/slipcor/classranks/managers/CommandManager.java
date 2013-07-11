@@ -420,6 +420,7 @@ public class CommandManager {
 		return false;
 	}
 	
+	
 	private boolean hasClassRank(String classRank, String playerName, String world)
 	{
 		String sPermName = plugin.perms.getPermNameByPlayer(world, playerName);
@@ -430,18 +431,14 @@ public class CommandManager {
 
 			Rank tempRank = ClassManager.getRankByPermName(sPermName);
 
-			String cDispName = tempRank.getDispName(); // Display rank
-														// name
-			ChatColor c_Color = tempRank.getColor(); // Rank color
-
 			if (classRank == tempRank.getSuperClass().name) 
 			{
 				return true;
 			} 
 			if (++i > 10) {
-				plugin.log("Infinite loop! More than 10 ranks!?",
+	!!			plugin.log("Infinite loop! More than 10 ranks!?",
 						Level.SEVERE);
-				break;
+				return false;
 			}
 			sPermName = plugin.perms.getPermNameByPlayer(world, playerName);
 		}
@@ -495,52 +492,149 @@ public class CommandManager {
 	}
 	
 
-	private boolean cmdAddRank(Player sender, Player player, String[] args, String world)
+	private boolean cmdAddRank(Player sender, Player player, String className, String world)
 	{
 		///  ADD // REMOVE
-		String classRank = args[2];
+		//String classRank = args[2];
 		//  Check for Rank is always given
-		if (hasClassRank(classRank, player.getName(), world))
+		if (hasClassRank(className, player.getName(), world))
 		{
 			plugin.msg(sender,
-							"Player " + fm.formatPlayer(args[1])
-							+ " already has the rank "
-							+ ChatColor.RED + classRank + "!");
+							"Player " + fm.formatPlayer(player.getName())
+							+ " already has the Class "
+							+ ChatColor.RED + className + "!");
 			return true;
 		}
 		
 		// ADD
-		Rank tempRank = ClassManager.getRankByPermName( ClassManager.getFirstPermNameByClassName(args[2]));
+		Rank tempRank = ClassManager.getRankByPermName( ClassManager.getFirstPermNameByClassName(className));
 		
 		//  ClassRank does not exist
 		if (tempRank == null) 
 		{
-			plugin.msg(sender,"The class you entered does not exist!"+args[2]);
+			plugin.msg(sender,"The class you entered does not exist!"+className);
 			return true;
 		}
+
+
+		int rID = 0;	//  Index des Rank
+		// Track Rank 
+		if (plugin.trackRanks) 
+		{
+			rID = ClassManager.loadClassProcess(player,
+					tempRank.getSuperClass());
+		}
+		double rank_cost = 0; //0D;
+		
+		try 
+		{
+			rank_cost = moneyCost[rID];
+		} 
+		catch (Exception e) {
+			plugin.log("cost not set: "+rID, Level.WARNING);
+		}
+
+		if (tempRank.getCost() != -1337D) 
+		{
+			rank_cost = tempRank.getCost();
+		}
+		// Check if the player has got the money
+		if (ClassRanks.economy != null) 
+		{
+			if (plugin.getConfig().getBoolean("checkprices")) 
+			{
+				if (ClassRanks.economy.getBalance(player.getName()) < rank_cost)
+				{
+					plugin.msg(player,"You don't have enough ECO money to choose your class! ("
+							+ ClassRanks.economy.format(rank_cost)
+							+"/ "+ClassRanks.economy.getBalance(player.getName())
+							+ ")");
+				}
+				return true;
+			}
+		} else if (plugin.method != null) 
+		{
+			if (plugin.getConfig().getBoolean("checkprices"))
+			{
+				MethodAccount ma = plugin.method.getAccount(player.getName());
+				if (ma.hasEnough(rank_cost)) 
+				{
+					plugin.msg(player,"You don't have enough money to choose your class! ("
+								+ plugin.method.format(rank_cost)
+								+ ")");
+					return true;
+				}
+			}
+		}
+		db.i("money check successful");
+		if (expCost != null && expCost.length > 0) 
+		{
+			int exp_cost = -1;
+			
+			try {
+				exp_cost = expCost[rID];
+			} catch (Exception e) {
+				plugin.log("Exp cost not set: "+rID, Level.WARNING);
+			}
+			
+			if (tempRank.getExp() != -1) {
+				exp_cost = tempRank.getExp();
+			}
+			
+			if (exp_cost > 0) {
+				if (player.getTotalExperience() < exp_cost) {
+					plugin.msg(player,
+							"You don't have enough experience! You need "
+									+ exp_cost);
+					return true;
+				}
+				player.setTotalExperience(player.getTotalExperience()
+						- exp_cost);
+				plugin.msg(player, "You paid " + exp_cost
+						+ " experience points!");
+			}
+		}
+		db.i("exp check successful");
+
+		ItemStack[] items = null;
+		ItemStack[][] rankItems = plugin.config.getRankItems(); 
+		
+		if (rankItems != null && (rankItems[rID] != null)
+				&& (!FormatManager.formatItemStacks(rankItems[rID]).equals(
+						""))) {
+			items = rankItems[rID];
+		}
+
+		if (tempRank.getItemstacks() != null) 
+		{
+			items = tempRank.getItemstacks();
+		}
+		
+		if (items != null) {
+			
+			if (!pm.ifHasTakeItems(player, items)) 
+			{
+				plugin.msg(player, "You don't have the required items!");
+				plugin.msg(player,"("+ FormatManager.formatItemStacks(items)+ ")");
+				return true;
+			}
+		}
+		db.i("item check successful");
 
 		String cPermName = tempRank.getPermName(); // Display rank name
 		String cDispName = tempRank.getDispName(); // Display rank name
 		ChatColor c_Color = tempRank.getColor(); // Rank color
 
-		if (plugin.trackRanks) 
+		// success!
+		
+		if (plugin.getConfig().getBoolean("clearranks")) 
 		{
-			int rID = ClassManager.loadClassProcess(
-					Bukkit.getPlayer(args[1]), tempRank.getSuperClass());
-
-			tempRank = tempRank.getSuperClass().ranks.get(rID);
-
-			cPermName = tempRank.getPermName(); // Display rank name
-			cDispName = tempRank.getDispName(); // Display rank name
-			c_Color = tempRank.getColor(); // Rank color
-
-			String sRank = tempRank.getPermName();
-			plugin.perms.rankAdd(world, args[1], sRank);
-		} else {
-			plugin.perms.rankAdd(world, args[1], cPermName);
-//			plugin.perms.classAdd(world, args[1], cPermName);
+			plugin.perms.removeGroups(player);
 		}
 
+		plugin.perms.rankAdd(plugin.config.isDefaultrankallworlds() ? "all" : player.getWorld().getName()
+				, player.getName(), cPermName);
+		
 		if (plugin.config.isRankpublic() ) 
 		{
 			plugin.getServer().broadcastMessage(
@@ -732,6 +826,7 @@ public class CommandManager {
 
 			if ((args[0].equalsIgnoreCase("add")))
 			{
+				String className = "";
 				// es müssen mindestens  2 Argumente vorhanden sein
 				// class add *classname*
 				if (args.length < 2) 
@@ -755,13 +850,18 @@ public class CommandManager {
 						{
 							return false;
 						}
+						className = args[3];
+					}
+					else
+					{
+						className = args[2];
 					}
 				}
 				//world name 
 				world = getWorldArg(world, args);
 				db.i("precheck successful");
 				// !!!! KEIE vollstaendige Bearbeitung des Befehls
-				cmdAddRank(pPlayer,player,args, world,xxx);
+				cmdAddRank(pPlayer,player,className, world);
 			}
 		}
 		
@@ -888,187 +988,202 @@ public class CommandManager {
 				
 			}
 
+			
+//			// ADD with Classname
 			// /class [classname]
-			if (!plugin.perms.hasPerms(pPlayer, "classranks.self.rank", pPlayer
-					.getWorld().getName())) {
+			if (!plugin.perms.hasPerms(pPlayer, "classranks.self.rank", pPlayer.getWorld().getName())) 
+			{
 				plugin.msg(pPlayer,
 						"You don't have permission to choose your class!");
 				return true;
-			}
+			} else
+			{
+				String world = "all";
+				String className = args[0];
 
-			String sRankInfo = plugin.perms.getPermNameByPlayer(pPlayer
-					.getWorld().getName(), pPlayer.getName());
-
-			if (!sRankInfo.equals("")) {
-				plugin.msg(pPlayer, "You already have the rank " + sRankInfo
-						+ "!");
-				return true;
+				cmdAddRank(pPlayer, pPlayer, className, world);
 			}
 			
-			String s = "";
+//			if (!plugin.perms.hasPerms(pPlayer, "classranks.self.rank", pPlayer
+//					.getWorld().getName())) {
+//				plugin.msg(pPlayer,
+//						"You don't have permission to choose your class!");
+//				return true;
+//			}
+//
+//			String sRankInfo = plugin.perms.getPermNameByPlayer(pPlayer
+//					.getWorld().getName(), pPlayer.getName());
+//
+//			if (!sRankInfo.equals("")) {
+//				plugin.msg(pPlayer, "You already have the rank " + sRankInfo
+//						+ "!");
+//				return true;
+//			}
+//			
+//			String s = "";
+//
+//			if (plugin.trackRanks) {
+//				s = ClassManager.getFirstPermNameByClassName(args[0],
+//						pPlayer.getName());
+//			} else {
+//				s = ClassManager.getFirstPermNameByClassName(args[0]);
+//			}
+//
+//			if (s == null || s.equals("")) {
+//				plugin.msg(pPlayer,
+//						"The class you have entered does not exist!");
+//				return true;
+//			}
+//			Rank rank = ClassManager.getRankByPermName(s);
+//
+//			if (rank == null) {
+//				plugin.msg(pPlayer, "Internal Error #1!");
+//				return true;
+//			}
+//			db.i("rank check successful");
+//
+//			int rID = 0;
+//			if (plugin.trackRanks) {
+//				rID = ClassManager.loadClassProcess(pPlayer,
+//						rank.getSuperClass());
+//			}
+//			double rank_cost = 0D;
+//			
+//			try {
+//				rank_cost = moneyCost[rID];
+//			} catch (Exception e) {
+//				plugin.log("cost not set: "+rID, Level.WARNING);
+//			}
+//
+//			if (rank.getCost() != -1337D) {
+//				rank_cost = rank.getCost();
+//			}
+//			// Check if the player has got the money
+//			if (ClassRanks.economy != null) {
+//				if (plugin.getConfig().getBoolean("checkprices")
+//						&& ClassRanks.economy.has(pPlayer.getName(), rank_cost)) {
+//
+//					plugin.msg(pPlayer,
+//							"You don't have enough money to choose your class! ("
+//									+ ClassRanks.economy.format(rank_cost)
+//									+ ")");
+//					return true;
+//				}
+//			} else if (plugin.method != null) {
+//				MethodAccount ma = plugin.method.getAccount(pPlayer.getName());
+//				if (plugin.getConfig().getBoolean("checkprices")
+//						&& !ma.hasEnough(rank_cost)) {
+//
+//					plugin.msg(pPlayer,
+//							"You don't have enough money to choose your class! ("
+//									+ plugin.method.format(rank_cost)
+//									+ ")");
+//					return true;
+//				}
+//			}
+//			db.i("money check successful");
+//			if (expCost != null && expCost.length > 0) {
+//				int exp_cost = -1;
+//				
+//				try {
+//					exp_cost = expCost[rID];
+//				} catch (Exception e) {
+//					plugin.log("Exp cost not set: "+rID, Level.WARNING);
+//				}
+//				
+//				if (rank.getExp() != -1) {
+//					exp_cost = rank.getExp();
+//				}
+//				
+//				if (exp_cost > 0) {
+//					if (pPlayer.getTotalExperience() < exp_cost) {
+//						plugin.msg(pPlayer,
+//								"You don't have enough experience! You need "
+//										+ exp_cost);
+//						return true;
+//					}
+//					pPlayer.setTotalExperience(pPlayer.getTotalExperience()
+//							- exp_cost);
+//					plugin.msg(pPlayer, "You paid " + exp_cost
+//							+ " experience points!");
+//				}
+//			}
+//			db.i("exp check successful");
+//
+//			ItemStack[] items = null;
+//			ItemStack[][] rankItems = plugin.config.getRankItems(); 
+//			
+//			if (rankItems != null && (rankItems[rID] != null)
+//					&& (!FormatManager.formatItemStacks(rankItems[rID]).equals(
+//							""))) {
+//				items = rankItems[rID];
+//			}
+//
+//			if (rank.getItemstacks() != null) {
+//				items = rank.getItemstacks();
+//			}
+//			
+//			if (items != null) {
+//				
+//				if (!pm.ifHasTakeItems(pPlayer, items)) {
+//					plugin.msg(pPlayer, "You don't have the required items!");
+//					plugin.msg(
+//							pPlayer,
+//							"("
+//									+ FormatManager
+//											.formatItemStacks(items)
+//									+ ")");
+//					return true;
+//				}
+//			}
+//			db.i("item check successful");
+//
+//			String cPermName = rank.getPermName(); // Display rank name
+//			String cDispName = rank.getDispName(); // Display rank name
+//			ChatColor c_Color = rank.getColor(); // Rank color
+//
+//			// success!
+//			
+//			if (plugin.getConfig().getBoolean("clearranks")) {
+//				plugin.perms.removeGroups(pPlayer);
+//			}
+//
+//			plugin.perms.rankAdd(plugin.config.isDefaultrankallworlds() ? "all" : pPlayer
+//					.getWorld().getName(), pPlayer.getName(), cPermName);
+//			if (plugin.config.isRankpublic()) {
+//				plugin.getServer().broadcastMessage(
+//						"Player " + fm.formatPlayer(pPlayer.getName())
+//								+ " has chosen a class, now has the rank "
+//								+ c_Color + cDispName);
+//			} else {
+//				plugin.msg(pPlayer,
+//						"You have chosen your class! You now have the rank "
+//								+ c_Color + cDispName);
+//			}
 
-			if (plugin.trackRanks) {
-				s = ClassManager.getFirstPermNameByClassName(args[0],
-						pPlayer.getName());
-			} else {
-				s = ClassManager.getFirstPermNameByClassName(args[0]);
-			}
-
-			if (s == null || s.equals("")) {
-				plugin.msg(pPlayer,
-						"The class you have entered does not exist!");
-				return true;
-			}
-			Rank rank = ClassManager.getRankByPermName(s);
-
-			if (rank == null) {
-				plugin.msg(pPlayer, "Internal Error #1!");
-				return true;
-			}
-			db.i("rank check successful");
-
-			int rID = 0;
-			if (plugin.trackRanks) {
-				rID = ClassManager.loadClassProcess(pPlayer,
-						rank.getSuperClass());
-			}
-			double rank_cost = 0D;
-			
-			try {
-				rank_cost = moneyCost[rID];
-			} catch (Exception e) {
-				plugin.log("cost not set: "+rID, Level.WARNING);
-			}
-
-			if (rank.getCost() != -1337D) {
-				rank_cost = rank.getCost();
-			}
-			// Check if the player has got the money
-			if (ClassRanks.economy != null) {
-				if (plugin.getConfig().getBoolean("checkprices")
-						&& ClassRanks.economy.has(pPlayer.getName(), rank_cost)) {
-
-					plugin.msg(pPlayer,
-							"You don't have enough money to choose your class! ("
-									+ ClassRanks.economy.format(rank_cost)
-									+ ")");
-					return true;
-				}
-			} else if (plugin.method != null) {
-				MethodAccount ma = plugin.method.getAccount(pPlayer.getName());
-				if (plugin.getConfig().getBoolean("checkprices")
-						&& !ma.hasEnough(rank_cost)) {
-
-					plugin.msg(pPlayer,
-							"You don't have enough money to choose your class! ("
-									+ plugin.method.format(rank_cost)
-									+ ")");
-					return true;
-				}
-			}
-			db.i("money check successful");
-			if (expCost != null && expCost.length > 0) {
-				int exp_cost = -1;
-				
-				try {
-					exp_cost = expCost[rID];
-				} catch (Exception e) {
-					plugin.log("Exp cost not set: "+rID, Level.WARNING);
-				}
-				
-				if (rank.getExp() != -1) {
-					exp_cost = rank.getExp();
-				}
-				
-				if (exp_cost > 0) {
-					if (pPlayer.getTotalExperience() < exp_cost) {
-						plugin.msg(pPlayer,
-								"You don't have enough experience! You need "
-										+ exp_cost);
-						return true;
-					}
-					pPlayer.setTotalExperience(pPlayer.getTotalExperience()
-							- exp_cost);
-					plugin.msg(pPlayer, "You paid " + exp_cost
-							+ " experience points!");
-				}
-			}
-			db.i("exp check successful");
-
-			ItemStack[] items = null;
-			ItemStack[][] rankItems = plugin.config.getRankItems(); 
-			
-			if (rankItems != null && (rankItems[rID] != null)
-					&& (!FormatManager.formatItemStacks(rankItems[rID]).equals(
-							""))) {
-				items = rankItems[rID];
-			}
-
-			if (rank.getItemstacks() != null) {
-				items = rank.getItemstacks();
-			}
-			
-			if (items != null) {
-				
-				if (!pm.ifHasTakeItems(pPlayer, items)) {
-					plugin.msg(pPlayer, "You don't have the required items!");
-					plugin.msg(
-							pPlayer,
-							"("
-									+ FormatManager
-											.formatItemStacks(items)
-									+ ")");
-					return true;
-				}
-			}
-			db.i("item check successful");
-
-			String cPermName = rank.getPermName(); // Display rank name
-			String cDispName = rank.getDispName(); // Display rank name
-			ChatColor c_Color = rank.getColor(); // Rank color
-
-			// success!
-			
-			if (plugin.getConfig().getBoolean("clearranks")) {
-				plugin.perms.removeGroups(pPlayer);
-			}
-
-			plugin.perms.rankAdd(plugin.config.isDefaultrankallworlds() ? "all" : pPlayer
-					.getWorld().getName(), pPlayer.getName(), cPermName);
-			if (plugin.config.isRankpublic()) {
-				plugin.getServer().broadcastMessage(
-						"Player " + fm.formatPlayer(pPlayer.getName())
-								+ " has chosen a class, now has the rank "
-								+ c_Color + cDispName);
-			} else {
-				plugin.msg(pPlayer,
-						"You have chosen your class! You now have the rank "
-								+ c_Color + cDispName);
-			}
-
-			if (plugin.getConfig().getBoolean("checkprices")
-					&& (rank_cost > 0)) {
-				// if it costs anything at all
-
-				if (ClassRanks.economy != null) {
-					ClassRanks.economy.withdrawPlayer(pPlayer.getName(), rank_cost);
-					pPlayer.sendMessage(ChatColor.DARK_GREEN + "["
-							+ ChatColor.WHITE + "Money" + ChatColor.DARK_GREEN
-							+ "] " + ChatColor.RED + "Your account had "
-							+ ChatColor.WHITE
-							+ ClassRanks.economy.format(rank_cost) + ChatColor.RED
-							+ " debited.");
-				} else if ((plugin.method != null)) {
-					MethodAccount ma = plugin.method.getAccount(pPlayer.getName());
-					ma.subtract(rank_cost);
-					pPlayer.sendMessage(ChatColor.DARK_GREEN + "["
-							+ ChatColor.WHITE + "Money" + ChatColor.DARK_GREEN
-							+ "] " + ChatColor.RED + "Your account had "
-							+ ChatColor.WHITE
-							+ plugin.method.format(rank_cost) + ChatColor.RED
-							+ " debited.");
-				}
-			}
+//			if (plugin.getConfig().getBoolean("checkprices")
+//					&& (rank_cost > 0)) {
+//				// if it costs anything at all
+//
+//				if (ClassRanks.economy != null) {
+//					ClassRanks.economy.withdrawPlayer(pPlayer.getName(), rank_cost);
+//					pPlayer.sendMessage(ChatColor.DARK_GREEN + "["
+//							+ ChatColor.WHITE + "Money" + ChatColor.DARK_GREEN
+//							+ "] " + ChatColor.RED + "Your account had "
+//							+ ChatColor.WHITE
+//							+ ClassRanks.economy.format(rank_cost) + ChatColor.RED
+//							+ " debited.");
+//				} else if ((plugin.method != null)) {
+//					MethodAccount ma = plugin.method.getAccount(pPlayer.getName());
+//					ma.subtract(rank_cost);
+//					pPlayer.sendMessage(ChatColor.DARK_GREEN + "["
+//							+ ChatColor.WHITE + "Money" + ChatColor.DARK_GREEN
+//							+ "] " + ChatColor.RED + "Your account had "
+//							+ ChatColor.WHITE
+//							+ plugin.method.format(rank_cost) + ChatColor.RED
+//							+ " debited.");
+//				}
+//			}
 			return true;
 		}
 		plugin.msg(pPlayer,ChatColor.YELLOW+"Not enough arguments !");

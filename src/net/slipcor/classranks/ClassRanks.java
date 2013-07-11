@@ -85,6 +85,10 @@ public class ClassRanks extends JavaPlugin {
 				setupEconomy();
 			}
 		}
+		if (config.isDebug())
+		{
+		  db.active = true;	
+		}
 		
 		// backup permissions
 		if (this.perms == null || (this.perms != null && !this.perms.setupPermissions())) {
@@ -110,6 +114,7 @@ public class ClassRanks extends JavaPlugin {
 			Update.updateCheck(this);
 		}
 		log("Version " + this.getDescription().getVersion() + " init ready", Level.INFO);
+		
 	}
 
 	@Override
