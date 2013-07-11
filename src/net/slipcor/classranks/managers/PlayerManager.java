@@ -39,6 +39,17 @@ public class PlayerManager {
 		this.plugin = plugin;
 		db = new DebugManager(plugin);
 	}
+
+	public static Player searchPlayer(String playerName) {
+		Player[] p = Bukkit.getServer().getOnlinePlayers();
+		for (int i=0;i<p.length;i++)
+			if (p[i].getName().toLowerCase().contains(playerName.toLowerCase()))
+				return p[i]; // gotcha!
+
+		db.i("player not online: " + playerName);
+		// not found online, hope that it was right anyways
+		return null;
+	}
 	
 	/*
 	 * receive a string and search for online usernames containing it

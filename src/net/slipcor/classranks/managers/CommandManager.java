@@ -404,121 +404,118 @@ public class CommandManager {
 		}
 		
 	}
+
+	private boolean hasAdminPerms(Player player)
+	{
+		if (player.isOp())
+		{
+			return true;
+		}
+		if (plugin.perms.hasPerms(player,"classranks.admin.addremove", player.getWorld().getName())) 
+		{
+			return true;
+		}
+		// only if we are NOT op or may NOT add/remove classes
+		plugin.msg(player,"You don't have permission to add/remove other player's classes!");
+		return false;
+	}
+	
+	private boolean hasClassRank(String classRank, String playerName, String world)
+	{
+		String sPermName = plugin.perms.getPermNameByPlayer(world, playerName);
+		int i = 0;
+		while (!sPermName.equals("")) 
+		{
+			db.i("check add rank " + sPermName);
+
+			Rank tempRank = ClassManager.getRankByPermName(sPermName);
+
+			String cDispName = tempRank.getDispName(); // Display rank
+														// name
+			ChatColor c_Color = tempRank.getColor(); // Rank color
+
+			if (classRank == tempRank.getSuperClass().name) 
+			{
+				return true;
+			} 
+			if (++i > 10) {
+				plugin.log("Infinite loop! More than 10 ranks!?",
+						Level.SEVERE);
+				break;
+			}
+			sPermName = plugin.perms.getPermNameByPlayer(world, playerName);
+		}
+		
+		return false;
+	}
 	
 //	private void cmdTemp (Player pPlayer, String[] args) {
 //		
 //	}
 	
+	private boolean cmdRemove(Player sender, Player player, String[] args, String world)
+	{
 
-	private boolean cmdAddRank(Player pPlayer, String[] args)
+		String classRank = args[2];
+
+		if (plugin.trackRanks) 
+		{
+			ClassManager.saveClassProgress(Bukkit.getPlayer(player.getName()));
+		}
+		
+		if (hasClassRank(classRank, player.getName(), world))
+		{
+			plugin.perms.rankRemove(world, args[1],classRank); // do it!
+			if (plugin.config.isRankpublic() ) 
+			{
+				// self remove successful!
+				plugin.getServer().broadcastMessage(player.getName()+
+							" are removed from rank " + ChatColor.RED
+							+ classRank + ChatColor.WHITE
+							+ " in "
+							+ fm.formatWorld(world) + "!");
+			} else
+			{
+				// self remove successful!
+				plugin.msg(player,"You are removed from rank " + ChatColor.RED
+							+ classRank + ChatColor.WHITE
+							+ " in "
+							+ fm.formatWorld(world) + "!");
+				if (!(sender == player))
+				{
+					// self remove successful!
+					plugin.msg(sender,player.getName()+" are removed from rank " + ChatColor.RED
+								+ classRank + ChatColor.WHITE
+								+ " in "
+								+ fm.formatWorld(world) + "!");
+				}
+			}
+		}
+		return true;
+	}
+	
+
+	private boolean cmdAddRank(Player sender, Player player, String[] args, String world)
 	{
 		///  ADD // REMOVE
-		db.i("precheck successful");
-
-		if (!self) {
-			if (!plugin.perms.hasPerms(pPlayer,
-					"classranks.admin.addremove", pPlayer.getWorld()
-							.getName())) {
-				// only if we are NOT op or may NOT add/remove classes
-				plugin.msg(pPlayer,
-						"You don't have permission to add/remove other player's classes!");
-				return true;
-			}
-		}
-		db.i("perm check successful");
-
-		// get the class of the player we're talking about
-		args[1] = PlayerManager.search(args[1]);
-		String sPermName = plugin.perms.getPermNameByPlayer(world, args[1]);
-		if (!sPermName.equals("")) 
+		String classRank = args[2];
+		//  Check for Rank is always given
+		if (hasClassRank(classRank, player.getName(), world))
 		{
-			if (plugin.trackRanks) {
-				ClassManager.saveClassProgress(Bukkit.getPlayer(args[1]));
-			}
-			int i = 0; // combo breaker
-			while (!sPermName.equals("")) {
-				db.i("removing rank " + sPermName);
-
-				Rank tempRank = ClassManager.getRankByPermName(sPermName);
-
-				String cDispName = tempRank.getDispName(); // Display rank
-															// name
-				ChatColor c_Color = tempRank.getColor(); // Rank color
-
-				if (args[0].equalsIgnoreCase("add")) {
-					// only one class per player :p
-					plugin.msg(pPlayer,
+			plugin.msg(sender,
 							"Player " + fm.formatPlayer(args[1])
-									+ " already already has the rank "
-									+ c_Color + cDispName + "!");
-				} else if (args[0].equalsIgnoreCase("remove")) {
-					if (plugin.trackRanks) {
-						ClassManager.saveClassProgress(Bukkit
-								.getPlayer(args[1]));
-					}
-					plugin.perms.rankRemove(world, args[1],
-							tempRank.getPermName()); // do it!
-
-					if ((!pPlayer.getName().equalsIgnoreCase(args[1]))) {
-						plugin.msg(pPlayer,
-								"Player " + fm.formatPlayer(args[1])
-										+ " removed from rank " + c_Color
-										+ cDispName + ChatColor.WHITE
-										+ " in " + fm.formatWorld(world)
-										+ "!");
-
-						Player chP = plugin.getServer().getPlayer(args[1]);
-						try {
-							if (chP.isOnline()) {
-								chP.sendMessage("[" + ChatColor.AQUA
-										+ plugin.getConfig().getString("prefix") + ChatColor.WHITE
-										+ "] You were removed from rank "
-										+ c_Color + cDispName
-										+ ChatColor.WHITE + " in "
-										+ fm.formatWorld(world) + "!");
-							}
-						} catch (Exception e) {
-							// do nothing, the player is not online
-						}
-					} else {
-						// self remove successful!
-						if (i == 0)
-							plugin.msg(
-									pPlayer,
-									"You were removed from rank " + c_Color
-											+ cDispName + ChatColor.WHITE
-											+ " in "
-											+ fm.formatWorld(world) + "!");
-					}
-				}
-				if (++i > 10) {
-					plugin.log("Infinite loop! More than 10 ranks!?",
-							Level.SEVERE);
-					break;
-				}
-				sPermName = plugin.perms
-						.getPermNameByPlayer(world, args[1]);
-			}
+							+ " already has the rank "
+							+ ChatColor.RED + classRank + "!");
 			return true;
 		}
-		// player has no class
-		if (!args[0].equalsIgnoreCase("add")) {
-			// no class and trying to remove
-			if (pPlayer.getName().equalsIgnoreCase(args[1])) {
-				plugin.msg(pPlayer, "You don't have a class!");
-				return true;
-			} else {
-				plugin.msg(pPlayer, "Player " + fm.formatPlayer(args[1])
-						+ " does not have a class!");
-				return true;
-			}
-		}
+		
 		// ADD
 		Rank tempRank = ClassManager.getRankByPermName( ClassManager.getFirstPermNameByClassName(args[2]));
-
-		if (tempRank == null) {
-			plugin.msg(pPlayer,
-					"The class you have entered does not exist!"+args[2]);
+		
+		//  ClassRank does not exist
+		if (tempRank == null) 
+		{
+			plugin.msg(sender,"The class you entered does not exist!"+args[2]);
 			return true;
 		}
 
@@ -526,7 +523,8 @@ public class CommandManager {
 		String cDispName = tempRank.getDispName(); // Display rank name
 		ChatColor c_Color = tempRank.getColor(); // Rank color
 
-		if (plugin.trackRanks) {
+		if (plugin.trackRanks) 
+		{
 			int rID = ClassManager.loadClassProcess(
 					Bukkit.getPlayer(args[1]), tempRank.getSuperClass());
 
@@ -543,18 +541,19 @@ public class CommandManager {
 //			plugin.perms.classAdd(world, args[1], cPermName);
 		}
 
-		if ((plugin.config.isRankpublic()) || (!pPlayer.getName().equalsIgnoreCase(args[1]))) {
+		if (plugin.config.isRankpublic() ) 
+		{
 			plugin.getServer().broadcastMessage(
 					"[" + ChatColor.AQUA + plugin.getConfig().getString("prefix") + ChatColor.WHITE
-							+ "] " + fm.formatPlayer(args[1])
+							+ "] " + fm.formatPlayer(player.getName())
 							+ " now is a " + c_Color + cDispName);
 			return true;
-		} else {
-			plugin.msg(pPlayer, "You now are a " + c_Color + cDispName);
+		} else 
+		{
+			plugin.msg(player, "You now are a " + c_Color + cDispName);
 			return true;
 		}
 //END ADD / REMOVE			
-	
 	}
 
 	/**
@@ -617,7 +616,7 @@ public class CommandManager {
 	 * @param args
 	 * @return
 	 */
-	private String getPlayerName(String[] args)
+	private String getPlayerName(Player player, String[] args)
 	{
 		if (isPlayerPara(args)) 
 		{
@@ -625,7 +624,7 @@ public class CommandManager {
 		} else
 		{
 			// => /class add *classname*
-			return  pPlayer.getName();
+			return  player.getName();
 		}		
 	}
 	
@@ -635,29 +634,29 @@ public class CommandManager {
 	 */
 	public boolean parseCommand(Player pPlayer, String[] args) 
 	{
-
+		Player player = pPlayer;
 		db.i("parsing player " + pPlayer + ", command: " + FormatManager.formatStringArray(args));
 		if (args.length > 1) 
 		{
 			// LIST
 			if (args[0].equalsIgnoreCase("list")) {
 				// Command list of Ranks in the Class  3.2
-				cmdList(pPlayer,args);
+				cmdList(player,args);
 				return true;
 				
 			} 
 			// GET
 			if (args[0].equalsIgnoreCase("get")) {
 				// Command Get   3.2
-				cmdGet(pPlayer, args);
+				cmdGet(player, args);
 				return true;
 			}
 			// GROUPS
 			if (args[0].equalsIgnoreCase("groups")) {
 				// Command list of Ranks in the Class  3.2
-				plugin.msg(pPlayer,"groups "+args[1]);
+				plugin.msg(player,"groups "+args[1]);
 				
-				cmdUserGroups(pPlayer, args);
+				cmdUserGroups(player, args);
 				return true;
 			}
 
@@ -673,19 +672,22 @@ public class CommandManager {
 			if ((args[0].equalsIgnoreCase("rankup")))
 			{
 				// rank up or down
-				if (args.length > 1) {
-					return rank(args, pPlayer);
-				} else {
-					plugin.msg(pPlayer,"Not enough arguments ("+ String.valueOf(args.length) + ")!");
+				if (args.length > 1) 
+				{
+					return rank(args, player);
+				} else 
+				{
+					plugin.msg(player,"Not enough arguments ("+ String.valueOf(args.length) + ")!");
 					return false;
 				}
+				
 			}
 			//RANKDOWN SELF
 			if ((args[0].equalsIgnoreCase("rankdown"))) 
 			{
 				// rank up or down
 				if (args.length > 1) {
-					return rank(args, pPlayer);
+					return rank(args, player);
 				} else {
 					plugin.msg(pPlayer,"Not enough arguments ("+ String.valueOf(args.length) + ")!");
 					return false;
@@ -693,35 +695,74 @@ public class CommandManager {
 			}
 			
 			// preset of World name
-			String world = pPlayer.getWorld().getName();
-			String PlayerName = getPlayerName(args);
+			String world = player.getWorld().getName();
+			String PlayerName = getPlayerName(pPlayer, args);
 			
 			if (args[0].equalsIgnoreCase("remove")) 
 			{
+				// es müssen mindestens  2 Argumente vorhanden sein
+				// class add *classname*
 				if (args.length < 2) 
 				{
 					// not enough arguments ;)
 					plugin.msg(pPlayer,"Not enough arguments ("+ String.valueOf(args.length) + ")!");
 					return false;
+				} else
+				{
+					// class add *classname* <playerName>
+					if (args.length > 2) 
+					{
+						if (hasAdminPerms(pPlayer))
+						{
+							db.i("perm check successful");
+							// get the class of the player we're talking about
+							// change PlayerObject
+							player = PlayerManager.searchPlayer(PlayerName);
+
+						} else
+						{
+							return false;
+						}
+					}
 				}
 				world = getWorldArg(world, args);
-				
-
+				db.i("precheck successful");
+				cmdRemove(pPlayer,player, args, world);
 			}
 
 			if ((args[0].equalsIgnoreCase("add")))
 			{
+				// es müssen mindestens  2 Argumente vorhanden sein
+				// class add *classname*
 				if (args.length < 2) 
 				{
 					// not enough arguments ;)
 					plugin.msg(pPlayer,"Not enough arguments ("+ String.valueOf(args.length) + ")!");
 					return false;
+				} else
+				{
+					// class add *classname* <playerName>
+					if (args.length > 2) 
+					{
+						if (hasAdminPerms(pPlayer))
+						{
+							db.i("perm check successful");
+							// get the class of the player we're talking about
+							// change PlayerObject
+							player = PlayerManager.searchPlayer(PlayerName);
+							// Add Rank
+						} else
+						{
+							return false;
+						}
+					}
 				}
 				//world name 
 				world = getWorldArg(world, args);
+				db.i("precheck successful");
+				// !!!! KEIE vollstaendige Bearbeitung des Befehls
+				cmdAddRank(pPlayer,player,args, world,xxx);
 			}
-
-			
 		}
 		
 		//---------------------------------------------------------------------------
@@ -730,13 +771,15 @@ public class CommandManager {
 		if (args.length > 0) 
 		{
 			// only ONE argument!
-			if (args[0].equalsIgnoreCase("config")) {
+			if (args[0].equalsIgnoreCase("config")) 
+			{
 				// Command list of Ranks in the Class  3.2
 				cmdConfig(pPlayer, args);
 				return true;
 			}
 
-			if (args[0].equalsIgnoreCase("get")) {
+			if (args[0].equalsIgnoreCase("get")) 
+			{
 				// Command Get   3.2
 				cmdGet(pPlayer, args);
 				return true;
@@ -814,7 +857,8 @@ public class CommandManager {
 								+ fm.formatWorld(plugin.config.isDefaultrankallworlds() ? "all"
 										: pPlayer.getWorld().getName()) + "!");
 				return true;
-			} else if (args[0].equalsIgnoreCase("add")) {
+			} else if (args[0].equalsIgnoreCase("add")) 
+			{
 				// Command add 				
 				plugin.msg(pPlayer, ChatColor.RED+"Not enough arguments!");
 				plugin.msg(pPlayer, ChatColor.GRAY+"/class [add] {username} {classname} {world} | Add user to a class");
