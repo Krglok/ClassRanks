@@ -377,6 +377,14 @@ public class ConfigManager {
 			boolean newClass = true;
 			for (String sRankName : ranks.keySet()) 
 			{
+//				Rank definition
+//				this.sPermissionName = sPermName;
+//				this.sDisplayName = sDispName;
+//				this.cColor = cC;
+//				this.crcSuper = crc;
+//				this.items = isItems;
+//				this.cost = dCost;
+//				this.exp = iExp;
 
 				String rankName = null;
 				String rankColor = "&f";
