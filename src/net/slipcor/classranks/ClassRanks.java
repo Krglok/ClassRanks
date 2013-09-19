@@ -47,7 +47,7 @@ public class ClassRanks extends JavaPlugin {
     public static Economy economy = null;
 	public CRHandler perms; // Permissions access
 	
-	private Map<String, Object> classes;
+//	private Map<String, Object> classes;
 
 	@Override
 	public void onEnable() {
@@ -55,8 +55,8 @@ public class ClassRanks extends JavaPlugin {
 		PluginManager pm = getServer().getPluginManager();
 		pm.registerEvents(serverListener, this);
 
-		@SuppressWarnings("unused")
-		ClassManager cm = new ClassManager(this);
+//		@SuppressWarnings("unused")
+//		ClassManager cm = new ClassManager(this);
 
 		// register commands
 		getCommand("class").setExecutor(new ClassCommand(this, cmdMgr));

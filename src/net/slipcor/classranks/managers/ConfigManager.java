@@ -370,11 +370,13 @@ public class ConfigManager {
 
 		// read basis class and ranks initialize the object
 		classes = plugin.getConfig().getConfigurationSection("classes").getValues(false);
-		for (String sClassName : classes.keySet()) {
+		for (String sClassName : classes.keySet()) 
+		{
 			Map<String, Object> ranks = ((ConfigurationSection) classes
 					.get(sClassName)).getValues(false);
 			boolean newClass = true;
-			for (String sRankName : ranks.keySet()) {
+			for (String sRankName : ranks.keySet()) 
+			{
 
 				String rankName = null;
 				String rankColor = "&f";
@@ -383,26 +385,30 @@ public class ConfigManager {
 				int rankExp = -1;
 
 				if (plugin.getConfig().get(
-						"classes." + sClassName + "." + sRankName + ".name") != null) {
+						"classes." + sClassName + "." + sRankName + ".name") != null) 
+				{
 					rankName = plugin.getConfig()
 							.getString(
 									"classes." + sClassName + "." + sRankName
 											+ ".name");
 				}
 				if (plugin.getConfig().get(
-						"classes." + sClassName + "." + sRankName + ".color") != null) {
+						"classes." + sClassName + "." + sRankName + ".color") != null) 
+				{
 					rankColor = plugin.getConfig().getString(
 							"classes." + sClassName + "." + sRankName
 									+ ".color");
 				}
 				if (plugin.getConfig().get(
-						"classes." + sClassName + "." + sRankName + ".price") != null) {
+						"classes." + sClassName + "." + sRankName + ".price") != null) 
+				{
 					rankCost = Double.valueOf(plugin.getConfig().getString(
 							"classes." + sClassName + "." + sRankName
 									+ ".price"));
 				}
 				if (plugin.getConfig().get(
-						"classes." + sClassName + "." + sRankName + ".items") != null) {
+						"classes." + sClassName + "." + sRankName + ".items") != null) 
+				{
 					rankItems = FormatManager
 							.getItemStacksFromStringList(plugin.getConfig()
 									.getStringList(
@@ -410,7 +416,8 @@ public class ConfigManager {
 													+ sRankName + ".items"));
 				}
 				if (plugin.getConfig().get(
-						"classes." + sClassName + "." + sRankName + ".exp") != null) {
+						"classes." + sClassName + "." + sRankName + ".exp") != null) 
+				{
 					rankExp = Integer.parseInt(plugin.getConfig().getString(
 							"classes." + sClassName + "." + sRankName + ".exp"));
 				}

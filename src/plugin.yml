@@ -9,22 +9,22 @@ commands:
         description: Lets users choose a class / change classes
         usage: |
            /class [classname] | Choose the class [classname] for yourself
-           /class [add] [username] [classname] {world} | Add user to a class
-           /class [remove] {username} {world} | Remove user from a class
-           /class [rankup] {username} {world} | Rank user up
-           /class [rankdown]  {username} {world} | Rank user down
-           /class [get] {username} {world} | Show rank of user
+           /class [add] [playername] [classname] {world} | Add user to a class
+           /class [remove] [playername] [classname] {world} | Remove user from a class
+           /class [rankup] {playername} {world} | Rank user up
+           /class [rankdown]  {playername} {world} | Rank user down
+           /class [get] {playername} {world} | Show rank of user
            /class [list] {classname} | list of class/ranks
            /class [config] | list the configuration
-           /class [groups] {username} | list the groups of user
+           /class [groups] {playername} | list the groups of user
     rankdown:
         description: Rank down yourself or others
         usage: |
-           /rankdown [username] | Rank down yourself or username 
+           /rankdown [playername] | Rank down yourself or username 
     rankup:
         description: Rank up yourself or others
         usage: |
-           /rankup [username] | Rank up yourself or username 
+           /rankup [playername] | Rank up yourself or username 
     classadmin:
         description: Administrate the classes
         

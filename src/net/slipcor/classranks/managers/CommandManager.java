@@ -1,6 +1,9 @@
 package net.slipcor.classranks.managers;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 
 import net.slipcor.classranks.ClassRanks;
@@ -420,7 +423,13 @@ public class CommandManager {
 		return false;
 	}
 	
-	
+	/**
+	 * Alte Funktion, sucht die Classrank durch :(
+	 * @param classRank
+	 * @param playerName
+	 * @param world
+	 * @return
+	 */
 	private boolean hasClassRank(String classRank, String playerName, String world)
 	{
 		String sPermName = plugin.perms.getPermNameByPlayer(world, playerName);
@@ -446,27 +455,89 @@ public class CommandManager {
 		return false;
 	}
 	
+	/**
+	 * List dies Class Array und sucht die permissions zu den Raengen
+	 * 
+	 * @param classRank
+	 * @param playerName
+	 * @param world
+	 * @return
+	 */
+	private boolean hasClass(String classRank, String playerName, String world)
+	{
+		Map<String, Object> classes = plugin.config.getClasses();
+		String sRank = classes.get(classRank).toString();
+		if (sRank != "") 
+		{
+			return true;
+		}
+		return false;
+	}
+
+	private String findClass( String playerName, String world)
+	{
+		Map<String, Object> classes = plugin.config.getClasses();
+		Set<String> keySet = classes.keySet();
+
+		for (String key : keySet) 
+		{
+			rank = classes.get(key);
+		}
+		return "";
+	}
+	
+	
 //	private void cmdTemp (Player pPlayer, String[] args) {
 //		
 //	}
-	
-	private boolean cmdRemove(Player sender, Player player, String[] args, String world)
+	/**
+	 * Remove Player from Rank
+	 * Args[0] = Subcommand
+	 * Args[1] = Playername
+	 * Args[2] = Classname
+	 * Args[3] = Worldname default = all  
+	 * 
+	 * @param sender
+	 * @param player
+	 * @param args
+	 * @param world
+	 * @return
+	 */
+	private boolean cmdRemove(Player sender, Player pPlayer, String[] args, String world)
 	{
+		String classRank = "";
+		String player  = "";
+		// es müssen mindestens  3 Argumente vorhanden sein
+		if (args.length < 3) 
+		{
+			// not enough arguments ;)
+			plugin.msg(pPlayer,"Not enough arguments ("+ String.valueOf(args.length) + ")!");
+			plugin.msg(pPlayer,"/class [remove] [playername] [classname] {world} | Remove user from a class");
 
-		String classRank = args[2];
+			return false;
+		} else
+		{
+			player = args[1];
+			classRank = args[2];
+			// Args[4] = world
+			if (args.length > 3)
+			{
+				world =  args[3];
+			}
+		}
 
 		if (plugin.trackRanks) 
 		{
-			ClassManager.saveClassProgress(Bukkit.getPlayer(player.getName()));
+			ClassManager.saveClassProgress(pPlayer);
 		}
 		
-		if (hasClassRank(classRank, player.getName(), world))
+		if (hasClassRank(classRank, player, world))
 		{
-			plugin.perms.rankRemove(world, args[1],classRank); // do it!
+			plugin.perms.rankRemove(world, player, classRank); // do it!
 			if (plugin.config.isRankpublic() ) 
 			{
 				// self remove successful!
-				plugin.getServer().broadcastMessage(player.getName()+
+				plugin.getServer().broadcastMessage(player+
 							" are removed from rank " + ChatColor.RED
 							+ classRank + ChatColor.WHITE
 							+ " in "
@@ -474,14 +545,14 @@ public class CommandManager {
 			} else
 			{
 				// self remove successful!
-				plugin.msg(player,"You are removed from rank " + ChatColor.RED
+				plugin.msg(pPlayer,"You are removed from rank " + ChatColor.RED
 							+ classRank + ChatColor.WHITE
 							+ " in "
 							+ fm.formatWorld(world) + "!");
-				if (!(sender == player))
+				if (!(sender == pPlayer))
 				{
 					// self remove successful!
-					plugin.msg(sender,player.getName()+" are removed from rank " + ChatColor.RED
+					plugin.msg(sender,player+" are removed from rank " + ChatColor.RED
 								+ classRank + ChatColor.WHITE
 								+ " in "
 								+ fm.formatWorld(world) + "!");
@@ -490,6 +561,9 @@ public class CommandManager {
 		}
 		return true;
 	}
+	
+	
+		
 	
 
 	private boolean cmdAddRank(Player sender, Player player, String className, String world)
@@ -721,10 +795,45 @@ public class CommandManager {
 			return  player.getName();
 		}		
 	}
+
+	private boolean cmdreload (Player player, String[] args)
+	{
+		
+		return false;
+	}
 	
-	/*
+	private boolean cmdInfo (Player player, String[] args)
+	{
+		
+		return false;
+	}
+	
+	
+	private boolean cmdAdminRemove (Player player, String[] args)
+	{
+		
+		return false;
+	}
+
+	private boolean cmdAdminAdd (Player player, String[] args)
+	{
+		
+		return false;
+	}
+	
+	private boolean cmdAdminChange (Player player, String[] args)
+	{
+		
+		return false;
+	}
+	
+	/**
 	 * The main switch for the command usage. Check for known commands,
 	 * permissions, arguments, and commit whatever is wanted.
+	 * 
+	 * @param pPlayer
+	 * @param args
+	 * @return
 	 */
 	public boolean parseCommand(Player pPlayer, String[] args) 
 	{
@@ -794,31 +903,31 @@ public class CommandManager {
 			
 			if (args[0].equalsIgnoreCase("remove")) 
 			{
-				// es müssen mindestens  2 Argumente vorhanden sein
-				// class add *classname*
-				if (args.length < 2) 
-				{
-					// not enough arguments ;)
-					plugin.msg(pPlayer,"Not enough arguments ("+ String.valueOf(args.length) + ")!");
-					return false;
-				} else
-				{
-					// class add *classname* <playerName>
-					if (args.length > 2) 
-					{
-						if (hasAdminPerms(pPlayer))
-						{
-							db.i("perm check successful");
-							// get the class of the player we're talking about
-							// change PlayerObject
-							player = PlayerManager.searchPlayer(PlayerName);
-
-						} else
-						{
-							return false;
-						}
-					}
-				}
+//				// es müssen mindestens  2 Argumente vorhanden sein
+//				// class add *classname*
+//				if (args.length < 2) 
+//				{
+//					// not enough arguments ;)
+//					plugin.msg(pPlayer,"Not enough arguments ("+ String.valueOf(args.length) + ")!");
+//					return false;
+//				} else
+//				{
+//					// class add *classname* <playerName>
+//					if (args.length > 2) 
+//					{
+//						if (hasAdminPerms(pPlayer))
+//						{
+//							db.i("perm check successful");
+//							// get the class of the player we're talking about
+//							// change PlayerObject
+//							player = PlayerManager.searchPlayer(PlayerName);
+//
+//						} else
+//						{
+//							return false;
+//						}
+//					}
+//				}
 				world = getWorldArg(world, args);
 				db.i("precheck successful");
 				cmdRemove(pPlayer,player, args, world);
@@ -1190,6 +1299,7 @@ public class CommandManager {
 		return false;
 	}
 
+	
 	public boolean parseAdminCommand(Player pPlayer, String[] args) 
 	{
 		db.i("parsing admin " + pPlayer.getName() + ", command: "
