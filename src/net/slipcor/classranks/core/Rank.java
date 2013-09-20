@@ -16,10 +16,10 @@ import org.bukkit.inventory.ItemStack;
 public class Rank {
 	String sPermissionName;
 	String sDisplayName;
-	ChatColor cColor;
-	Class crcSuper;
+	ChatColor clChat;
+	String sClassRef;
 
-	ItemStack[] items;
+	Itemlist[] items;
 	private Double cost;
 	int exp;
 
@@ -42,12 +42,13 @@ public class Rank {
 	 *            the rank experience cost
 	 */
 	public Rank(String sPermName, String sDispName, ChatColor cC, Class crc,
-			ItemStack[] isItems, double dCost, int iExp) {
+			Itemlist[] Items, double dCost, int iExp) 
+	{
 		this.sPermissionName = sPermName;
 		this.sDisplayName = sDispName;
-		this.cColor = cC;
-		this.crcSuper = crc;
-		this.items = isItems;
+		this.clChat = cC;
+		this.sClassRef = crc.name;
+		this.items = Items;
 		this.cost = dCost;
 		this.exp = iExp;
 	}
@@ -67,7 +68,7 @@ public class Rank {
 	 * @return the color
 	 */
 	public ChatColor getColor() {
-		return this.cColor;
+		return this.clChat;
 	}
 
 	/**
@@ -75,8 +76,8 @@ public class Rank {
 	 * 
 	 * @return the class
 	 */
-	public Class getSuperClass() {
-		return this.crcSuper;
+	public String getSuperClass() {
+		return this.sClassRef;
 	}
 
 	/**
@@ -105,7 +106,7 @@ public class Rank {
 	 *            the color to use
 	 */
 	public void setColor(ChatColor cColor) {
-		this.cColor = cColor;
+		this.clChat = cColor;
 	}
 
 	public Double getCost() {
@@ -117,20 +118,10 @@ public class Rank {
 			return null;
 		}
 		ArrayList<String> result = new ArrayList<String>();
-		for (ItemStack i : items) {
-			if (i == null) {
-				continue;
-			}
-			
-			if (i.getDurability() != 0) {
-				result.add(i.getType().toString() + ":" + i.getDurability() + ":"+i.getAmount());
-			} else {
-				if (i.getAmount() != 0) {
-					result.add(i.getType().toString() + ":"+i.getAmount());
-				} else {
-					result.add(i.getType().toString());
-				}
-			}
+		
+		for (int i = 0; i < items.length; i++) 
+		{
+			result.add(items[i].getItemName() + ":" +items[i].getAmount());
 		}
 		return result;
 	}
@@ -139,9 +130,9 @@ public class Rank {
 		return exp;
 	}
 
-	public ItemStack[] getItemstacks() {
-		return items;
-	}
+//	public ItemStack[] getItemstacks() {
+//		return items;
+//	}
 
 	public void debugPrint() {
 		//return;

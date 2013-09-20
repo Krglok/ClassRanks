@@ -40,6 +40,7 @@ public class ClassRanks extends JavaPlugin {
 	private final CRServerListener serverListener = new CRServerListener(this,cmdMgr);
 	public final DebugManager db = new DebugManager(this);
 	public ConfigManager config = new ConfigManager(this);
+	public ClassManager cm = new ClassManager(this);
 	
 	public boolean trackRanks = false;
 

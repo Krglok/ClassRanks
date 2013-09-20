@@ -24,6 +24,7 @@ public class ClassManager {
 	private static ArrayList<Class> classes = new ArrayList<Class>();
 	private static ClassRanks plugin;
 	private static DebugManager db;
+	private static ArrayList<Class> classList = new ArrayList<Class>();
 	
 	public ClassManager(ClassRanks cr) {
 		ClassManager.plugin = cr;
