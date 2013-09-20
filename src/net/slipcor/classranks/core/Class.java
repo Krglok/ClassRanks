@@ -48,4 +48,10 @@ public class Class {
 	public void remove(String sPermName) {
 		this.ranks.remove(sPermName);
 	}
+
+	public  ArrayList<Rank> getRanks() 
+	{
+		return ranks;
+	}
+	
 }

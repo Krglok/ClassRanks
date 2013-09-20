@@ -17,7 +17,7 @@ public class Rank {
 	String sPermissionName;
 	String sDisplayName;
 	ChatColor clChat;
-	String sClassRef;
+	Class oClassRef;
 
 	Itemlist[] items;
 	private Double cost;
@@ -47,7 +47,7 @@ public class Rank {
 		this.sPermissionName = sPermName;
 		this.sDisplayName = sDispName;
 		this.clChat = cC;
-		this.sClassRef = crc.name;
+		this.oClassRef = crc;
 		this.items = Items;
 		this.cost = dCost;
 		this.exp = iExp;
@@ -76,8 +76,8 @@ public class Rank {
 	 * 
 	 * @return the class
 	 */
-	public String getSuperClass() {
-		return this.sClassRef;
+	public Class getSuperClass() {
+		return this.oClassRef;
 	}
 
 	/**

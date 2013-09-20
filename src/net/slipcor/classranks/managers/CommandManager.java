@@ -39,7 +39,8 @@ public class CommandManager {
 //	public ItemStack[][] rankItems;
 //	public String[] signCheck = { null, null, null }; // SignCheck variable
 
-	public CommandManager(ClassRanks plugin) {
+	public CommandManager(ClassRanks plugin) 
+	{
 		this.plugin = plugin;
 		this.pm = new PlayerManager(plugin);
 		this.fm = new FormatManager();
@@ -55,10 +56,12 @@ public class CommandManager {
 	 * - eventually delete from old rank 
 	 * - add to new rank
 	 */
-	public boolean rank(String[] args, Player comP) {
+	public boolean rank(String[] args, Player comP) 
+	{
 		db.i("ranking " + comP.getName() + " : " + FormatManager.formatStringArray(args));
 		int cDown = pm.coolDownCheck(comP);
-		if (cDown > 0) {
+		if (cDown > 0) 
+		{
 			plugin.msg(comP,
 					"You have to wait " + ChatColor.RED + String.valueOf(cDown)
 							+ ChatColor.WHITE + " seconds!");
@@ -186,7 +189,8 @@ public class CommandManager {
 				ItemStack[][] rankItems = plugin.config.getRankItems(); 
 				items =  rankItems != null ?rankItems[cRank + 1] : null;
 				
-				if (rNext.getItemstacks() != null) {
+				if (rNext.getItemstacks() != null) 
+				{
 					items = rNext.getItemstacks();
 				}
 			}
@@ -457,7 +461,7 @@ public class CommandManager {
 	 * @param world
 	 * @return
 	 */
-	private boolean hasClassRank(String classRank, String playerName, String world)
+	private boolean hasClassRank(String className, String playerName, String world)
 	{
 		String sPermName = plugin.perms.getPermNameByPlayer(world, playerName);
 		int i = 0;
@@ -467,12 +471,12 @@ public class CommandManager {
 
 			Rank tempRank = ClassManager.getRankByPermName(sPermName);
 
-			if (classRank == tempRank.getSuperClass().name) 
+			if (className == tempRank.getSuperClass().name) 
 			{
 				return true;
 			} 
 			if (++i > 10) {
-	!!			plugin.log("Infinite loop! More than 10 ranks!?",
+				plugin.log("Infinite loop! More than 10 ranks!?",
 						Level.SEVERE);
 				return false;
 			}
@@ -492,7 +496,17 @@ public class CommandManager {
 	 */
 	private boolean hasClass(String classRank, String playerName, String world)
 	{
-		Map<String, Object> classes = plugin.config.getClasses();
+		ArrayList<Class> classes = ClassManager.getClasses();
+		for (Class oClass : classes) 
+		{
+			ArrayList<Rank> ranks = oClass.getRanks();
+			for (Rank rank : ranks) 
+			{
+			  	
+			}
+		}
+		
+		
 		String sRank = classes.get(classRank).toString();
 		if (sRank != "") 
 		{
