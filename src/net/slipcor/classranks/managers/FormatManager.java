@@ -2,8 +2,6 @@ package net.slipcor.classranks.managers;
 
 import java.util.List;
 
-import net.slipcor.classranks.core.Itemlist;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -83,21 +81,6 @@ public class FormatManager {
     		}
     	}
 		return result;
-	}
-
-	public static Itemlist[] getItemListFromStringList(List<String> stringList) 
-	{
-		
-		Itemlist[] result;
-		String sName = "";
-		int iAmount = 0;
-		for (String item : stringList) 
-		{
-			
-			Itemlist item = new Itemlist("",0);
-//			result += result.equals("") ? item : "," + item;
-		}
-		return getItemStacksFromCommaString(result);
 	}
     
 	public static ItemStack[] getItemStacksFromStringList(List<String> stringList) {

@@ -377,14 +377,14 @@ public class ConfigManager {
 			boolean newClass = true;
 			for (String sRankName : ranks.keySet()) 
 			{
-//	Rank definition
-//	this.sPermissionName = sPermName;	= sRankName
-//	this.sDisplayName 	 = sDispName;	= name
-//	this.cColor 		 = cC;			= color
-//	this.crcSuper 		 = crc;			= Referenz on ClassObject 
-//	this.items 			 = isItems;		= items <List>
-//	this.cost 			 = dCost;		= price
-//	this.exp 			 = iExp;		= exp
+//				Rank definition
+//				this.sPermissionName = sPermName;
+//				this.sDisplayName = sDispName;
+//				this.cColor = cC;
+//				this.crcSuper = crc;
+//				this.items = isItems;
+//				this.cost = dCost;
+//				this.exp = iExp;
 
 				String rankName = null;
 				String rankColor = "&f";

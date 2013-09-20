@@ -16,10 +16,15 @@ import org.bukkit.inventory.ItemStack;
 public class Rank {
 	String sPermissionName;
 	String sDisplayName;
+<<<<<<< HEAD
 	ChatColor clChat;
 	Class oClassRef;
+=======
+	ChatColor cColor;
+	Class crcSuper;
+>>>>>>> parent of caf9ded... itemlist in rank modified
 
-	Itemlist[] items;
+	ItemStack[] items;
 	private Double cost;
 	int exp;
 
@@ -42,13 +47,18 @@ public class Rank {
 	 *            the rank experience cost
 	 */
 	public Rank(String sPermName, String sDispName, ChatColor cC, Class crc,
-			Itemlist[] Items, double dCost, int iExp) 
-	{
+			ItemStack[] isItems, double dCost, int iExp) {
 		this.sPermissionName = sPermName;
 		this.sDisplayName = sDispName;
+<<<<<<< HEAD
 		this.clChat = cC;
 		this.oClassRef = crc;
 		this.items = Items;
+=======
+		this.cColor = cC;
+		this.crcSuper = crc;
+		this.items = isItems;
+>>>>>>> parent of caf9ded... itemlist in rank modified
 		this.cost = dCost;
 		this.exp = iExp;
 	}
@@ -68,7 +78,7 @@ public class Rank {
 	 * @return the color
 	 */
 	public ChatColor getColor() {
-		return this.clChat;
+		return this.cColor;
 	}
 
 	/**
@@ -77,7 +87,11 @@ public class Rank {
 	 * @return the class
 	 */
 	public Class getSuperClass() {
+<<<<<<< HEAD
 		return this.oClassRef;
+=======
+		return this.crcSuper;
+>>>>>>> parent of caf9ded... itemlist in rank modified
 	}
 
 	/**
@@ -106,7 +120,7 @@ public class Rank {
 	 *            the color to use
 	 */
 	public void setColor(ChatColor cColor) {
-		this.clChat = cColor;
+		this.cColor = cColor;
 	}
 
 	public Double getCost() {
@@ -118,10 +132,20 @@ public class Rank {
 			return null;
 		}
 		ArrayList<String> result = new ArrayList<String>();
-		
-		for (int i = 0; i < items.length; i++) 
-		{
-			result.add(items[i].getItemName() + ":" +items[i].getAmount());
+		for (ItemStack i : items) {
+			if (i == null) {
+				continue;
+			}
+			
+			if (i.getDurability() != 0) {
+				result.add(i.getType().toString() + ":" + i.getDurability() + ":"+i.getAmount());
+			} else {
+				if (i.getAmount() != 0) {
+					result.add(i.getType().toString() + ":"+i.getAmount());
+				} else {
+					result.add(i.getType().toString());
+				}
+			}
 		}
 		return result;
 	}
@@ -130,9 +154,9 @@ public class Rank {
 		return exp;
 	}
 
-//	public ItemStack[] getItemstacks() {
-//		return items;
-//	}
+	public ItemStack[] getItemstacks() {
+		return items;
+	}
 
 	public void debugPrint() {
 		//return;
