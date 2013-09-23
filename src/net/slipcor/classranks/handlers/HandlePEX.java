@@ -5,7 +5,7 @@ import java.util.logging.Level;
 
 import net.slipcor.classranks.ClassRanks;
 import net.slipcor.classranks.managers.ClassManager;
-import net.slipcor.classranks.managers.DebugManager;
+//import net.slipcor.classranks.managers.DebugManager;
 import net.slipcor.classranks.managers.PlayerManager;
 
 import org.bukkit.entity.Player;
@@ -23,16 +23,16 @@ import ru.tehkode.permissions.PermissionManager;
 public class HandlePEX extends CRHandler {
 	private final ClassRanks plugin;
 	private PermissionManager permissionHandler;
-	private final DebugManager db;
+//	private final DebugManager db;
 
 	public HandlePEX(ClassRanks cr) {
 		plugin = cr;
-		db = new DebugManager(cr);
+//		db = new DebugManager(cr);
 	}
 
 	@Override
 	public boolean isInGroup(String world, String permName, String player) {
-		db.i("isInGroup: player "
+		plugin.db.i("isInGroup: player "
 				+ player
 				+ ", world: "
 				+ world
@@ -52,16 +52,16 @@ public class HandlePEX extends CRHandler {
 		permissionHandler = ru.tehkode.permissions.bukkit.PermissionsEx
 				.getPermissionManager();
 		if (permissionHandler == null) {
-			db.i("PEX not found");
+			plugin.db.i("PEX not found");
 			return false;
 		}
-		plugin.log("<3 PEX", Level.INFO); // success!
+		ClassRanks.log("<3 PEX", Level.INFO); // success!
 		return true;
 	}
 
 	@Override
 	public boolean hasPerms(Player comP, String string, String world) {
-		db.i("player hasPerms: "
+		plugin.db.i("player hasPerms: "
 				+ comP.getName()
 				+ ", world: "
 				+ world
@@ -84,10 +84,10 @@ public class HandlePEX extends CRHandler {
 		}
 		try {
 			permissionHandler.getUser(player).addGroup(cString, world);
-			db.i("added group " + cString + " to player " + player
+			plugin.db.i("added group " + cString + " to player " + player
 					+ " in world " + world);
 		} catch (Exception e) {
-			plugin.log("PermName " + cString + " or user " + player
+			ClassRanks.log("PermName " + cString + " or user " + player
 					+ " not found in world " + world, Level.WARNING);
 		}
 	}
@@ -102,10 +102,10 @@ public class HandlePEX extends CRHandler {
 		}
 		try {
 			permissionHandler.getUser(player).addGroup(rank, world);
-			db.i("added rank " + rank + " to player " + player
+			plugin.db.i("added rank " + rank + " to player " + player
 					+ " in world " + world);
 		} catch (Exception e) {
-			plugin.log("PermName " + rank + " or user " + player
+			ClassRanks.log("PermName " + rank + " or user " + player
 					+ " not found in world " + world, Level.WARNING);
 		}
 	}
@@ -121,10 +121,10 @@ public class HandlePEX extends CRHandler {
 		try {
 			permissionHandler.getUser(player).removeGroup(cString,
 					world);
-			db.i("removed rank " + cString + " from player " + player
+			plugin.db.i("removed rank " + cString + " from player " + player
 					+ " in world " + world);
 		} catch (Exception e) {
-			plugin.log("PermName " + cString + " or user " + player
+			ClassRanks.log("PermName " + cString + " or user " + player
 					+ " not found in world " + world, Level.WARNING);
 		}
 	}
@@ -143,7 +143,7 @@ public class HandlePEX extends CRHandler {
 		for (String group : groups)
 			permGroups.add(group);
 
-		db.i("player has groups: " + permGroups.toString());
+		plugin.db.i("player has groups: " + permGroups.toString());
 		return ClassManager.getLastPermNameByPermGroups(permGroups);
 	}
 
@@ -153,9 +153,9 @@ public class HandlePEX extends CRHandler {
 
 		try {
 			permissionHandler.getUser(player).addGroup(cString);
-			db.i("added group " + cString + " to player " + player);
+			plugin.db.i("added group " + cString + " to player " + player);
 		} catch (Exception e) {
-			plugin.log("PermName " + cString + " or user " + player
+			ClassRanks.log("PermName " + cString + " or user " + player
 					+ " not found", Level.WARNING);
 		}
 	}
@@ -166,9 +166,9 @@ public class HandlePEX extends CRHandler {
 		
 		try {
 			permissionHandler.getUser(player).addGroup(rank);
-			db.i("added rank " + rank + " to player " + player);
+			plugin.db.i("added rank " + rank + " to player " + player);
 		} catch (Exception e) {
-			plugin.log("PermName " + rank + " or user " + player
+			ClassRanks.log("PermName " + rank + " or user " + player
 					+ " not found", Level.WARNING);
 		}
 	}
@@ -179,9 +179,9 @@ public class HandlePEX extends CRHandler {
 		
 		try {
 			permissionHandler.getUser(player).removeGroup(cString);
-			db.i("added rank " + cString + " to player " + player);
+			plugin.db.i("added rank " + cString + " to player " + player);
 		} catch (Exception e) {
-			plugin.log("PermName " + cString + " or user " + player
+			ClassRanks.log("PermName " + cString + " or user " + player
 					+ " not found", Level.WARNING);
 		}
 	}
@@ -197,7 +197,7 @@ public class HandlePEX extends CRHandler {
 		for (String group : groups)
 			permGroups.add(group);
 
-		db.i("player has groups: " + permGroups.toString());
+		plugin.db.i("player has groups: " + permGroups.toString());
 		return ClassManager.getLastPermNameByPermGroups(permGroups);
 	}
 

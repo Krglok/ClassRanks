@@ -6,6 +6,12 @@ import net.slipcor.classranks.ClassRanks;
 
 /*
  * Debug manager class
+ * send messages to the server console, when active = true
+ * active are set with config.debug_flag,  default value active = true !
+ * for every message type is a separate method
+ * i = level.INFO	, infoMessage
+ * w = level.WARNING, warning MEssage
+ * s = Level.SEVERE , errorMesaage
  * 
  * author: slipcor
  * 
@@ -18,36 +24,36 @@ import net.slipcor.classranks.ClassRanks;
 
 public class DebugManager {
 	public static boolean active;
-	public final ClassRanks plugin;
 	
-	public DebugManager(ClassRanks plugin) {
-		this.plugin = plugin;
+	public DebugManager(boolean isActive) 
+	{
+		active = isActive;
 	}
 	
 	/*
 	 * info log
 	 */
-	public void i(String s) {
+	public  void i(String s) {
 		if (!active)
 			return;
-		plugin.log(s, Level.INFO);
+		ClassRanks.log(s, Level.INFO);
 	}
 	
 	/*
 	 * warning log
 	 */
-	public void w(String s) {
+	public  void w(String s) {
 		if (!active)
 			return;
-		plugin.log(s, Level.WARNING);
+		ClassRanks.log(s, Level.WARNING);
 	}
 	
 	/*
 	 * severe log
 	 */
-	public void s(String s) {
+	public  void s(String s) {
 		if (!active)
 			return;
-		plugin.log(s, Level.SEVERE);
+		ClassRanks.log(s, Level.SEVERE);
 	}
 }

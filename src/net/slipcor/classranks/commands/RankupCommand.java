@@ -2,7 +2,7 @@ package net.slipcor.classranks.commands;
 
 import net.slipcor.classranks.ClassRanks;
 import net.slipcor.classranks.managers.CommandManager;
-import net.slipcor.classranks.managers.DebugManager;
+//import net.slipcor.classranks.managers.DebugManager;
 import net.slipcor.classranks.managers.FormatManager;
 
 import org.bukkit.command.Command;
@@ -21,7 +21,7 @@ import org.bukkit.entity.Player;
 public class RankupCommand implements CommandExecutor {
 	private final ClassRanks plugin;
 	private final CommandManager cmdMgr;
-	private final DebugManager db;
+//	private final DebugManager db;
 	
 	/**
 	 * create a rankup command instance
@@ -31,7 +31,7 @@ public class RankupCommand implements CommandExecutor {
 	public RankupCommand(ClassRanks cr, CommandManager cm) {
 		plugin = cr;
 		cmdMgr = cm;
-		db = new DebugManager(cr);
+//		db = new DebugManager(cr);
 	}
 	
 	@Override
@@ -47,7 +47,7 @@ public class RankupCommand implements CommandExecutor {
 		String[] tStr = new String[args.length+1];
 		System.arraycopy(args, 0, tStr, 1, args.length);
 		tStr[0] = cmd.getName();
-		db.i("shortcut detected, parsed '" + FormatManager.formatStringArray(args) + "' to '" + tStr.toString() + "'");
+		plugin.db.i("shortcut detected, parsed '" + FormatManager.formatStringArray(args) + "' to '" + tStr.toString() + "'");
 		return cmdMgr.parseCommand((Player) sender, tStr);
 	}
 

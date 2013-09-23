@@ -32,23 +32,24 @@ import org.bukkit.inventory.ItemStack;
 
 public class PlayerManager {
 	private final ClassRanks plugin;
-	private static DebugManager db;
+//	private static DebugManager db;
 //	public static int coolDown;
 	
 	public PlayerManager(ClassRanks plugin) {
 		this.plugin = plugin;
-		db = new DebugManager(plugin);
+//		db = new DebugManager(plugin);
 	}
 
 	public static Player searchPlayer(String playerName) {
-		Player[] p = Bukkit.getServer().getOnlinePlayers();
-		for (int i=0;i<p.length;i++)
-			if (p[i].getName().toLowerCase().contains(playerName.toLowerCase()))
-				return p[i]; // gotcha!
-
-		db.i("player not online: " + playerName);
-		// not found online, hope that it was right anyways
-		return null;
+		return Bukkit.getPlayer(playerName);
+//		Player[] p = Bukkit.getServer().getOnlinePlayers();
+//		for (int i=0;i<p.length;i++)
+//			if (p[i].getName().toLowerCase().contains(playerName.toLowerCase()))
+//				return p[i]; // gotcha!
+//
+////		plugin.db.i("player not online: " + playerName);
+//		// not found online, hope that it was right anyways
+//		return null;
 	}
 	
 	/*
@@ -60,7 +61,7 @@ public class PlayerManager {
 			if (p[i].getName().toLowerCase().contains(player.toLowerCase()))
 				return p[i].getName(); // gotcha!
 
-		db.i("player not online: " + player);
+//		db.i("player not online: " + player);
 		// not found online, hope that it was right anyways
 		return player;
 	}
@@ -97,11 +98,11 @@ public class PlayerManager {
         if(!iiItemsLeftover.isEmpty()){
             // player does NOT have the stuff
 
-    		db.i("player does not have the items");
+//    		db.i("player does not have the items");
             iPlayer.getInventory().setContents(isPlayerItemsBackup);
             return false;
         }
-		db.i("player has the items");
+//		db.i("player has the items");
         return true;  
 	}
 
@@ -110,7 +111,7 @@ public class PlayerManager {
 			return 0; // if we do not want/need to calculate the cooldown, get out of here!
 		}
 
-		db.i("calculating cooldown");
+//		db.i("calculating cooldown");
 		
 		File fConfig = new File(plugin.getDataFolder(),"cooldowns.yml");
 		YamlConfiguration configCool = new YamlConfiguration();
@@ -119,16 +120,16 @@ public class PlayerManager {
         	try {
         		configCool.load(fConfig);
 			} catch (FileNotFoundException e) {
-				plugin.log("File not found!", Level.SEVERE);
+				ClassRanks.log("File not found!", Level.SEVERE);
 				e.printStackTrace();
 			} catch (IOException e) {
-				plugin.log("IO Exception!", Level.SEVERE);
+				ClassRanks.log("IO Exception!", Level.SEVERE);
 				e.printStackTrace();
 			} catch (InvalidConfigurationException e) {
-				plugin.log("Invalid Configuration!", Level.SEVERE);
+				ClassRanks.log("Invalid Configuration!", Level.SEVERE);
 				e.printStackTrace();
 			}
-        	plugin.log("CoolDown file loaded!", Level.INFO);
+        	ClassRanks.log("CoolDown file loaded!", Level.INFO);
         } else {
         	Map<String, Object> cdx = new HashMap<String, Object>();
         	cdx.put("slipcor", 0);
@@ -139,25 +140,25 @@ public class PlayerManager {
         int now = Math.round((System.currentTimeMillis() % (60*60*24*1000)) /1000);
 
         if (cds.containsKey(comP.getName())) {
-    		db.i("player cooldown found!");
+//    		db.i("player cooldown found!");
         	// Subtract the seconds waited from the needed seconds
         	int cd = plugin.config.getCoolDown() - (now - (Integer) cds.get(comP.getName()));
         	if ((cd <= plugin.config.getCoolDown()) && (cd > 0)) {
-        		db.i("cooldown still is: "+cd);
+//        		db.i("cooldown still is: "+cd);
         		return cd; // we still have to wait, return how many seconds
         	}
         	cds.remove(comP.getName()); // delete the value
-    		db.i("value deleted");
+//    		db.i("value deleted");
         }
 
     	cds.put(comP.getName(), now);
-		db.i("value set");
+//		db.i("value set");
     	
 		configCool.set("cooldown", cds);
 		try {
 			configCool.save(fConfig);
 		} catch (IOException e) {
-			plugin.log("IO Exception!", Level.SEVERE);
+			ClassRanks.log("IO Exception!", Level.SEVERE);
 			e.printStackTrace();
 		}
         

@@ -1,6 +1,7 @@
 package net.slipcor.classranks.managers;
 
 import java.util.ArrayList;
+import java.util.logging.Level;
 
 import net.slipcor.classranks.ClassRanks;
 import net.slipcor.classranks.core.Class;
@@ -15,6 +16,8 @@ import org.bukkit.inventory.ItemStack;
  * class manager class 
  * - Array of Classes
  * 
+ * used as static to workaround of initialize problems ! 
+ * 
  * @version v0.4.4.2
  * 
  * @author slipcor / krglok
@@ -23,11 +26,11 @@ import org.bukkit.inventory.ItemStack;
 public class ClassManager {
 	private static ArrayList<Class> classes = new ArrayList<Class>();
 	private static ClassRanks plugin;
-	private static DebugManager db;
+//	private static DebugManager db;
 	
 	public ClassManager(ClassRanks cr) {
 		ClassManager.plugin = cr;
-		db = new DebugManager(cr);
+//		db = new DebugManager(cr);
 	}
 	
 	public void add(String sClassName) {
@@ -69,7 +72,7 @@ public class ClassManager {
 		String sPermName = "";
 		for (Class c : classes) {
 			for (Rank r : c.ranks) {
-				db.i(c.name + " => " + r.getPermName());
+				plugin.db.i(c.name + " => " + r.getPermName());
 				if (permGroups.contains(r.getPermName()))
 					sPermName = r.getPermName();
 			}
@@ -87,8 +90,26 @@ public class ClassManager {
 		return null;
 	}
 
-	public static Rank getNextRank(Rank rank, int rankOffset) {
-		return rank.getSuperClass().ranks.get(rank.getSuperClass().ranks.indexOf(rank)+rankOffset);
+	public static Rank getNextRank(Rank rank, int rankIndex) 
+	{
+		if (rankIndex+1 < rank.getSuperClass().ranks.size())
+		{
+		   return rank.getSuperClass().ranks.get(rankIndex+1);
+		} else
+		{
+			return null;
+		}
+	}
+
+	public static Rank getPrevRank(Rank rank, int rankIndex) 
+	{
+		if (rankIndex-1 > 0)
+		{
+			return rank.getSuperClass().ranks.get(rankIndex-1);
+		} else
+		{
+			return null;
+		}
 	}
 	
 	private static Class getClassbyClassName(String sClassName) {
@@ -150,17 +171,22 @@ public class ClassManager {
 		{
 			Class c = new Class(sClassName);
 			c.add(sPermName, sDispName, (FormatManager.formatColor(sColor)), isItems, dCost, iExp);
+			// add Class
 			classes.add(c);
 			if (pPlayer == null)
-				db.i("Class added: " + sClassName);
-			else
+			{
+			    ClassRanks.log("Class added:" + sClassName, Level.INFO); 
+				
+				//db.i("Class added: " + sClassName); 
+			} else
+			{
 				plugin.msg(pPlayer, "Class added: " + sClassName);
-			plugin.config.save_config();
+			}
+//			plugin.config.save_config();
 			return true;
-			
 		}
 		if (pPlayer == null)
-			db.i("Class already exists: " + sClassName);
+			plugin.db.i("Class already exists: " + sClassName);
 		else
 			plugin.msg(pPlayer, "Class already exists for " + pPlayer);
 		return true;
@@ -168,12 +194,13 @@ public class ClassManager {
 
 	public static boolean configRankAdd(String sClassName, String sPermName, String sDispName, String sColor, ItemStack[] isItems, double dCost, int iExp, Player pPlayer) {
 		Class cClass = getClassbyClassName(sClassName);
-		if (cClass != null) {
+		if (cClass != null) 
+		{
 			cClass.ranks.add(new Rank(sPermName, sDispName, (FormatManager.formatColor(sColor)), cClass, isItems, dCost, iExp));
 			if (pPlayer == null)
 			{
-				db.i("Rank added: " + (FormatManager.formatColor(sColor)) + sPermName);
-				plugin.config.save_config();
+//				plugin.db.i("Rank added: " + (FormatManager.formatColor(sColor)) + sPermName);
+//				plugin.config.save_config();
 			} else
 			{
 				plugin.msg(pPlayer, "Rank added: " + (FormatManager.formatColor(sColor)) + sPermName +"/"+pPlayer);
@@ -182,7 +209,7 @@ public class ClassManager {
 			return true;
 		}
 		if (pPlayer == null)
-			db.i("Class not found: " + sClassName);
+			plugin.db.i("Class not found: " + sClassName);
 		else
 			plugin.msg(pPlayer, "Class not found: " + sClassName);
 		return true;
@@ -218,33 +245,33 @@ public class ClassManager {
 	}
 	
 	public static void saveClassProgress(Player pPlayer) {
-		db.i("saving class process");
+		plugin.db.i("saving class process");
 		String s = plugin.getConfig().getString("progress."+pPlayer.getName());
-		db.i("progress of "+pPlayer.getName()+": "+s);
+		plugin.db.i("progress of "+pPlayer.getName()+": "+s);
 		Rank rank = ClassManager.getRankByPermName(plugin.perms.getPermNameByPlayer(pPlayer.getWorld().getName(), pPlayer.getName()));
 		if (rank == null) {
-			db.i("rank is null!");
+			plugin.db.i("rank is null!");
 			return;
 		}
 
 		int rankID = rank.getSuperClass().ranks.indexOf(rank);
-		db.i("rank ID: "+rankID);
+		plugin.db.i("rank ID: "+rankID);
 		int classID = classes.indexOf(rank.getSuperClass());
-		db.i("classID: "+classID);
+		plugin.db.i("classID: "+classID);
 		
 		if (s != null && s.length() == classes.size()) {
 			
 			char[] c = s.toCharArray();
 			c[classID] = String.valueOf(rankID).charAt(0);
-			db.i("new c[classID]: "+c[classID]);
+			plugin.db.i("new c[classID]: "+c[classID]);
 
-			db.i("saving: "+c.toString());
+			plugin.db.i("saving: "+c.toString());
 			plugin.getConfig().set("progress."+pPlayer.getName(), String.valueOf(c.toString()));
 			
 			return;
 		}
 
-		db.i("no entry yet!");
+		plugin.db.i("no entry yet!");
 		String result = "";
 		for (int i = 0; i<classes.size();i++) {
 			if (i == classID) {
@@ -253,7 +280,7 @@ public class ClassManager {
 				result += "0";
 			}
 		}
-		db.i("setting: "+result);
+		plugin.db.i("setting: "+result);
 		plugin.getConfig().set("progress."+pPlayer.getName(), String.valueOf(result));
 		plugin.saveConfig();
 	}
@@ -269,4 +296,29 @@ public class ClassManager {
 			return 0;
 		}
 	}
+
+	public static int getRankIndex(Rank  rank, Class oClass) 
+	{
+		// init with 0 to set default to first Rank in Class
+		int rankID = 0;
+		try 
+		{
+			ArrayList<Rank> ranks = oClass.getRanks();
+			for (Rank oRank : ranks) 
+			{
+			    if (rank.getPermName().equals(oRank.getPermName()))
+			    {
+			    	return rankID;
+			    } else
+			    {
+			    	rankID++;
+			    }
+			}
+			return rankID;
+		} catch (Exception e) {
+			return 0;
+		}
+	}
+	
+	
 }

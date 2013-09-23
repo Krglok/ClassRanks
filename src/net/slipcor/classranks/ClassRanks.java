@@ -1,6 +1,6 @@
 package net.slipcor.classranks;
 
-import java.util.Map;
+//import java.util.Map;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
@@ -21,7 +21,7 @@ import net.slipcor.classranks.commands.RankdownCommand;
 import net.slipcor.classranks.commands.RankupCommand;
 import net.slipcor.classranks.handlers.*;
 import net.slipcor.classranks.listeners.*;
-import net.slipcor.classranks.managers.ClassManager;
+//import net.slipcor.classranks.managers.ClassManager;
 import net.slipcor.classranks.managers.CommandManager;
 import net.slipcor.classranks.managers.ConfigManager;
 import net.slipcor.classranks.managers.DebugManager;
@@ -36,10 +36,10 @@ import net.slipcor.classranks.register.payment.Method;
  */
 
 public class ClassRanks extends JavaPlugin {
+	public final DebugManager db = new DebugManager(true);
+	public ConfigManager config = new ConfigManager(this);
 	public final CommandManager cmdMgr = new CommandManager(this);
 	private final CRServerListener serverListener = new CRServerListener(this,cmdMgr);
-	public final DebugManager db = new DebugManager(this);
-	public ConfigManager config = new ConfigManager(this);
 	
 	public boolean trackRanks = false;
 
@@ -52,6 +52,7 @@ public class ClassRanks extends JavaPlugin {
 	@Override
 	public void onEnable() {
 
+	    log(" Enable Start", Level.INFO); // success!
 		PluginManager pm = getServer().getPluginManager();
 		pm.registerEvents(serverListener, this);
 
@@ -87,7 +88,7 @@ public class ClassRanks extends JavaPlugin {
 		}
 		if (config.isDebug())
 		{
-		  db.active = true;	
+		  DebugManager.active = true;	
 		}
 		
 		// backup permissions
@@ -135,7 +136,7 @@ public class ClassRanks extends JavaPlugin {
 	 * @param level
 	 *            the logging level
 	 */
-	public void log(String message, Level level) {
+	public static void log(String message, Level level) {
 		Bukkit.getLogger().log(level, "[ClassRanks] " + message);
 	}
 
@@ -148,8 +149,9 @@ public class ClassRanks extends JavaPlugin {
 	 *            the string to send
 	 */
 	public void msg(Player pPlayer, String string) {
-		pPlayer.sendMessage("[" + ChatColor.AQUA + getConfig().getString("prefix")
-				+ ChatColor.WHITE + "] " + string);
+//		pPlayer.sendMessage("[" + ChatColor.AQUA + getConfig().getString("prefix")
+//				+ ChatColor.WHITE + "] " + string);
+		pPlayer.sendMessage(ChatColor.AQUA + string);
 		db.i("to " + pPlayer.getName() + ": " + string);
 	}
 

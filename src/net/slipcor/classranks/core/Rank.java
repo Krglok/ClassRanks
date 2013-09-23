@@ -16,13 +16,8 @@ import org.bukkit.inventory.ItemStack;
 public class Rank {
 	String sPermissionName;
 	String sDisplayName;
-<<<<<<< HEAD
 	ChatColor clChat;
 	Class oClassRef;
-=======
-	ChatColor cColor;
-	Class crcSuper;
->>>>>>> parent of caf9ded... itemlist in rank modified
 
 	ItemStack[] items;
 	private Double cost;
@@ -47,18 +42,12 @@ public class Rank {
 	 *            the rank experience cost
 	 */
 	public Rank(String sPermName, String sDispName, ChatColor cC, Class crc,
-			ItemStack[] isItems, double dCost, int iExp) {
+			ItemStack[] Items, double dCost, int iExp) {
 		this.sPermissionName = sPermName;
 		this.sDisplayName = sDispName;
-<<<<<<< HEAD
 		this.clChat = cC;
 		this.oClassRef = crc;
 		this.items = Items;
-=======
-		this.cColor = cC;
-		this.crcSuper = crc;
-		this.items = isItems;
->>>>>>> parent of caf9ded... itemlist in rank modified
 		this.cost = dCost;
 		this.exp = iExp;
 	}
@@ -78,7 +67,7 @@ public class Rank {
 	 * @return the color
 	 */
 	public ChatColor getColor() {
-		return this.cColor;
+		return this.clChat;
 	}
 
 	/**
@@ -87,11 +76,7 @@ public class Rank {
 	 * @return the class
 	 */
 	public Class getSuperClass() {
-<<<<<<< HEAD
 		return this.oClassRef;
-=======
-		return this.crcSuper;
->>>>>>> parent of caf9ded... itemlist in rank modified
 	}
 
 	/**
@@ -120,7 +105,7 @@ public class Rank {
 	 *            the color to use
 	 */
 	public void setColor(ChatColor cColor) {
-		this.cColor = cColor;
+		this.clChat = cColor;
 	}
 
 	public Double getCost() {

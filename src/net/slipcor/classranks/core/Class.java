@@ -36,7 +36,8 @@ public class Class {
 	 * @param dCost the rank cost
 	 * @param iExp the rank exp cost
 	 */
-	public void add(String sPermName, String sDispName, ChatColor cColor, ItemStack[] isItems, double dCost, int iExp) {
+	public void add(String sPermName, String sDispName, ChatColor cColor, ItemStack[] isItems, double dCost, int iExp) 
+	{
 		this.ranks.add(new Rank(sPermName, sDispName, cColor, this, isItems, dCost, iExp));
 	}
 	

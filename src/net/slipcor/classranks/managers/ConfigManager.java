@@ -14,10 +14,12 @@ import net.slipcor.classranks.core.Rank;
 /*
  * this Class read the config and make it persistaned
  * each config node  will be stored here.
+ * the config data stored in parameters, so not always read from file
+ * the ClassRank tree are stored in the ClassManager
  * 
- * @version v0.4.6
+ * @version v0.4.6 
  * 
- * @author krglog
+ * @author krglok
  * 
  */
 public class ConfigManager {
@@ -32,16 +34,27 @@ public class ConfigManager {
 //	private void setClasses(Map<String, Object> classes) {
 //		this.classRanks = classes;
 //	}
-	private Boolean autoUpdate;
+	private Boolean autoUpdate = new Boolean(false);
 	
 	public Boolean isAutoUpdate() {
 		return autoUpdate;
 	}
 
-	private Boolean updateCheck;
+	private Boolean updateCheck = new Boolean(false);
 	
 	public Boolean isUpdateCheck() {
 		return updateCheck;
+	}
+
+	private Boolean clearranks = new Boolean(false);
+	public Boolean isClearranks() 
+	{
+		return clearranks;
+	}
+
+	public void setClearranks(Boolean clearranks) 
+	{
+		this.clearranks = clearranks;
 	}
 	
 	private Map<String, Object> players;
@@ -50,14 +63,27 @@ public class ConfigManager {
 		return players;
 	}
 
-	private Map<String,Object> playerClassList;
+	private Map<String,Object> playerClassList;		// should store the playerClasses
 	
-	private Map<String, String> playerClassRank;
+	private Map<String, String> playerClassRank; 	// should store the playerRanks 
 	
 	private Double[] moneyCost;
+	
 	public Double[] getMoneyCost() {
 		return moneyCost;
 	}
+	
+	public Double getMoneyCost(int index) 
+	{
+		if (index <= moneyCost.length)
+		{
+			return moneyCost[index];
+		} else
+		{
+			return moneyCost[moneyCost.length-1];
+		}
+	}
+	
 	public void setMoneyCost(Double[] moneyCost) {
 		this.moneyCost = moneyCost;
 	}
@@ -65,14 +91,27 @@ public class ConfigManager {
 	public int[] getExpCost() {
 		return expCost;
 	}
+	public int getExpCost(int index) 
+	{
+		if (index <= expCost.length)
+		{
+			return expCost[index];
+		} else
+		{
+			return expCost[expCost.length-1];
+		} 
+	}
 
 	
 	public ConfigManager(ClassRanks plugin) {
 		super();
 		this.plugin = plugin;
+		moneyCost = new Double[1];
+		expCost = new int[1];
+		
 	}
 
-	private Boolean debug;
+	private Boolean debug = new Boolean(false);
 	public Boolean isDebug() {
 		return debug;
 	}
@@ -80,7 +119,7 @@ public class ConfigManager {
 		this.debug = debug;
 	}
 	
-	private Boolean checkprices;
+	private Boolean checkprices = new Boolean(false);
 	public Boolean isCheckprices() {
 		return checkprices;
 	}
@@ -96,7 +135,7 @@ public class ConfigManager {
 		this.prices = prices;
 	}
 
-	private Boolean checkexp;
+	private Boolean checkexp = new Boolean(false);
 	public Boolean isCheckexp() {
 		return checkexp;
 	}
@@ -112,7 +151,7 @@ public class ConfigManager {
 		this.expprices = expprices;
 	}
 	
-	private Boolean trackRanks;
+	private Boolean trackRanks = new Boolean(false);
 	public Boolean isTrackRanks() {
 		return trackRanks;
 	}
@@ -128,7 +167,7 @@ public class ConfigManager {
 		this.rankPublic = rankpublic;
 	}
 	
-	private Boolean signcheck;
+	private Boolean signcheck = new Boolean(false);
 	public Boolean isSigncheck() {
 		return signcheck;
 	}
@@ -160,7 +199,7 @@ public class ConfigManager {
 		this.itemStacks = itemStacks;
 	}
 	
-	private Boolean checkitems;
+	private Boolean checkitems = new Boolean(false);
 	public Boolean isCheckitems() {
 		return checkitems;
 	}
@@ -192,7 +231,7 @@ public class ConfigManager {
 		this.defaultRankAllWorlds = defaultrankallworlds;
 	}
 	
-	private boolean onlyOneClass;
+	private boolean onlyOneClass = new Boolean(false);
 	public Boolean isOnlyoneclass() {
 		return onlyOneClass;
 	}
@@ -200,14 +239,15 @@ public class ConfigManager {
 		this.onlyOneClass = onlyoneclass;
 	}
 	
-	
-	
+	/**
+	 * Load Config file , stores data in parmeters
+	 */
 	public void load_config() {
 
 		if (plugin.getConfig() == null
 				|| !plugin.getConfig().getString("cversion").equals(debugVersion)) 
 		{
-			plugin.log("creating default config.yml", Level.INFO);
+			ClassRanks.log("creating default config.yml", Level.INFO);
 			plugin.getConfig().set("cversion", debugVersion);
 			plugin.getConfig().options().copyDefaults(true);
 			plugin.saveConfig();
@@ -243,13 +283,14 @@ public class ConfigManager {
 			int i = 0;
 			for (String Key : prices.keySet()) {
 				String sVal = (String) prices.get(Key);
-				try {
+				try 
+				{
 					moneyCost[i] = Double.parseDouble(sVal);
-					plugin.db.i("#" + i + " => "
-							+ String.valueOf(Double.parseDouble(sVal)));
-				} catch (Exception e) {
+					plugin.db.i("#" + i + " => " + String.valueOf(Double.parseDouble(sVal)));
+				} catch (Exception e) 
+				{
 					moneyCost[i] = 0.0;
-					plugin.log("Unrecognized cost key '" + String.valueOf(Key) + "': "
+					ClassRanks.log("Unrecognized cost key '" + String.valueOf(Key) + "': "
 							+ sVal, Level.INFO);
 				}
 				i++;
@@ -268,17 +309,26 @@ public class ConfigManager {
 //			cmdMgr.expCost = new int[expprices.size()];
 			
 			int i = 0;
-			for (String Key : expprices.keySet()) {
+			// array erweitern, wenn zu klein
+			if (expCost.length < expprices.size() )
+			{
+			  expCost = new int [expprices.size()];
+			}
+			// config in array uebertragen 
+			for (String Key : expprices.keySet()) 
+			{
 				String sVal = (String) expprices.get(Key);
-				try {
-					plugin.cmdMgr.expCost[i] = Integer.parseInt(sVal);
+				ClassRanks.log("ExpPrice : "+sVal, Level.INFO);
+				try 
+				{
+					expCost[i] = Integer.parseInt(sVal);
 					plugin.db.i("#" + i + " => "
 							+ String.valueOf(Integer.parseInt(sVal)));
 				} catch (Exception e) {
 					
 					expCost = new int[i+1];
 					expCost[i] = 0;
-					plugin.log("Unrecognized exp cost key '" + String.valueOf(Key)
+					ClassRanks.log("Unrecognized exp cost key '" + String.valueOf(Key)
 							+ "': " + sVal, Level.INFO);
 				}
 				i++;
@@ -311,6 +361,9 @@ public class ConfigManager {
 			signs[2] = plugin.getConfig().getString("signrankdown",
 					"[rankdown]");
 		}
+		
+		setClearranks(plugin.getConfig().getBoolean("signcheck", false));
+
 
 		///PlayerManager.coolDown = plugin.getConfig().getInt("cooldown", 0);
 		coolDown = plugin.getConfig().getInt("cooldown", 0);
@@ -354,7 +407,7 @@ public class ConfigManager {
 										Integer.valueOf(vValue[0]), vAmount);
 							} catch (Exception e2) {
 
-								plugin.log("Unrecognized reagent: " + vValue[0],
+								ClassRanks.log("Unrecognized reagent: " + vValue[0],
 										Level.WARNING);
 								continue;
 							}
@@ -511,6 +564,6 @@ public class ConfigManager {
 		}
 		plugin.saveConfig();
 	}
-	
+
 
 }

@@ -2,7 +2,7 @@ package net.slipcor.classranks.commands;
 
 import net.slipcor.classranks.ClassRanks;
 import net.slipcor.classranks.managers.CommandManager;
-import net.slipcor.classranks.managers.DebugManager;
+//import net.slipcor.classranks.managers.DebugManager;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -20,7 +20,7 @@ import org.bukkit.entity.Player;
 public class ClassCommand implements CommandExecutor {
 	private final ClassRanks plugin;
 	private final CommandManager cmdMgr;
-	private final DebugManager db;
+//	private final DebugManager db;
 	
 	/**
 	 * create a class command instance
@@ -30,7 +30,7 @@ public class ClassCommand implements CommandExecutor {
 	public ClassCommand(ClassRanks cr, CommandManager cm) {
 		plugin = cr;
 		cmdMgr = cm;
-		db = new DebugManager(cr);
+//		db = new DebugManager(cr);
 	}
 
 	@Override
@@ -42,7 +42,7 @@ public class ClassCommand implements CommandExecutor {
     		return true;
     	}
 		// standard class command, parse it!
-		db.i("/class detected! parsing...");
+		plugin.db.i("/class detected! parsing...");
 		return cmdMgr.parseCommand((Player) sender, args);
 	}
 

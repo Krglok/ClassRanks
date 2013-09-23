@@ -6,7 +6,7 @@ import java.util.logging.Level;
 
 import net.slipcor.classranks.ClassRanks;
 import net.slipcor.classranks.managers.ClassManager;
-import net.slipcor.classranks.managers.DebugManager;
+//import net.slipcor.classranks.managers.DebugManager;
 import net.slipcor.classranks.managers.PlayerManager;
 
 import org.bukkit.World;
@@ -25,11 +25,11 @@ import de.bananaco.bpermissions.api.CalculableType;
 
 public class HandleBPerms extends CRHandler {
 	private final ClassRanks plugin;
-	private final DebugManager db;
+//	private final DebugManager db;
 
 	public HandleBPerms(ClassRanks cr) {
 		plugin = cr;
-		db = new DebugManager(cr);
+//		db = new DebugManager(cr);
 	}
 
 	@Override
@@ -47,10 +47,10 @@ public class HandleBPerms extends CRHandler {
 		// try to load permissions, return result
 		try {
 			ApiLayer al = new ApiLayer();
-			plugin.log("<3 bPermissions", Level.INFO);
+			ClassRanks.log("<3 bPermissions", Level.INFO);
 			return (al.toString() != null);
 		} catch (Exception e) {
-			db.i("bPerms not found");
+			plugin.db.i("bPerms not found");
 			return false;
 		}
 	}
@@ -80,10 +80,10 @@ public class HandleBPerms extends CRHandler {
 			try {
 				ApiLayer.addGroup(worlds[i], CalculableType.USER, player,
 						cString);
-				db.i("added group " + cString + " to player " + player
+				plugin.db.i("added group " + cString + " to player " + player
 						+ " in world " + worlds[i]);
 			} catch (Exception e) {
-				plugin.log("PermName " + cString + " or user " + player
+				ClassRanks.log("PermName " + cString + " or user " + player
 						+ " not found in world " + worlds[i], Level.WARNING);
 			}
 		}
@@ -108,10 +108,10 @@ public class HandleBPerms extends CRHandler {
 		for (int i = 0; i < worlds.length; i++) {
 			try {
 				ApiLayer.addGroup(worlds[i], CalculableType.USER, player, rank);
-				db.i("added rank " + rank + " to player " + player
+				plugin.db.i("added rank " + rank + " to player " + player
 						+ " in world " + worlds[i]);
 			} catch (Exception e) {
-				plugin.log("PermName " + rank + " or user " + player
+				ClassRanks.log("PermName " + rank + " or user " + player
 						+ " not found in world " + worlds[i], Level.WARNING);
 			}
 		}
@@ -138,10 +138,10 @@ public class HandleBPerms extends CRHandler {
 				
 				ApiLayer.removeGroup(worlds[i], CalculableType.USER, player,
 						cString);
-				db.i("removed rank " + cString + " from player " + player
+				plugin.db.i("removed rank " + cString + " from player " + player
 						+ " in world " + worlds[i]);
 			} catch (Exception e) {
-				plugin.log("PermName " + cString + " or user " + player
+				ClassRanks.log("PermName " + cString + " or user " + player
 						+ " not found in world " + worlds[i], Level.WARNING);
 			}
 		}
@@ -162,11 +162,11 @@ public class HandleBPerms extends CRHandler {
 			}
 		}
 		for (int i = 0; i < worlds.length; i++) {
-			db.i("checking world "+worlds[i]);
+			plugin.db.i("checking world "+worlds[i]);
 			String[] list = ApiLayer.getGroups(worlds[i], CalculableType.USER,
 					player);
 			for (String sRank : list) {
-				db.i("checking rank "+sRank);
+				plugin.db.i("checking rank "+sRank);
 				if (ClassManager.rankExists(sRank)) {
 					permGroups.add(sRank);
 				}
@@ -174,7 +174,7 @@ public class HandleBPerms extends CRHandler {
 
 		}
 
-		db.i("player has groups: " + permGroups.toString());
+		plugin.db.i("player has groups: " + permGroups.toString());
 		return ClassManager.getLastPermNameByPermGroups(permGroups);
 	}
 

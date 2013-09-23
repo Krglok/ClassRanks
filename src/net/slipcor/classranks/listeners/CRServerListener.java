@@ -5,7 +5,7 @@ import java.util.logging.Level;
 import net.slipcor.classranks.ClassRanks;
 import net.slipcor.classranks.Update;
 import net.slipcor.classranks.managers.CommandManager;
-import net.slipcor.classranks.managers.DebugManager;
+//import net.slipcor.classranks.managers.DebugManager;
 import net.slipcor.classranks.register.payment.Methods;
 
 import org.bukkit.Bukkit;
@@ -36,13 +36,13 @@ public class CRServerListener implements Listener {
 	private final ClassRanks plugin;
 
 	private final CommandManager cmdMgr;
-	private final DebugManager db;
+//	private final DebugManager db;
 	
     public CRServerListener(ClassRanks plugin, CommandManager classes) {
     	this.plugin = plugin;
     	this.methods = new Methods();
 		cmdMgr = classes;
-		db = new DebugManager(plugin);
+//		db = new DebugManager(plugin);
     }
     
     @EventHandler(priority = EventPriority.NORMAL)
@@ -61,42 +61,42 @@ public class CRServerListener implements Listener {
     		return; // event cancelled or no block clicked => OUT
     	}
 
-		db.i("right block click!");
+    	plugin.db.i("right block click!");
 		// we clicked a block
 		if ((plugin.config.isSigncheck() == false) || (plugin.config.isSigncheck() == null)) 
 		{
 			return; // no sign usage => OUT
 		}
-		db.i("we want to check for sign usage!");
+		plugin.db.i("we want to check for sign usage!");
 		// we want to allow sign usage
 		Block bBlock = event.getClickedBlock();
 		if (!(bBlock.getState() instanceof Sign)) {
 			return; // no sign clicked => OUT
 		}
-		db.i("we clicked a sign!");
+		plugin.db.i("we clicked a sign!");
 		// we clicked a sign!
 		Sign s = (Sign) bBlock.getState();
 
 		if (s.getLine(0).equals(plugin.config.getSigns()[0])) {
-    		db.i("parsing command " + s.getLine(1));
+			plugin.db.i("parsing command " + s.getLine(1));
 			String[] sArgs = {s.getLine(1)}; // parse the command!
 			cmdMgr.parseCommand(event.getPlayer(), sArgs);
 		} else {
-    		db.i("searching for rank commands");
+			plugin.db.i("searching for rank commands");
 			for (int i = 0 ; i <= 3; i++) {
 				if (s.getLine(i).equals(plugin.config.getSigns()[1])) {
-		    		db.i("rankup found, parsing...");
+					plugin.db.i("rankup found, parsing...");
 					String[] sArgs = {"rankup"};
 					cmdMgr.parseCommand(event.getPlayer(), sArgs);
 					return;
 				} else if (s.getLine(i).equals(plugin.config.getSigns()[2])) {
-		    		db.i("rankup found, parsing");
+					plugin.db.i("rankup found, parsing");
 					String[] sArgs = {"rankdown"};
 					cmdMgr.parseCommand(event.getPlayer(), sArgs);
 					return;
 				}
 			}
-    		db.i("no command found!");
+			plugin.db.i("no command found!");
 		}
     }
 
@@ -111,7 +111,7 @@ public class CRServerListener implements Listener {
 
             if(check) {
                 plugin.method = null;
-                plugin.log("</3 eConomy",Level.INFO);
+                ClassRanks.log("</3 eConomy",Level.INFO);
             }
         }
     }
@@ -125,7 +125,7 @@ public class CRServerListener implements Listener {
         if (!Methods.hasMethod()) {
             if(Methods.setMethod(Bukkit.getServer().getPluginManager())) {
                 plugin.method = Methods.getMethod();
-                plugin.log("<3 " + plugin.method.getName() + " version: " + plugin.method.getVersion(),Level.INFO);
+                ClassRanks.log("<3 " + plugin.method.getName() + " version: " + plugin.method.getVersion(),Level.INFO);
             }
         }
         // Autoupdate are not used

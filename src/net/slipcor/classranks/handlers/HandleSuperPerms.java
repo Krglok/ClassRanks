@@ -8,7 +8,7 @@ import org.bukkit.entity.Player;
 
 import net.slipcor.classranks.ClassRanks;
 import net.slipcor.classranks.managers.ClassManager;
-import net.slipcor.classranks.managers.DebugManager;
+//import net.slipcor.classranks.managers.DebugManager;
 
 /**
  * SuperPermissions handler class
@@ -20,11 +20,11 @@ import net.slipcor.classranks.managers.DebugManager;
 
 public class HandleSuperPerms extends CRHandler {
 	private final ClassRanks plugin;
-	private final DebugManager db;
+//	private final DebugManager db;
 	
 	public HandleSuperPerms(ClassRanks cr) {
 		plugin = cr;
-		db = new DebugManager(cr);
+//		db = new DebugManager(cr);
 	}
 
 	@Override
@@ -35,11 +35,11 @@ public class HandleSuperPerms extends CRHandler {
 			for (Object key : nodes.values())
 				if (((String) key).equals(permName)) {
 
-					db.i("isInGroup: player " + player + ", world: " + world + ", perms: " + permName + ": " + String.valueOf(true));
+					plugin.db.i("isInGroup: player " + player + ", world: " + world + ", perms: " + permName + ": " + String.valueOf(true));
 					return true;
 				}
 
-		db.i("isInGroup: player " + player + ", world: " + world + ", perms: " + permName + ": " + String.valueOf(false));
+		plugin.db.i("isInGroup: player " + player + ", world: " + world + ", perms: " + permName + ": " + String.valueOf(false));
 		return false;
 	}
 	
@@ -49,13 +49,13 @@ public class HandleSuperPerms extends CRHandler {
      */
 	@Override
     public boolean setupPermissions() {
-	    plugin.log("No permissions plugin found, No Permissions are used.", Level.INFO); // success!
+	    ClassRanks.log("No permissions plugin found, No Permissions are used.", Level.INFO); // success!
     	return true;
     }
 
 	@Override
     public boolean hasPerms(Player comP, String string, String world) {
-		db.i("player hasPerms: " + comP.getName() + ", world: " + world + ", perm: "  + string + " : " + String.valueOf( comP.hasPermission(string)));
+		plugin.db.i("player hasPerms: " + comP.getName() + ", world: " + world + ", perm: "  + string + " : " + String.valueOf( comP.hasPermission(string)));
 		return comP.hasPermission(string);
 	}
 
@@ -72,7 +72,7 @@ public class HandleSuperPerms extends CRHandler {
 			firstRank = ClassManager.getFirstPermNameByClassName(cString);
 		}
 		plugin.getConfig().set("players." + player + "." + cString, firstRank);
-		db.i("added group " + cString + " to player " + player + ", no world support");
+		plugin.db.i("added group " + cString + " to player " + player + ", no world support");
 		plugin.saveConfig();
 	}
 
@@ -83,9 +83,9 @@ public class HandleSuperPerms extends CRHandler {
 	public void rankAdd(String world, String player, String rank) {
 		String cString = ClassManager.getClassNameByPermName(rank);
 		plugin.getConfig().set("players." + player + "." + cString, rank);
-		db.i("added rank " + rank + " to player " + player + ", no world support");
+		plugin.db.i("added rank " + rank + " to player " + player + ", no world support");
 		plugin.saveConfig();
-		plugin.log("SuperPerm PermName " + rank + ": user " + player + " set " + world, Level.INFO);
+		ClassRanks.log("SuperPerm PermName " + rank + ": user " + player + " set " + world, Level.INFO);
 	}
 
 	/*
@@ -94,7 +94,7 @@ public class HandleSuperPerms extends CRHandler {
 	@Override
 	public void rankRemove(String world, String player, String cString) {
 		plugin.getConfig().set("players." + player, null);
-		db.i("removed rank " + cString + " from player " + player + ", no world support");
+		plugin.db.i("removed rank " + cString + " from player " + player + ", no world support");
 		plugin.saveConfig();
 	}
 
@@ -116,7 +116,7 @@ public class HandleSuperPerms extends CRHandler {
 		for (Object group : groups.values())
 			permGroups.add((String) group);
 		
-		db.i("player has groups: " + permGroups.toString());
+		plugin.db.i("player has groups: " + permGroups.toString());
 		return ClassManager.getLastPermNameByPermGroups(permGroups);
 	}
 
@@ -128,7 +128,7 @@ public class HandleSuperPerms extends CRHandler {
 	@Override
 	public void rankAddGlobal(String player, String rank) {
 		rankAdd(null, player, rank);
-		plugin.log("SuperPerm PermName " + rank + ": user " + player , Level.INFO);
+		ClassRanks.log("SuperPerm PermName " + rank + ": user " + player , Level.INFO);
 	}
 
 	@Override
