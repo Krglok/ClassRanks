@@ -43,12 +43,12 @@ public class RankdownCommand implements CommandExecutor {
     		return true;
     	}
     	
-		// if we use the shortcut /rankup or /rankdown, shift the array
-		String[] tStr = new String[args.length+1];
-		System.arraycopy(args, 0, tStr, 1, args.length);
-		tStr[0] = cmd.getName();
-		plugin.db.i("shortcut detected, parsed '" + FormatManager.formatStringArray(args) + "' to '" + tStr.toString() + "'");
-		return cmdMgr.parseCommand((Player) sender, tStr);
+//		// if we use the shortcut /rankup or /rankdown, shift the array
+//		String[] tStr = new String[args.length+1];
+//		System.arraycopy(args, 0, tStr, 1, args.length);
+//		tStr[0] = cmd.getName();
+//		plugin.db.i("shortcut detected, parsed '" + FormatManager.formatStringArray(args) + "' to '" + tStr.toString() + "'");
+		return cmdMgr.parseSelfRankDown((Player) sender, args);
 	}
 
 }

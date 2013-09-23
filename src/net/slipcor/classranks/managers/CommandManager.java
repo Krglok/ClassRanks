@@ -33,11 +33,12 @@ public class CommandManager {
 
 	public Double[] moneyCost = new Double[ClassManager.getClasses().size()]; // Costs
 	public int[] expCost = new int[ClassManager.getClasses().size()]; // EXP
-																		// Costs
-//	public boolean rankpublic; // do we spam changed to the public?
-//	public boolean onlyoneclass; // only maintain oneass
+
+	Double checkedCost;		// checked cost for rank up / add
+	int  checkedExp;		// checked Exp Cost for rank up / add
+	ItemStack[] checkedItems;  // checked list of required items for rank up / add
+
 //	public ItemStack[][] rankItems;
-//	public String[] signCheck = { null, null, null }; // SignCheck variable
 
 	public CommandManager(ClassRanks plugin) 
 	{
@@ -48,15 +49,18 @@ public class CommandManager {
 		moneyCost = plugin.config.getMoneyCost();
 	}
 
-	/*
+	/**
 	 * This function provides the main ranking process - including error
-	 * messages when stuff is not right. Parameter check must be done before. 
-	 * /class [rankup] [playername] [classname] {world} | Rank user up
-	 * - check if permissions are there 
+	 * messages when stuff is not right. Parameter check must be done before.
+	 * processes rank up / down 
+	 * <pre>
+	 * - check cooldown for player
 	 * - get old rank 
-	 * - calculate new rank 
+	 * - calculate new rank
+	 * - check money, exp, items for new rank 
 	 * - eventually delete from old rank 
 	 * - add to new rank
+	 * </pre>
 	 */
 	public boolean rank(Player sender, Player player, String[] args) 
 	{
@@ -109,10 +113,10 @@ public class CommandManager {
 
 		plugin.db.i("rank check successful");
 
-		String cPermName = rank.getPermName(); // Permissions rank name
-		String cDispName = rank.getDispName(); // Display rank name
-		ChatColor c_Color = rank.getColor(); // Rank color
-		Class oClass = rank.getSuperClass(); // Rank class
+		String cPermName = rank.getPermName(); // actual Permissions rank name
+		String cDispName = rank.getDispName(); // actual Display rank name
+		ChatColor c_Color = rank.getColor();   // actual Rank color
+		Class oClass = rank.getSuperClass();   // actual Rank class
 
 		int rID = ClassManager.getRankIndex(rank, oClass );	//  Index des Rank
 //		int cRank = cClass.ranks.indexOf(rank); // Rank index
@@ -164,107 +168,175 @@ public class CommandManager {
 				rank_cost = 0;
 			}
 			
-			Rank rNext =  ClassManager.getNextRank(rank, rID);  // New Rank
-			if (rNext != null) 
+			Rank tempRank =  ClassManager.getNextRank(rank, rID);  // New Rank
+//			if (rNext != null) 
+//			{
+//				if (rNext.getCost() != -1337D) 
+//				{
+//					rank_cost = rNext.getCost();
+//				}
+//			}
+
+			// Check for money to rank up
+			// rankCosts stored in checkedCost
+			if (!checkCost(sender, player , tempRank, rID))
 			{
-				if (rNext.getCost() != -1337D) 
-				{
-					rank_cost = rNext.getCost();
-				}
+				// not enough money message send to player and to promoter
+				plugin.msg(player,"You don't have enough money to choose your class! ("
+				+ ClassRanks.economy.format(checkedCost)
+				+"/ "+ClassRanks.economy.getBalance(player.getName())
+				+ ")");
+				plugin.msg(sender,"The player don't have enough money ! ("
+				+ ClassRanks.economy.format(checkedCost)
+				+"/ "+ClassRanks.economy.getBalance(player.getName())
+				+ ")");
+				return true;
+				
+			} 
+			plugin.db.i("money check successful");
+
+			// check for experience to rank up
+			// expcost stored in checkedExp
+			if (!checkExp(sender, player, tempRank, rID))
+			{
+				// not enough exp message send to player and to promoter
+				plugin.msg(player,"You don't have enough experience! You need "+ checkedExp);
+				plugin.msg(sender,"Player don't have enough experience! You need "+ checkedExp);
+				return true;
+			}
+			plugin.db.i("Exp check done");
+
+			// check items for rank up
+			if (!checkitems(sender, player , tempRank, rID))
+			{
+				// not enough items message send to player and to promoter
+				plugin.msg(player,"You don't have enough items!");
+				plugin.msg(sender,"Player don't have enough items!");
+				return true;
+			}
+			
+			plugin.db.i("item check done");
+
+			cPermName = tempRank.getPermName(); // Display new rank name
+			cDispName = tempRank.getDispName(); // Display new rank name
+			c_Color = tempRank.getColor(); // new Rank color
+
+			// success!
+
+			// Do Cost and Addrank 
+			if (checkedCost > 0)
+			{
+				ClassRanks.economy.withdrawPlayer(player.getName(), checkedCost);
+				plugin.msg(player, "You paid " + checkedCost + " money !");
+				plugin.msg(sender, "Player paid " + checkedCost + " money !");
+			}
+			
+			if (checkedExp > 0)
+			{
+				player.setTotalExperience(player.getTotalExperience() - checkedExp);
+				plugin.msg(player, "You paid " + checkedExp + " experience points!");
+				plugin.msg(player, "Player paid " + checkedExp + " experience points!");
 			}
 
-			if (ClassRanks.economy != null) 
+			if (plugin.config.isCheckitems())
 			{
-				
-//				if (ClassRanks.economy.hasAccount(comP.getName())) {
-//					plugin.log("Account not found: " + comP.getName(),
+				pm.takeItems(player, checkedItems);
+				plugin.msg(player, "You paid the required items!");
+				plugin.msg(player, "Player paid the required items!");
+			}
+			
+//			if (ClassRanks.economy != null) 
+//			{
+//				
+////				if (ClassRanks.economy.hasAccount(comP.getName())) {
+////					plugin.log("Account not found: " + comP.getName(),
+////							Level.SEVERE);
+////					return true;
+////				}
+//				if (!ClassRanks.economy.has(player.getName(), rank_cost)) 
+//				{
+//					// no money, no ranking!
+//					plugin.msg(sender,"You don't have enough money to rank up!");
+//					return true;
+//				}
+//			} else if (plugin.method != null) 
+//			{
+//				MethodAccount ma = plugin.method.getAccount(player.getName());
+//				if (ma == null) 
+//				{
+//					ClassRanks.log("Account not found: " + player.getName(),
 //							Level.SEVERE);
 //					return true;
 //				}
-				if (!ClassRanks.economy.has(player.getName(), rank_cost)) 
-				{
-					// no money, no ranking!
-					plugin.msg(sender,"You don't have enough money to rank up!");
-					return true;
-				}
-			} else if (plugin.method != null) 
-			{
-				MethodAccount ma = plugin.method.getAccount(player.getName());
-				if (ma == null) 
-				{
-					ClassRanks.log("Account not found: " + player.getName(),
-							Level.SEVERE);
-					return true;
-				}
-				if (!ma.hasEnough(rank_cost)) 
-				{
-					// no money, no ranking!
-					plugin.msg(sender,"You don't have enough money to rank up!");
-					return true;
-				}
-			}
-			ItemStack[][] rankItems = plugin.config.getRankItems(); 
-			items =  rankItems != null ?rankItems[rID + 1] : null;
-			
-			if (rNext.getItemstacks() != null) 
-			{
-				items = rNext.getItemstacks();
-			}
-		
-			if (expCost != null && expCost.length > 0) 
-			{
-				int exp_cost = -1;
-				
-				try {
-					exp_cost = expCost[rID + 1];
-				} catch (Exception e) {
-					ClassRanks.log("Exp cost not set: "+ rID + 1, Level.WARNING);
-				}
-				rNext = ClassManager.getNextRank(rank, 1);
-				if (rNext != null && rNext.getExp() != -1) 
-				{
-					exp_cost = rNext.getExp();
-				}
-				
-				if (exp_cost > 0) 
-				{
-					if (player.getTotalExperience() < exp_cost) {
-						plugin.msg(sender,
-								"You don't have enough experience ("+player.getTotalExperience()+")! You need "
-										+ exp_cost);
-						return true;
-					}
-					int newExp = player.getTotalExperience() - exp_cost;
-					player.setExp(0);
-					player.setLevel(0);
-					player.giveExp(newExp);
-					
-					plugin.msg(sender, "You paid " + exp_cost
-							+ " experience points!");
-				}
-			}
-
-			if ((items != null)
-					&& (!FormatManager.formatItemStacks(items).equals(""))) {
-				if (!pm.ifHasTakeItems(player, items)) {
-					plugin.msg(sender, "You don't have the required items!");
-					plugin.msg(sender,
-							"(" + FormatManager.formatItemStacks(items) + ")");
-					return true;
-				}
-			}
+//				if (!ma.hasEnough(rank_cost)) 
+//				{
+//					// no money, no ranking!
+//					plugin.msg(sender,"You don't have enough money to rank up!");
+//					return true;
+//				}
+//			}
+//			ItemStack[][] rankItems = plugin.config.getRankItems(); 
+//			items =  rankItems != null ?rankItems[rID + 1] : null;
+//			
+//			if (rNext.getItemstacks() != null) 
+//			{
+//				items = rNext.getItemstacks();
+//			}
+//		
+//			if (expCost != null && expCost.length > 0) 
+//			{
+//				int exp_cost = -1;
+//				
+//				try {
+//					exp_cost = expCost[rID + 1];
+//				} catch (Exception e) {
+//					ClassRanks.log("Exp cost not set: "+ rID + 1, Level.WARNING);
+//				}
+//				rNext = ClassManager.getNextRank(rank, 1);
+//				if (rNext != null && rNext.getExp() != -1) 
+//				{
+//					exp_cost = rNext.getExp();
+//				}
+//				
+//				if (exp_cost > 0) 
+//				{
+//					if (player.getTotalExperience() < exp_cost) {
+//						plugin.msg(sender,
+//								"You don't have enough experience ("+player.getTotalExperience()+")! You need "
+//										+ exp_cost);
+//						return true;
+//					}
+//					int newExp = player.getTotalExperience() - exp_cost;
+//					player.setExp(0);
+//					player.setLevel(0);
+//					player.giveExp(newExp);
+//					
+//					plugin.msg(sender, "You paid " + exp_cost
+//							+ " experience points!");
+//				}
+//			}
+//
+//			if ((items != null)
+//					&& (!FormatManager.formatItemStacks(items).equals(""))) {
+//				if (!pm.ifHasTakeItems(player, items)) {
+//					plugin.msg(sender, "You don't have the required items!");
+//					plugin.msg(sender,
+//							"(" + FormatManager.formatItemStacks(items) + ")");
+//					return true;
+//				}
+//			}
 			// up and only OR down
 			plugin.db.i("removing old class...");
 			plugin.perms.rankRemove(world, playerName, rank.getPermName());
 
-			rank = ClassManager.getNextRank(rank, rID);
-
-			cPermName = rNext.getPermName();
-			cDispName = rNext.getDispName();
-			c_Color = rNext.getColor();
+//			rank = ClassManager.getNextRank(rank, rID);
+//
+//			cPermName = rNext.getPermName();
+//			cDispName = rNext.getDispName();
+//			c_Color = rNext.getColor();
 
 			plugin.db.i("adding new rank...");
-			plugin.perms.rankAdd(world, playerName, rNext.getPermName());
+			plugin.perms.rankAdd(world, playerName, tempRank.getPermName());
 
 			if ((rank_cost > 0)) 
 			{
@@ -312,12 +384,16 @@ public class CommandManager {
 		return true;
 	}
 
+	/**
+	 * Send command Info to player
+	 * @param pPlayer
+	 */
 	private void cmdCommandInfo (Player pPlayer)
 	{
 		plugin.msg(pPlayer, "Plugin ClassRanks Ver: " + plugin.getDescription().getVersion());
 		plugin.msg(pPlayer, ChatColor.YELLOW+"-----------------------------------------");
 		plugin.msg(pPlayer, ChatColor.YELLOW+"usage: [] = required  {} = optional ");
-		plugin.msg(pPlayer, ChatColor.YELLOW+"/class [classname] | Choose the class [classname] for yourself");
+		plugin.msg(pPlayer, ChatColor.RED+"/class [classname] | the command is deleted !");
 		plugin.msg(pPlayer, ChatColor.YELLOW+"/class [list] {classname} | list of class/ranks");
 		plugin.msg(pPlayer, ChatColor.YELLOW+"/class [config] | list the configuration");
 		plugin.msg(pPlayer, ChatColor.YELLOW+"/class [groups] {playername} | list the groups of user");
@@ -326,6 +402,48 @@ public class CommandManager {
 		plugin.msg(pPlayer, ChatColor.YELLOW+"/class [rankup] [playername] {world} | Rank user up");
 		plugin.msg(pPlayer, ChatColor.YELLOW+"/class [rankdown]  [playername] {world} | Rank user down");
 		plugin.msg(pPlayer, ChatColor.YELLOW+"/class [get] [playername] {world} | Show rank of user");
+		
+	}
+
+	/**
+	 * Send command Info for /rank to player
+	 * @param pPlayer
+	 */
+	private void cmdRankInfo (Player pPlayer)
+	{
+		plugin.msg(pPlayer, "Plugin ClassRanks Ver: " + plugin.getDescription().getVersion());
+		plugin.msg(pPlayer, ChatColor.YELLOW+"-----------------------------------------");
+		plugin.msg(pPlayer, ChatColor.YELLOW+"usage: [] = required  {} = optional ");
+		plugin.msg(pPlayer, ChatColor.YELLOW+"/rank [classname] | Choose the class for yourself");
+		plugin.msg(pPlayer, ChatColor.YELLOW+"need permissions <classranks.self.rank>");
+		
+	}
+
+	/**
+	 * Send command Info for /rankup to player
+	 * @param pPlayer
+	 */
+	private void cmdRankUpInfo (Player pPlayer)
+	{
+		plugin.msg(pPlayer, "Plugin ClassRanks Ver: " + plugin.getDescription().getVersion());
+		plugin.msg(pPlayer, ChatColor.YELLOW+"-----------------------------------------");
+		plugin.msg(pPlayer, ChatColor.YELLOW+"usage: [] = required  {} = optional ");
+		plugin.msg(pPlayer, ChatColor.YELLOW+"/rankup [classname] | rankup for yourself");
+		plugin.msg(pPlayer, ChatColor.YELLOW+"need permissions <classranks.self.rank>");
+		
+	}
+
+	/**
+	 * Send command Info for /rank to player
+	 * @param pPlayer
+	 */
+	private void cmdRankDownInfo (Player pPlayer)
+	{
+		plugin.msg(pPlayer, "Plugin ClassRanks Ver: " + plugin.getDescription().getVersion());
+		plugin.msg(pPlayer, ChatColor.YELLOW+"-----------------------------------------");
+		plugin.msg(pPlayer, ChatColor.YELLOW+"usage: [] = required  {} = optional ");
+		plugin.msg(pPlayer, ChatColor.YELLOW+"/rankdown [classname] | rankdown for yourself");
+		plugin.msg(pPlayer, ChatColor.YELLOW+"need permissions <classranks.self.rank>");
 		
 	}
 	
@@ -480,7 +598,6 @@ public class CommandManager {
 			return true;
 		}
 		// only if we are NOT op or may NOT add/remove classes
-		plugin.msg(player,"You don't have permission to add/remove other player's classes!");
 		return false;
 	}
 
@@ -498,7 +615,7 @@ public class CommandManager {
 		boolean isClass = false;
 		for (Class oClass : classes) 
 		{
-		    //  pruefe ob KLassenname identisch 
+		    //  pruefe  
 		    if (className.equalsIgnoreCase(oClass.name))
 		    {
 				ArrayList<Rank> ranks = oClass.getRanks();
@@ -655,8 +772,175 @@ public class CommandManager {
 		return true;
 	}
 	
+	/**
+	 * Check the Rank cost with default value and individual value
+	 * @param sender , command sneder 
+	 * @param player , ranked player
+	 * @param rank	, new rank
+	 * @param rID   , index of rank in Class
+	 * @return  true = cost available or not relevant / false = not enough money
+	 */
+	private boolean checkCost(Player sender, Player player , Rank rank, int rID)
+	{
+		plugin.db.i("Get Rank Cost");
+		double rank_cost = 0; 	// tempvalue
 	
+		// get default cost from Config table
+		rank_cost =  plugin.config.getMoneyCost(rID);
 		
+		// get individual rank cost
+		if (rank.getCost() != -1337D) 
+		{
+			rank_cost = rank.getCost();
+		}
+		plugin.db.i("Get Rank Cost : " + rank_cost);
+		
+		// Check if the player has got the money
+		// check loaded economy 
+		plugin.db.i("Check economy");
+		if (ClassRanks.economy != null) 
+		{
+			plugin.db.i("Economy found : " + ClassRanks.economy.getName() );
+			plugin.db.i("isCheckCost : " + plugin.config.isCheckprices());
+			// should Cost be checked 
+			if (plugin.config.isCheckprices()) 
+			{
+				if (ClassRanks.economy.getBalance(player.getName()) < rank_cost)
+				{
+					plugin.db.i("money check NOT successful");
+					checkedCost = rank_cost;
+					return false;
+				} else
+				{
+					plugin.db.i("money check NOT successful");
+					checkedCost = rank_cost;
+					return true;
+				}
+			} else
+			{
+				plugin.db.i("money check successful");
+				checkedCost = rank_cost;
+				return true;
+			}
+		} else if (plugin.method != null) 
+		{
+			plugin.db.i("No economy found, use Method : " + plugin.method.getName());
+			plugin.db.i("isCheckCost" + plugin.config.isCheckprices());
+			// should cost be checked 
+			if (plugin.config.isCheckprices())
+			{
+				MethodAccount ma = plugin.method.getAccount(player.getName());
+				if (!ma.hasEnough(rank_cost)) 
+				{
+					checkedCost = rank_cost;
+					return false;
+				} else
+				{
+					plugin.db.i("money check NOT successful");
+					checkedCost = rank_cost;
+					return false;
+				}
+			} else
+			{
+				plugin.db.i("money check successful");
+				checkedCost = rank_cost;
+				return true;
+			}
+		} else
+		{
+			plugin.db.i("money check done, NO economy");
+			checkedCost = 0.0;
+			return true;
+		}
+	}
+	
+	
+	private boolean checkExp(Player sender, Player player , Rank rank, int rID)
+	{
+		int exp_cost = -1;
+		// get default exp cost from config
+		exp_cost = plugin.config.getExpCost(rID);
+		
+		// get individual expCost from rank
+		if (rank.getExp() > 0)
+		{
+			exp_cost = rank.getExp();
+		}
+		plugin.db.i("Get ExpCost : " + exp_cost);
+		
+		plugin.db.i("isCheckExp : " + plugin.config.isCheckexp());
+		if (plugin.config.isCheckexp()) 
+		{
+			if (player.getTotalExperience() < exp_cost) {
+				plugin.msg(player,
+						"You don't have enough experience! You need "
+								+ exp_cost);
+				checkedExp = exp_cost;
+				return false;
+			} else
+			{
+				plugin.db.i("exp check successful");
+				checkedExp = exp_cost;
+				return true;
+			}
+		} else
+		{
+			plugin.db.i("exp check not relevant");
+			checkedExp = 0;
+			return true;
+		}
+	}
+		
+	/**
+	 * Check the default and rank items against player inventory
+	 *  
+	 * @param sender   , promoter
+	 * @param player   , ranked player
+	 * @param rank     , new Rank
+	 * @param rID      , Index actual Rank 
+	 * @return  true = items available, not relevant, false = items not available
+	 */
+	private boolean checkitems(Player sender, Player player , Rank rank, int rID)
+	{
+
+		ItemStack[] items = null;
+		ItemStack[][] rankItems = plugin.config.getRankItems(); // per rank a list of items 
+		
+		items = rankItems[rID];
+
+		if (rank.getItemstacks() != null) 
+		{
+			items = rank.getItemstacks();
+		}
+		
+		if (plugin.config.isCheckitems())
+		{
+			plugin.db.i("Get Item Cost : " + items.toString());
+			plugin.db.i("isCheckItems" + plugin.config.isCheckitems());
+			plugin.db.i("item check successful");
+			if (!pm.hasItems(player, items)) 
+			{
+				plugin.msg(player, "You don't have the required items!");
+				plugin.msg(player,"("+ FormatManager.formatItemStacks(items)+ ")");
+				plugin.msg(sender, "You don't have the required items!");
+				plugin.msg(sender,"("+ FormatManager.formatItemStacks(items)+ ")");
+				return false;
+			} else
+			{
+				plugin.db.i("Items found ");
+				checkedItems = items;
+				return true;
+				
+			}
+		} else
+		{
+			plugin.db.i("No Items found !");
+			plugin.db.i("item check NOT relevant");
+			checkedItems = null;
+			return true;
+		}
+	
+	}
 	
 	/**
 	 * Add Class d first Rank to player
@@ -704,121 +988,75 @@ public class CommandManager {
 //		}
 		plugin.db.i("Get Rank Index : " + rID);
 
-		plugin.db.i("Get Rank Cost");
-		double rank_cost = 0; //0D;
-		
-		// get default cost from Config table
-		rank_cost =  plugin.config.getMoneyCost(rID);
-		// get individual rank cost
-		if (tempRank.getCost() != -1337D) 
+		// Check for money to rank up
+		// rankCosts stored in checkedCost
+		if (!checkCost(sender, player , tempRank, rID))
 		{
-			rank_cost = tempRank.getCost();
-		}
-		plugin.db.i("Get Rank Cost : " + rank_cost);
-		// Check if the player has got the money
-		// check loaded economy 
-		plugin.db.i("Check economy");
-		if (ClassRanks.economy != null) 
-		{
-			plugin.db.i("Economy found : " + ClassRanks.economy.getName() );
-			plugin.db.i("isCheckCost : " + plugin.config.isCheckprices());
-			if (plugin.config.isCheckprices()) 
-			{
-				if (ClassRanks.economy.getBalance(player.getName()) < rank_cost)
-				{
-					plugin.msg(player,"You don't have enough ECO money to choose your class! ("
-							+ ClassRanks.economy.format(rank_cost)
-							+"/ "+ClassRanks.economy.getBalance(player.getName())
-							+ ")");
-					return true;
-				}
-			}
-		} else if (plugin.method != null) 
-		{
-			plugin.db.i("No economy found, use Method : " + plugin.method.getName());
-			plugin.db.i("isCheckCost" + plugin.config.isCheckprices());
-			if (plugin.config.isCheckprices())
-			{
-				MethodAccount ma = plugin.method.getAccount(player.getName());
-				if (ma.hasEnough(rank_cost)) 
-				{
-					plugin.msg(player,"You don't have enough money to choose your class! ("
-								+ plugin.method.format(rank_cost)
-								+ ")");
-					return true;
-				}
-			}
-		}
+			// not enough money message send to player and to promoter
+			plugin.msg(player,"You don't have enough money to choose your class! ("
+			+ ClassRanks.economy.format(checkedCost)
+			+"/ "+ClassRanks.economy.getBalance(player.getName())
+			+ ")");
+			plugin.msg(sender,"The player don't have enough money ! ("
+			+ ClassRanks.economy.format(checkedCost)
+			+"/ "+ClassRanks.economy.getBalance(player.getName())
+			+ ")");
+			return true;
+			
+		} 
 		plugin.db.i("money check successful");
-		
-		//
-		int exp_cost = -1;
-		// get default exp cost from config
-		exp_cost = plugin.config.getExpCost(rID);
-		// get indivial expCost from rank
-		if (tempRank.getExp() > 0)
-		{
-			exp_cost = tempRank.getExp();
-		}
-		plugin.db.i("Get ExpCost : " + exp_cost);
-		
-		plugin.db.i("isCheckExp : " + plugin.config.isCheckexp());
-		if (plugin.config.isCheckexp()) 
-		{
-			if (player.getTotalExperience() < exp_cost) {
-				plugin.msg(player,
-						"You don't have enough experience! You need "
-								+ exp_cost);
-				return true;
-			}
-			player.setTotalExperience(player.getTotalExperience()
-					- exp_cost);
-			plugin.msg(player, "You paid " + exp_cost
-					+ " experience points!");
-		}
-		plugin.db.i("exp check successful");
 
-		ItemStack[] items = null;
-		ItemStack[][] rankItems = plugin.config.getRankItems(); 
-		
-		if (rankItems != null && (rankItems[rID] != null)
-				&& (!FormatManager.formatItemStacks(rankItems[rID]).equals(
-						""))) 
+		// check for experience to rank up
+		// expcost stored in checkedExp
+		if (!checkExp(sender, player, tempRank, rID))
 		{
-			items = rankItems[rID];
+			// not enough exp message send to player and to promoter
+			plugin.msg(player,"You don't have enough experience! You need "+ checkedExp);
+			plugin.msg(sender,"Player don't have enough experience! You need "+ checkedExp);
+			return true;
 		}
+		plugin.db.i("Exp check done");
 
-		if (tempRank.getItemstacks() != null) 
+		// check items for rank up
+		if (!checkitems(sender, player , tempRank, rID))
 		{
-			items = tempRank.getItemstacks();
+			// not enough items message send to player and to promoter
+			plugin.msg(player,"You don't have enough items!");
+			plugin.msg(sender,"Player don't have enough items!");
+			return true;
 		}
-		if (items != null)
-		{
-			plugin.db.i("Get Item Cost : " + items.toString());
-			plugin.db.i("isCheckItems" + plugin.config.isCheckitems());
-			if (plugin.config.isCheckitems()) 
-			{
-				
-				if (!pm.ifHasTakeItems(player, items)) 
-				{
-					plugin.msg(player, "You don't have the required items!");
-					plugin.msg(player,"("+ FormatManager.formatItemStacks(items)+ ")");
-					return true;
-				}
-			}
-			plugin.db.i("item check successful");
-		} else
-		{
-			plugin.db.i("No Items found !");
-			plugin.db.i("item check NOT successful");
-		}
+		
+		plugin.db.i("item check done");
 
 		String cPermName = tempRank.getPermName(); // Display rank name
 		String cDispName = tempRank.getDispName(); // Display rank name
 		ChatColor c_Color = tempRank.getColor(); // Rank color
 
 		// success!
+
+		// Do Cost and Addrank 
+		if (checkedCost > 0)
+		{
+			ClassRanks.economy.withdrawPlayer(player.getName(), checkedCost);
+			plugin.msg(player, "You paid " + checkedCost + " money !");
+			plugin.msg(sender, "Player paid " + checkedCost + " money !");
+		}
 		
+		if (checkedExp > 0)
+		{
+			player.setTotalExperience(player.getTotalExperience() - checkedExp);
+			plugin.msg(player, "You paid " + checkedExp + " experience points!");
+			plugin.msg(player, "Player paid " + checkedExp + " experience points!");
+		}
+
+		if (plugin.config.isCheckitems())
+		{
+			pm.takeItems(player, checkedItems);
+			plugin.msg(player, "You paid the required items!");
+			plugin.msg(player, "Player paid the required items!");
+		}
+		
+		// remove oldRank
 		plugin.db.i("isClearRanks : " + plugin.config.isClearranks());
 		if (plugin.config.isClearranks()) 
 		{
@@ -925,6 +1163,7 @@ public class CommandManager {
 	 * The main switch for the command usage. Check for known commands,
 	 * permissions, arguments, and commit whatever is wanted.
 	 * 
+	 * <pre>
      /class [classname] | Choose the class [classname] for yourself
      /class [config]  | list the configuration
      /class [list] {classname} | list of class/ranks
@@ -936,7 +1175,7 @@ public class CommandManager {
      /class [rankup]  [playername] {world} | Rank user up
      /class [rankdown][playername] {world} | Rank user down
      /class [get]     [playername] {world} | Show rank of user
-
+     </pre>
 	 * @param pPlayer , the sender of the command
 	 * @param args , arguments of the Command /class
 	 * @return
@@ -1004,7 +1243,7 @@ public class CommandManager {
 				}
 			} else 
 			{
-				plugin.msg(pPlayer, "You don't have permission to reload!");
+				plugin.msg(pPlayer, "You don't have the right permission !");
 			}
 		}
 
@@ -1031,7 +1270,7 @@ public class CommandManager {
 
 			} else 
 			{
-				plugin.msg(pPlayer, "You don't have permission to reload!");
+				plugin.msg(pPlayer, "You don't have the right permission !");
 			}
 
 		}
@@ -1047,7 +1286,8 @@ public class CommandManager {
 				cmdRemove(pPlayer, args);
 			} else 
 			{
-				plugin.msg(pPlayer, "You don't have permission to reload!");
+				plugin.msg(pPlayer, "You don't have the right permission !");
+				return true;
 			}
 
 		}
@@ -1084,7 +1324,7 @@ public class CommandManager {
 					}
 				} else
 				{
-					plugin.msg(pPlayer, "You don't have permission to reload!");
+					plugin.msg(pPlayer, "You don't have the right permission !");
 					return true;
 				}
 				className = args[2];
@@ -1110,7 +1350,7 @@ public class CommandManager {
 				return true;
 			} else 
 			{
-				plugin.msg(pPlayer, "You don't have permission to reload!");
+				plugin.msg(pPlayer, "You don't have the right permission !");
 				return true;
 			}
 		}
@@ -1131,7 +1371,7 @@ public class CommandManager {
 				plugin.msg(pPlayer, "Config reloaded!");
 			} else 
 			{
-				plugin.msg(pPlayer, "You don't have permission to reload!");
+				plugin.msg(pPlayer, "You don't have the right permission !");
 				return true;
 			}
 		}
@@ -1162,6 +1402,55 @@ public class CommandManager {
 		
 	}
 
+	public boolean parseSelfRank(Player pPlayer, String[] args) 
+	{
+		if (args.length == 0)
+		{
+			//zeigt command description aus Plugi.yml
+			cmdRankInfo (pPlayer);
+			return true;  
+		} 
+		if (plugin.perms.hasPerms(pPlayer, "classranks.self.rank", pPlayer.getWorld().getName()))
+		{
+			plugin.msg(pPlayer, "You don't have the right permission !");
+			return true;
+		}
+		String className = args[0];
+	    // rank  [classname] | Add yourself to a class
+		String world = "";
+		
+		//world name auswerten und setzen
+		world = getWorldArg(world, args);
+		plugin.db.i("precheck successful");
+		// Add Rank
+		cmdAddRank(pPlayer,pPlayer,className, world);
+		return true;
+	
+	}
+
+	public boolean parseSelfRankUp(Player pPlayer, String[] args) 
+	{
+		if (args.length == 0)
+		{
+			//zeigt command description aus Plugi.yml
+			cmdRankUpInfo (pPlayer);
+			return true;  
+		} 
+	
+		return true;
+	}
+
+	public boolean parseSelfRankDown(Player pPlayer, String[] args) 
+	{
+		if (args.length == 0)
+		{
+			//zeigt command description aus Plugi.yml
+			cmdRankDownInfo (pPlayer);
+			return true;  
+		} 
+	
+		return true;
+	}
 	
 	public boolean parseAdminCommand(Player pPlayer, String[] args) 
 	{

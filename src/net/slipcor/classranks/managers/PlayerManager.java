@@ -65,49 +65,40 @@ public class PlayerManager {
 		// not found online, hope that it was right anyways
 		return player;
 	}
+
 	
-	boolean ifHasTakeItems(Player iPlayer, ItemStack[] isItems) {
-		ItemStack[] isItemsBackup = null;
-
-        ItemStack[] isPlayerItems = iPlayer.getInventory().getContents();
-        ItemStack[] isPlayerItemsBackup = new ItemStack[isPlayerItems.length];
-
-        HashMap<Integer,ItemStack> iiItemsLeftover;
-
-        isItemsBackup = new ItemStack[isItems.length];
-        
-        for (int i=0;i<isItems.length;i++) {
-            if (isItems[i] != null) {
-            	isItemsBackup[i] = isItems[i].clone(); //TODO: needed??
+	public boolean hasItems(Player player, ItemStack[] items) 
+	{
+		boolean isContain = true;
+        for (int i=0;i<items.length;i++) 
+        {
+            if (items[i] != null) 
+            {
+            	isContain = player.getInventory().contains(items[i]);
+            	if (!isContain)
+            	{
+            		return false;
+            	}
             }
         }
+        return true;  
+	}
+	
+	boolean takeItems(Player player, ItemStack[] items) 
+	{
 
-        // isItems == ItemStack we want to take
-        // isItemsBackup == Backup
-        
-        for (int i=0;i<isPlayerItems.length;i++) {
-            if (isPlayerItems[i] != null) {
-                isPlayerItemsBackup[i] = isPlayerItems[i].clone();
+        for (int i=0;i<items.length;i++) {
+            if (items[i] != null) 
+            {
+            	player.getInventory().remove(items[i]);
             }
         }
-        // isPlayerItems == Player Inventory
-        // isPlayerItemsBackup == Backup
-	
-        iiItemsLeftover = iPlayer.getInventory().removeItem(isItemsBackup);
-
-        if(!iiItemsLeftover.isEmpty()){
-            // player does NOT have the stuff
-
-//    		db.i("player does not have the items");
-            iPlayer.getInventory().setContents(isPlayerItemsBackup);
-            return false;
-        }
-//		db.i("player has the items");
         return true;  
 	}
 
 	int coolDownCheck(Player comP) {
-		if ((comP.isOp()) || (plugin.config.getCoolDown() == 0)) {
+		if ((comP.isOp()) || (plugin.config.getCoolDown() == 0)) 
+		{
 			return 0; // if we do not want/need to calculate the cooldown, get out of here!
 		}
 
