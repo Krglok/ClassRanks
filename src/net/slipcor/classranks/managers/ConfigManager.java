@@ -372,22 +372,28 @@ public class ConfigManager {
 		checkitems = plugin.getConfig().getBoolean("checkitems");
 		
 		// check section is available
+		plugin.db.i("read items section");
 		isSection = plugin.getConfig().getConfigurationSection("items") != null;
 		// item read and check
-		if (isCheckitems() && isSection) {
+		if (isSection) 
+		{
 			plugin.db.i("items exist, parsing...");
 
 			items = (Map<String, Object>) plugin.getConfig()
 					.getConfigurationSection("items").getValues(false);
 			// items error check
-			if (items == null) {
+			if (items == null) 
+			{
 				plugin.db.i("items invalid, setting to null");
 				itemStacks = new ItemStack[ClassManager.getClasses().size()][1];
-			} else {
+			} else 
+			{
 				// for each items => ItemStack[][1,2,3]
 				int iI = 0;
 				itemStacks = new ItemStack[items.size()][];
-				for (String isKey : items.keySet()) {
+				for (String isKey : items.keySet()) 
+				{
+					plugin.db.i("Item Key : " + isKey.toString());
 					List<?> values = plugin.getConfig().getList("items." + isKey);
 					itemStacks[iI] = new ItemStack[values.size()];
 					plugin.db.i("creating itemstack:");

@@ -6,9 +6,8 @@ website: http://dev.bukkit.org/server-mods/classranks/
 soft-depends: [bPermissions,iConomy,BOSEconomy,MultiCurrency,Essentials,PermissionsEx,Vault]
 commands:
     class:
-        description: Lets users choose a class / change classes for others
+        description: Lets users choose a class / change class for others
         usage: "[] = required  {} = optional 
-           /class [classname] | Choose the class [classname] for yourself
            /class [list] {classname} | list of class/ranks
            /class [config] | list the configuration
            /class [groups] {playername} | list the groups of user

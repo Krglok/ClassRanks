@@ -6,9 +6,8 @@ website: http://dev.bukkit.org/server-mods/classranks/
 soft-depends: [bPermissions,iConomy,BOSEconomy,MultiCurrency,Essentials,PermissionsEx,Vault]
 commands:
     class:
-        description: Lets users choose a class / change classes
+        description: Lets users choose a class / change class for others
         usage: "[] = required  {} = optional 
-           /class [classname] | Choose the class [classname] for yourself
            /class [list] {classname} | list of class/ranks
            /class [config] | list the configuration
            /class [groups] {playername} | list the groups of user
@@ -18,17 +17,17 @@ commands:
            /class [rankdown]  [playername] {world} | Rank user down
            /class [get] [playername] {world} | Show rank of user
            "
+    rank:
+        description: Add Class to yourself 
+        usage: /rank [classname] | Add first rank of class to yourself  
     rankdown:
-        description: Rank down yourself or others
-        usage: |
-           /rankdown [playername] | Rank down yourself or username 
+        description: Rank down yourself 
+        usage: /rankdown [classname] | Rank down yourself  
     rankup:
-        description: Rank up yourself or others
-        usage: |
-           /rankup [playername] | Rank up yourself or username 
+        description: Rank up yourself 
+        usage: /rankup [playername] | Rank up yourself or username 
     classadmin:
-        description: Administrate the classes
-        
+        description: Definition of classes and rank and costs 
         usage: |
            /classadmin add class [classname] [permname] [displayname] [color] [item|0] [cost] [exp]
            /classadmin add rank  [classname] [permname] [displayname] [color] [item|0] [cost] [exp]

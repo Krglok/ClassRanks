@@ -248,6 +248,9 @@ public class HandleVaultPerms extends CRHandler {
 		} catch (Exception e) 
 		{
 			ClassRanks.log("Exception ADD GLOBAL RANK " + rank + " or user " + player, Level.SEVERE);
+			ClassRanks.log(e.getMessage(), Level.SEVERE);
+			ClassRanks.log(e.getClass().getName(), Level.SEVERE);
+			ClassRanks.log(e.getCause().getMessage(), Level.SEVERE);
 		}
 	}
 

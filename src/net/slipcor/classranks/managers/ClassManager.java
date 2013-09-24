@@ -103,7 +103,7 @@ public class ClassManager {
 
 	public static Rank getPrevRank(Rank rank, int rankIndex) 
 	{
-		if (rankIndex-1 > 0)
+		if (rankIndex > 0)
 		{
 			return rank.getSuperClass().ranks.get(rankIndex-1);
 		} else

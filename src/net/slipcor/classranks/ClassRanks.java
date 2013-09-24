@@ -17,6 +17,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import net.milkbowl.vault.economy.Economy;
 import net.slipcor.classranks.commands.ClassAdminCommand;
 import net.slipcor.classranks.commands.ClassCommand;
+import net.slipcor.classranks.commands.RankCommand;
 import net.slipcor.classranks.commands.RankdownCommand;
 import net.slipcor.classranks.commands.RankupCommand;
 import net.slipcor.classranks.handlers.*;
@@ -62,6 +63,7 @@ public class ClassRanks extends JavaPlugin {
 		// register commands
 		getCommand("class").setExecutor(new ClassCommand(this, cmdMgr));
 		getCommand("classadmin").setExecutor(new ClassAdminCommand(this, cmdMgr));
+		getCommand("rank").setExecutor(new RankCommand(this, cmdMgr));
 		getCommand("rankup").setExecutor(new RankupCommand(this, cmdMgr));
 		getCommand("rankdown").setExecutor(new RankdownCommand(this, cmdMgr));
 

@@ -37,18 +37,20 @@ public class RankupCommand implements CommandExecutor {
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
 		
-    	if (!(sender instanceof Player)) {
+    	if (!(sender instanceof Player)) 
+    	{
     		plugin.msg(sender, "Console access is not implemented. If you want that, visit:");
     		plugin.msg(sender, "http://dev.bukkit.org/server-mods/classranks/");
     		return true;
     	}
 
-		// if we use the shortcut /rankup or /rankdown, shift the array
-		String[] tStr = new String[args.length+1];
-		System.arraycopy(args, 0, tStr, 1, args.length);
-		tStr[0] = cmd.getName();
-		plugin.db.i("shortcut detected, parsed '" + FormatManager.formatStringArray(args) + "' to '" + tStr.toString() + "'");
-		return cmdMgr.parseCommand((Player) sender, tStr);
+//		// if we use the shortcut /rankup or /rankdown, shift the array
+//		String[] tStr = new String[args.length+1];
+//		System.arraycopy(args, 0, tStr, 1, args.length);
+//		tStr[0] = cmd.getName();
+//		plugin.db.i("shortcut detected, parsed '" + FormatManager.formatStringArray(args) + "' to '" + tStr.toString() + "'");
+//		return cmdMgr.parseCommand((Player) sender, tStr);
+		return cmdMgr.parseSelfRankUp((Player) sender, args);
 	}
 
 }

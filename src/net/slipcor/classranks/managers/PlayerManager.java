@@ -74,9 +74,12 @@ public class PlayerManager {
         {
             if (items[i] != null) 
             {
-            	isContain = player.getInventory().contains(items[i]);
-            	if (!isContain)
+            	plugin.db.i("checkItem : "+items[i].getTypeId() + " : " + items[i].getAmount());
+//            	isContain = player.getInventory().contains(items[i]);
+            	
+            	if (player.getInventory().contains(items[i].getTypeId()) == false)	//player.getInventory().getItem(items[i].getTypeId()).getAmount() < items[i].getAmount())
             	{
+                	plugin.db.i("Not found : "+items[i].getTypeId() + " : " + items[i].getAmount());
             		return false;
             	}
             }
@@ -90,7 +93,7 @@ public class PlayerManager {
         for (int i=0;i<items.length;i++) {
             if (items[i] != null) 
             {
-            	player.getInventory().remove(items[i]);
+            	player.getInventory().removeItem(items[i]);
             }
         }
         return true;  
