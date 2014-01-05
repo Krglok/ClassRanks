@@ -3,7 +3,7 @@ package net.slipcor.classranks.commands;
 import net.slipcor.classranks.ClassRanks;
 import net.slipcor.classranks.managers.CommandManager;
 //import net.slipcor.classranks.managers.DebugManager;
-import net.slipcor.classranks.managers.FormatManager;
+//import net.slipcor.classranks.managers.FormatManager;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;

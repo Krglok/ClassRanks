@@ -3,13 +3,6 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="/RefPlugin/Vault.jar"/>
-	<classpathentry kind="lib" path="/RefPlugin/bpermissions2.jar"/>
-	<classpathentry kind="lib" path="/RefPlugin/PermissionsEx.jar"/>
-	<classpathentry kind="lib" path="/RefPlugin/iConomy6.jar"/>
-	<classpathentry kind="lib" path="/RefPlugin/BOSEconomy.jar"/>
-	<classpathentry kind="lib" path="/RefPlugin/iConomy5.jar"/>
-	<classpathentry kind="lib" path="/RefPlugin/MultiCurrency.jar"/>
-	<classpathentry kind="lib" path="/RefPlugin/Essentials.jar"/>
-	<classpathentry kind="lib" path="/RefPlugin/craftbukkit-1.6.1-R0.1-20130703.085909-10.jar"/>
+	<classpathentry kind="lib" path="/RefPlugin/craftbukkit-1.7.2-R0.1-20131205.042212-19.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

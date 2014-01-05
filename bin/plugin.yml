@@ -1,9 +1,9 @@
 name: ClassRanks
 main: net.slipcor.classranks.ClassRanks
-version: 0.5.0
-author: slipcor
+version: 0.6.0
+author: krglok
 website: http://dev.bukkit.org/server-mods/classranks/
-soft-depends: [bPermissions,iConomy,BOSEconomy,MultiCurrency,Essentials,PermissionsEx,Vault]
+depend: [Vault]
 commands:
     class:
         description: Lets users choose a class / change class for others
@@ -13,8 +13,8 @@ commands:
            /class [groups] {playername} | list the groups of user
            /class [add] [playername] [classname] {world} | Add user to a class
            /class [remove] [playername] [classname] {world} | Remove user from a class
-           /class [rankup] [playername] {world} | Rank user up
-           /class [rankdown]  [playername] {world} | Rank user down
+           /class [rankup] [playername] [classname] {world} | Rank user up
+           /class [rankdown] [playername] [classname] {world} | Rank user down
            /class [get] [playername] {world} | Show rank of user
            "
     rank:
@@ -43,7 +43,7 @@ permissions:
             classranks.self.rank: true
             classranks.self.addremove: true
     classranks.admin.*:
-        description: Gives access to all admin commands
+        description: Gives access to admin commands
         children:
             classranks.admin.rank: true
             classranks.admin.addremove: true

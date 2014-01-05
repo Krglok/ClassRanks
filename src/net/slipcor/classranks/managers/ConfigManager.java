@@ -63,9 +63,9 @@ public class ConfigManager {
 		return players;
 	}
 
-	private Map<String,Object> playerClassList;		// should store the playerClasses
+//	private Map<String,Object> playerClassList;		// should store the playerClasses
 	
-	private Map<String, String> playerClassRank; 	// should store the playerRanks 
+//	private Map<String, String> playerClassRank; 	// should store the playerRanks 
 	
 	private Double[] moneyCost;
 	
@@ -397,26 +397,23 @@ public class ConfigManager {
 					List<?> values = plugin.getConfig().getList("items." + isKey);
 					itemStacks[iI] = new ItemStack[values.size()];
 					plugin.db.i("creating itemstack:");
-					for (int iJ = 0; iJ < values.size(); iJ++) {
+					for (int iJ = 0; iJ < values.size(); iJ++) 
+					{
 						String[] vValue = (String.valueOf(values.get(iJ)))
 								.split(":");
 
-						int vAmount = vValue.length > 1 ? Integer
-								.parseInt(vValue[1]) : 1;
-						try {
+						int vAmount = vValue.length > 1 ? Integer.parseInt(vValue[1]) : 1;
+						try 
+						{
 							itemStacks[iI][iJ] = new ItemStack(
 									Material.valueOf(vValue[0]), vAmount);
 
-						} catch (Exception e) {
-							try {
-								itemStacks[iI][iJ] = new ItemStack(
-										Integer.valueOf(vValue[0]), vAmount);
-							} catch (Exception e2) {
+						} catch (Exception e) 
+						{
 
 								ClassRanks.log("Unrecognized reagent: " + vValue[0],
 										Level.WARNING);
 								continue;
-							}
 						}
 					}
 					plugin.db.i(iI + " - "
@@ -511,17 +508,21 @@ public class ConfigManager {
 	/**
 	 * 
 	 */
-	public void readPlayerSection() {
+	public void readPlayerSection() 
+	{
 		boolean isSection = (plugin.getConfig().getConfigurationSection("players") != null);
-		if (!isSection) {
+
+		if (!isSection) 
+		{
 			players = null;
-		} else {
+		} else 
+		{
 			players = plugin.getConfig().getConfigurationSection("players").getValues(false);
 			
-			for (String sClassName : players.keySet()) {
-				
-				
-			}
+//			for (String sClassName : players.keySet()) {
+//				
+//				
+//			}
 		}
 		
 	}

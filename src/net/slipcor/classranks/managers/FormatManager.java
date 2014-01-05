@@ -107,8 +107,9 @@ public class FormatManager {
 					}
 					// ITEM:COUNT
 					try {
-						int iType = Integer.parseInt(stack);
-						result[i++] = new ItemStack(iType, iAmount);
+//						int iType = Integer.parseInt(stack);
+//						result[i++] = new ItemStack(iType, iAmount);
+						result[i++] = new ItemStack(Material.valueOf(vars[0]), iAmount);						
 					} catch (Exception e) {
 						result[i++] = new ItemStack(Material.valueOf(vars[0]), iAmount);
 					}
@@ -128,16 +129,18 @@ public class FormatManager {
 						Bukkit.getLogger().warning("unrecognized damage: "+vars[1]);
 					}
 					try {
-						int iType = Integer.parseInt(stack);
-						result[i++] = new ItemStack(iType, iAmount, sDamage);
+//						int iType = Integer.parseInt(stack);
+						result[i++] = new ItemStack(Material.valueOf(vars[0]), iAmount, sDamage);
+//						result[i++] = new ItemStack(iType, iAmount, sDamage);
 					} catch (Exception e) {
 						result[i++] = new ItemStack(Material.valueOf(vars[0]), iAmount, sDamage);
 					}
 				}
 			} else {
 				try {
-					int iType = Integer.parseInt(stack);
-					result[i++] = new ItemStack(iType, 1);
+//					int iType = Integer.parseInt(stack);
+//					result[i++] = new ItemStack(iType, 1);
+					result[i++] = new ItemStack(Material.valueOf(stack),1);
 				} catch (Exception e) {
 					result[i++] = new ItemStack(Material.valueOf(stack),1);
 				}

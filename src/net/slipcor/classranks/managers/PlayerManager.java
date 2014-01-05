@@ -69,17 +69,19 @@ public class PlayerManager {
 	
 	public boolean hasItems(Player player, ItemStack[] items) 
 	{
-		boolean isContain = true;
+//		boolean isContain = true;
         for (int i=0;i<items.length;i++) 
         {
             if (items[i] != null) 
             {
-            	plugin.db.i("checkItem : "+items[i].getTypeId() + " : " + items[i].getAmount());
+            	plugin.db.i("checkItem : "+items[i].getData().toString() + " : " + items[i].getAmount());
 //            	isContain = player.getInventory().contains(items[i]);
             	
-            	if (player.getInventory().contains(items[i].getTypeId()) == false)	//player.getInventory().getItem(items[i].getTypeId()).getAmount() < items[i].getAmount())
+            	if (player.getInventory().contains(items[i]) == false)	//player.getInventory().getItem(items[i].getTypeId()).getAmount() < items[i].getAmount())
             	{
-                	plugin.db.i("Not found : "+items[i].getTypeId() + " : " + items[i].getAmount());
+            		//getData().getItemType().name();
+            		plugin.msg(player,"Not found : "+items[i].getData().getItemType().name() + " : " + items[i].getAmount());
+                	plugin.db.i("Not found : "+items[i].getData().getItemType().name() + " : " + items[i].getAmount());
             		return false;
             	}
             }

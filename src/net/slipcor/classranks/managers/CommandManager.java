@@ -6,7 +6,7 @@ import java.util.ArrayList;
 //import java.util.Set;
 import java.util.logging.Level;
 
-import net.milkbowl.vault.Vault;
+//import net.milkbowl.vault.Vault;
 import net.slipcor.classranks.ClassRanks;
 import net.slipcor.classranks.core.Class;
 import net.slipcor.classranks.core.Rank;
@@ -17,7 +17,7 @@ import net.slipcor.classranks.register.payment.Method.MethodAccount;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.PluginManager;
+//import org.bukkit.plugin.PluginManager;
 
 /**
  * command manager class
@@ -66,10 +66,10 @@ public class CommandManager {
 		}
 		plugin.db.i("cooldown check positive");
 
-		if ((!plugin.perms.hasPerms(player, "classranks.rankdown", player.getWorld().getName()))) 
+		if ((!plugin.perms.hasPerms(sender, "classranks.rankdown", player.getWorld().getName()))) 
 		{
 			// if we either are no OP or try to rank down, but we may not
-			plugin.msg(player, "You don't have permission to rank down!");
+			plugin.msg(sender, "You don't have permission to rank down!");
 			return true;
 		}
 		plugin.db.i("perm check successful");
@@ -87,7 +87,7 @@ public class CommandManager {
 			rank = hasRank( className, playerName, world);
 			if (rank == null) 
 			{
-				plugin.msg(player, "Player " + fm.formatPlayer(playerName)
+				plugin.msg(sender, "Player " + fm.formatPlayer(playerName)
 						+ " does not have a class !");
 				return true;
 			}
@@ -116,9 +116,9 @@ public class CommandManager {
 
 			Rank tempRank = ClassManager.getPrevRank(rank, rID);
 			plugin.perms.rankAdd(world, playerName, tempRank.getPermName());
-			plugin.db.i("Rank Down to" + rank.getDispName());
+			plugin.db.i("Rank Down to" + tempRank.getDispName());
 			plugin.msg(sender, "Player " + fm.formatPlayer(playerName)
-					+ " Rank Down to " + rank.getDispName());
+					+ " Rank Down to " + tempRank.getDispName());
 			return true;
 	}	
 	/**
@@ -149,10 +149,10 @@ public class CommandManager {
 		}
 		plugin.db.i("cooldown check positive");
 
-		if ((!plugin.perms.hasPerms(player, "classranks.rankdown", player.getWorld().getName()))) 
+		if ((!plugin.perms.hasPerms(sender, "classranks.rankup", player.getWorld().getName()))) 
 		{
 			// if we either are no OP or try to rank down, but we may not
-			plugin.msg(player, "You don't have permission to rank down!");
+			plugin.msg(sender, "You don't have permission to rank up!");
 			return true;
 		}
 		plugin.db.i("perm check successful");
@@ -183,7 +183,7 @@ public class CommandManager {
 
 		plugin.db.i("rank check successful");
 
-		String cPermName = rank.getPermName(); // actual Permissions rank name
+//		String cPermName = rank.getPermName(); // actual Permissions rank name
 		String cDispName = rank.getDispName(); // actual Display rank name
 		ChatColor c_Color = rank.getColor();   // actual Rank color
 		Class oClass = rank.getSuperClass();   // actual Rank class
@@ -195,7 +195,7 @@ public class CommandManager {
 		// placeholder: cost
 		double rank_cost = 0;
 		// placeholder: items
-		ItemStack[] items = null;
+//		ItemStack[] items = null;
 
 //		// placeholders for new rank
 //		int rankOffset = 0;
@@ -230,7 +230,7 @@ public class CommandManager {
 
 			// Check for money to rank up
 			// rankCosts stored in checkedCost
-			if (!checkCost(sender, player , tempRank, rID))
+			if (!checkCost(sender, player , tempRank, rID+1))
 			{
 				// not enough money message send to player and to promoter
 				plugin.msg(player,"You don't have enough money to choose your class! ("
@@ -248,7 +248,7 @@ public class CommandManager {
 
 			// check for experience to rank up
 			// expcost stored in checkedExp
-			if (!checkExp(sender, player, tempRank, rID))
+			if (!checkExp(sender, player, tempRank, rID+1))
 			{
 				// not enough exp message send to player and to promoter
 				plugin.msg(player,"You don't have enough experience! You need "+ checkedExp);
@@ -258,7 +258,7 @@ public class CommandManager {
 			plugin.db.i("Exp check done");
 
 			// check items for rank up
-			if (!checkitems(sender, player , tempRank, rID))
+			if (!checkitems(sender, player , tempRank, rID+1))
 			{
 				// not enough items message send to player and to promoter
 				plugin.msg(player,"You don't have enough items!");
@@ -268,7 +268,7 @@ public class CommandManager {
 			
 			plugin.db.i("item check done");
 
-			cPermName = tempRank.getPermName(); // Display new rank name
+//			cPermName = tempRank.getPermName(); // Display new rank name
 			cDispName = tempRank.getDispName(); // Display new rank name
 			c_Color = tempRank.getColor(); // new Rank color
 
@@ -330,6 +330,11 @@ public class CommandManager {
 			{
 				// we rank ourselves and do NOT want that to be public
 				plugin.msg(sender,
+						" Player " + fm.formatPlayer(playerName)
+						+ " now a " + c_Color + cDispName + ChatColor.WHITE
+						+ ChatColor.WHITE + " in " + fm.formatWorld(world)
+						+ "!");
+				plugin.msg(player,
 						"You are now a " + c_Color + cDispName + ChatColor.WHITE
 								+ ChatColor.WHITE + " in " + fm.formatWorld(world)
 								+ "!");
@@ -508,19 +513,34 @@ public class CommandManager {
 		plugin.msg(pPlayer, ChatColor.YELLOW+"--------------------");
 		
 		Double[] MoneyCost = plugin.config.getMoneyCost();
-		plugin.msg(pPlayer, ChatColor.YELLOW+"Default Cost");
+		plugin.msg(pPlayer, ChatColor.GREEN+"Default Cost (" + MoneyCost.length+")");
 		
 		for (int i = 0; i < MoneyCost.length; i++) 
 		{
 			plugin.msg(pPlayer, ChatColor.YELLOW + String.valueOf(i) + " : "+MoneyCost[i].toString());
 		}
 		int[] exp = plugin.config.getExpCost();
-		plugin.msg(pPlayer, ChatColor.YELLOW+"Default Experience " + exp.length);
+		plugin.msg(pPlayer, ChatColor.GREEN+"Default Experience (" + exp.length + ")");
 		
 		for (int i = 0; i < exp.length; i++) 
 		{
 			plugin.msg(pPlayer, ChatColor.YELLOW + String.valueOf(i) + " : "+exp[i]);
 		}
+
+		ItemStack[][] itemStacks =  plugin.config.getItemStacks();
+		ItemStack[] items;
+		plugin.msg(pPlayer, ChatColor.GREEN+"Default Items (" + exp.length + ")");
+		
+		for (int i = 0; i < exp.length; i++) 
+		{
+			plugin.msg(pPlayer, ChatColor.YELLOW + String.valueOf(i) + " :");
+			items = itemStacks[i]; 
+			for (int j = 0; j < items.length; j++)
+			{
+				plugin.msg(pPlayer, ChatColor.YELLOW + "   "+" ["+ j +"] : "  + exp[j]);
+			}
+		}
+		
 	}
 	
 	private void cmdUserGroups (Player pPlayer, String[] args)
@@ -1226,7 +1246,7 @@ public class CommandManager {
 				} else 
 				{
 					plugin.msg(pPlayer,"Not enough arguments ("+ String.valueOf(args.length) + ")!");
-					plugin.msg(pPlayer," /class [rankup]  [playername] {world} | Rank user up");
+					plugin.msg(pPlayer," /class [rankup] [playername] [classname] {world} | Rank user up");
 					return true;
 				}
 			} else 
@@ -1241,7 +1261,8 @@ public class CommandManager {
 			if (hasAdminPerms(pPlayer))
 			{
 				// rank up or down
-				if (args.length > 1) {
+				if (args.length > 2) 
+				{
 					String PlayerName = args[1];
 					Player player = PlayerManager.searchPlayer(PlayerName);
 					if ((player == null))
@@ -1255,7 +1276,7 @@ public class CommandManager {
 					return rankDown(pPlayer, player, className, world);
 				} else {
 					plugin.msg(pPlayer,"Not enough arguments ("+ String.valueOf(args.length) + ")!");
-					plugin.msg(pPlayer," /class [rankdown][playername] {world} | Rank user down");
+					plugin.msg(pPlayer," /class [rankdown] [playername] [classname] {world} | Rank user down");
 					return true;
 				}
 
@@ -1467,16 +1488,18 @@ public class CommandManager {
 		plugin.db.i("parsing admin " + pPlayer.getName() + ", command: "
 				+ FormatManager.formatStringArray(args));
 
-		if (pPlayer.isOp())
-		{
-			if (args[0].equalsIgnoreCase("addgroup"))
-			{
-				if (args.length > 1)
-				{
-				  String groupName = args[1];
-				}
-			}
-		}
+//		String groupName = "";
+//		
+//		if (pPlayer.isOp())
+//		{
+//			if (args[0].equalsIgnoreCase("addgroup"))
+//			{
+//				if (args.length > 1)
+//				{
+//				  groupName = args[1];
+//				}
+//			}
+//		}
 		
 		if (!plugin.perms.hasPerms(pPlayer, "classranks.admin.admin", pPlayer
 				.getWorld().getName())) {

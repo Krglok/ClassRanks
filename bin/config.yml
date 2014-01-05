@@ -5,22 +5,35 @@
 updatecheck: true
 # autoupdate, is not implemented now and should always false #
 autoupdate: false
+# send a message to the chat for every rank change  #
 rankpublic: true
+# stores a ranktracking, out of service   #
 trackRanks: false
+# enable automatic rank for all wolrds, no world specific permissions #
 defaultrankallworlds: false
+# every player can have only one active class   #
 onlyoneclass: true
+# automatic remove permissions on rank changing #
 clearranks: false
+# allow rankup/down with signs #
 signcheck: false
 signchoose: '[choose]'
 signrankup: '[rankup]'
 signrankdown: '[rankdown]'
+# default cooldown time for rankup/down #
 cooldown: 0
+# enables debug message to server console, spam the console #
 debug: false
+# The default settings will be used when    #
+# indivial value not set but required from  #
+# the following flags                       #
 checkprices: true
 checkitems: true
 checkexp: true
+# vaultpermission  and vaulteconomy must always true
 vaultpermissions: true
 vaulteconomy: true
+# the prefix will be used for automatic messages
 prefix: ClassRanks
 
 #----------------#
@@ -28,9 +41,18 @@ prefix: ClassRanks
 #----------------#
 playercolor: '&e'
 worldcolor: '&6'
-#-------------------#
-# classes and ranks #
-#-------------------#
+#-----------------------------------------------#
+# classes:          placegholder/container      #
+#   Fighter:        = ClassName                 #
+#       Warrior:    = rank / permissingroup     #
+#            name:  = displayname of rank       #
+#            color: = colordode for display     #
+#            (optional parameter follows)       #  
+#            price: = economy cost for rankup   #
+#            items: = list of items for rankup  #
+#            - GOLD_INGOT:3  = item_name:amount #
+#            exp:   = amonut of xp for rankup   #
+#-----------------------------------------------#
 classes:
     Fighter:
         Warrior:
@@ -61,16 +83,30 @@ classes:
             name: 'Trader III'
             color: '&2'
             price: 100.00
-#---------------------#
-# Money Cost Settings #
-#---------------------#
+#-----------------------------------------#
+# The default settings will be used when  #
+# indivial value not set but required from#
+# config                                  #
+# Default  Money Cost Settings            #
+#   I   = rank 1 , in every class         #
+#   II  = rank 2 , in every class         #
+#   III = rank 3 , in every class         #
+#   and so on                             #
+#-----------------------------------------#
 prices:
     I: '10.00'
     II: '50.00'
     III: '100.00'
-#--------------------#
-# Item Cost Settings #
-#--------------------#
+#-----------------------------------------#
+# The default settings will be used when  #
+# indivial value not set but required from#
+# config                                  #
+# Default    Item Cost Settings           #
+#   I   = rank 1 , in every class         #
+#   II  = rank 2 , in every class         #
+#   III = rank 3 , in every class         #
+#   and so on                             #
+#-----------------------------------------#
 items:
     I:
     - 'REDSTONE:2'
@@ -81,17 +117,24 @@ items:
     III:
     - 'DIAMOND:5'
     - 'LAPIS_BLOCK:5'
-#-------------------#
-# EXP Cost Settings #
-#-------------------#
+#-----------------------------------------#
+# The default settings will be used when  #
+# indivial value not set but required from#
+# config                                  #
+# Default  EXP Cost Settings              #
+#   I   = rank 1 , in every class         #
+#   II  = rank 2 , in every class         #
+#   III = rank 3 , in every class         #
+#   and so on                             #
+#-----------------------------------------#
 exp:
     I: '10'
     II: '50'
     III: '100'
-#-----------------------------------------#
-# Players                                 #
-# neede when no permission plugin present #
-#-----------------------------------------#
+#------------------------------------------------#
+# Players                                        #
+# rank storage when no permission plugin present #
+#------------------------------------------------#
 players:
     Notch:
         Fighter: Warrior

@@ -70,7 +70,7 @@ public class ClassRanks extends JavaPlugin {
 		// load the config file
 		config.load_config(); 
 
-		// load Vault 
+		// load Vault , only handle Vault for permissions
 		if (pm.getPlugin("Vault") != null) {
 			db.i("Vault found!");
 			if (getConfig().getBoolean("vaultpermissions")) 
@@ -94,20 +94,20 @@ public class ClassRanks extends JavaPlugin {
 		}
 		
 		// backup permissions
-		if (this.perms == null || (this.perms != null && !this.perms.setupPermissions())) {
-		
-			if (pm.getPlugin("bPermissions") != null) {
-				db.i("bPermissions found!");
-				this.perms = new HandleBPerms(this);
-			} else if (pm.getPlugin("PermissionsEx") != null) {
-				db.i("PermissionsEX found!");
-				this.perms = new HandlePEX(this);
-			} else {
-				db.i("No perms found, defaulting to SuperPermissions!");
-				this.perms = new HandleSuperPerms(this);
-			}
-			this.perms.setupPermissions();
-		}
+//		if (this.perms == null || (this.perms != null && !this.perms.setupPermissions())) {
+//		
+//			if (pm.getPlugin("bPermissions") != null) {
+//				db.i("bPermissions found!");
+//				this.perms = new HandleBPerms(this);
+//			} else if (pm.getPlugin("PermissionsEx") != null) {
+//				db.i("PermissionsEX found!");
+//				this.perms = new HandlePEX(this);
+//			} else {
+//				db.i("No perms found, defaulting to SuperPermissions!");
+//				this.perms = new HandleSuperPerms(this);
+//			}
+//			this.perms.setupPermissions();
+//		}
 
 		if(config.isUpdateCheck())
 		{
