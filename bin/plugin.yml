@@ -1,6 +1,6 @@
 name: ClassRanks
 main: net.slipcor.classranks.ClassRanks
-version: 0.4.6.3
+version: 0.6.1.0
 author: slipcor
 website: http://dev.bukkit.org/server-mods/classranks/
 soft-depends: [bPermissions,iConomy,BOSEconomy,MultiCurrency,Essentials,PermissionsEx,Vault]
@@ -35,6 +35,9 @@ commands:
            /classadmin change rank  [classname] [rankname] [displayname] [color]
            /classadmin remove class [classname]
            /classadmin remove rank [classname] [rankname]
+           /classadmin list {classname} {rankname}
+           /classadmin config 
+           /classadmin debug [TRUE/FALSE]
 permissions:
     classranks.*:
         description: Gives access to all commands

@@ -15,7 +15,8 @@ import org.bukkit.inventory.ItemStack;
  * @author slipcor
  */
 
-public class Class {
+public class Clazz 
+{
 	public final ArrayList<Rank> ranks = new ArrayList<Rank>();
 	public String name;
 	
@@ -23,7 +24,7 @@ public class Class {
 	 * create a class instance
 	 * @param sClassName the class name
 	 */
-	public Class(String sClassName) {
+	public Clazz(String sClassName) {
 		this.name = sClassName;
 	}
 	
@@ -36,7 +37,8 @@ public class Class {
 	 * @param dCost the rank cost
 	 * @param iExp the rank exp cost
 	 */
-	public void add(String sPermName, String sDispName, ChatColor cColor, ItemStack[] isItems, double dCost, int iExp) {
+	public void add(String sPermName, String sDispName, ChatColor cColor, ItemStack[] isItems, double dCost, int iExp) 
+	{
 		this.ranks.add(new Rank(sPermName, sDispName, cColor, this, isItems, dCost, iExp));
 	}
 	

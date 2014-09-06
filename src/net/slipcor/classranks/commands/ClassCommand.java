@@ -1,7 +1,6 @@
 package net.slipcor.classranks.commands;
 
 import net.slipcor.classranks.ClassRanks;
-import net.slipcor.classranks.managers.CommandManager;
 import net.slipcor.classranks.managers.DebugManager;
 
 import org.bukkit.command.Command;
@@ -19,7 +18,7 @@ import org.bukkit.entity.Player;
 
 public class ClassCommand implements CommandExecutor {
 	private final ClassRanks plugin;
-	private final CommandManager cmdMgr;
+	private final PlayerCommands cmdMgr;
 	private final DebugManager db;
 	
 	/**
@@ -27,10 +26,10 @@ public class ClassCommand implements CommandExecutor {
 	 * @param cr the plugin instance to hand over
 	 * @param cm the command manager instance to hand over
 	 */
-	public ClassCommand(ClassRanks cr, CommandManager cm) {
-		plugin = cr;
-		cmdMgr = cm;
-		db = new DebugManager(cr);
+	public ClassCommand(ClassRanks plugin, PlayerCommands cm) {
+		this.plugin = plugin;
+		cmdMgr = plugin.getCommandMgr();
+		db = plugin.getDebugManager();
 	}
 
 	@Override

@@ -27,98 +27,142 @@ import org.bukkit.inventory.ItemStack;
  *     v0.1.5.1 - cleanup
  *     v0.1.5.0 - more fixes, update to CB #1337
  * 
- * @author slipcor
+ * @author slipcor / Krglok
  */
 
-public class PlayerManager {
+public class PlayerManager 
+{
 	private final ClassRanks plugin;
-	private static DebugManager db;
-//	public static int coolDown;
 	
-	public PlayerManager(ClassRanks plugin) {
+	public PlayerManager(ClassRanks plugin) 
+	{
 		this.plugin = plugin;
-		db = new DebugManager(plugin);
+	}
+
+
+	public static Player searchPlayerName(String name) 
+	{
+		for (Player player : Bukkit.getServer().getOnlinePlayers())
+		{
+			if (player.getName().equalsIgnoreCase(name))
+			{
+				return player; // gotcha!
+			}
+		}
+		System.out.println("[ClassRank]  player not online "+name);
+		//		plugin.db.i("player not online: " + playerName);
+		// not found online, hope that it was right anyways
+		return null;
 	}
 	
 	/*
 	 * receive a string and search for online usernames containing it
 	 */	
-	public static String search(String player) {
+	public static String searchName(String playerName) 
+	{
 		Player[] p = Bukkit.getServer().getOnlinePlayers();
 		for (int i=0;i<p.length;i++)
-			if (p[i].getName().toLowerCase().contains(player.toLowerCase()))
+		{
+			if (p[i].getName().toLowerCase().contains(playerName.toLowerCase()))
+			{
 				return p[i].getName(); // gotcha!
-
-		db.i("player not online: " + player);
+			}
+		}
+//		db.i("player not online: " + player);
 		// not found online, hope that it was right anyways
-		return player;
+		return "";
+	}
+
+	
+	public boolean hasItems(Player player, ItemStack[] items) 
+	{
+		boolean isContain = false;
+		if (items.length == 0)
+		{
+			return false;
+		}
+        for (int i=0;i<items.length;i++) 
+        {
+            if (items[i] != null) 
+            {
+            	isContain = false;
+            	plugin.db.i("checkItem : "+items[i].getData().toString() + " : " + items[i].getAmount());
+            	for (ItemStack item : player.getInventory().getContents())
+            	{
+            		if ((item != null) && (item.getType() == items[i].getType()))
+            		{
+//	                	plugin.db.i("Inventory: "+item.getType().name() + " : " + item.getAmount());
+		            	if (item.getAmount() >= items[i].getAmount())
+		            	{
+		            		isContain = true;
+		                	plugin.db.i("Found : "+item.getData().getItemType().name() + " : " + item.getAmount());
+		            		//getData().getItemType().name();
+		            	}
+            		}
+            	}
+                if (isContain == false)
+                {
+            		plugin.msg(player,"Not found : "+items[i].getData().getItemType().name() + " : " + items[i].getAmount());
+                	plugin.db.i("Not found : "+items[i].getData().getItemType().name() + " : " + items[i].getAmount());
+                	return false;
+                }
+            }
+            	
+        }
+        return true;  
 	}
 	
-	boolean ifHasTakeItems(Player iPlayer, ItemStack[] isItems) {
-		ItemStack[] isItemsBackup = null;
+	public boolean takeItems(Player player, ItemStack[] items) 
+	{
 
-        ItemStack[] isPlayerItems = iPlayer.getInventory().getContents();
-        ItemStack[] isPlayerItemsBackup = new ItemStack[isPlayerItems.length];
-
-        HashMap<Integer,ItemStack> iiItemsLeftover;
-
-        isItemsBackup = new ItemStack[isItems.length];
-        
-        for (int i=0;i<isItems.length;i++) {
-            if (isItems[i] != null) {
-            	isItemsBackup[i] = isItems[i].clone(); //TODO: needed??
+        for (int i=0;i<items.length;i++) {
+            if (items[i] != null) 
+            {
+            	player.getInventory().removeItem(items[i]);
             }
         }
-
-        // isItems == ItemStack we want to take
-        // isItemsBackup == Backup
-        
-        for (int i=0;i<isPlayerItems.length;i++) {
-            if (isPlayerItems[i] != null) {
-                isPlayerItemsBackup[i] = isPlayerItems[i].clone();
-            }
-        }
-        // isPlayerItems == Player Inventory
-        // isPlayerItemsBackup == Backup
-	
-        iiItemsLeftover = iPlayer.getInventory().removeItem(isItemsBackup);
-
-        if(!iiItemsLeftover.isEmpty()){
-            // player does NOT have the stuff
-
-    		db.i("player does not have the items");
-            iPlayer.getInventory().setContents(isPlayerItemsBackup);
-            return false;
-        }
-		db.i("player has the items");
         return true;  
 	}
 
-	int coolDownCheck(Player comP) {
-		if ((comP.isOp()) || (plugin.config.getCoolDown() == 0)) {
+	/**
+	 * Upgrade to 1.7.xx  get the UUID for player reference
+	 * 
+	 * @param player
+	 * @return the time to cooldown
+	 */
+	public int coolDownCheck(Player player) 
+	{
+		if ((player.isOp()) || (plugin.config.getCoolDown() == 0)) 
+		{
 			return 0; // if we do not want/need to calculate the cooldown, get out of here!
 		}
 
-		db.i("calculating cooldown");
-		
 		File fConfig = new File(plugin.getDataFolder(),"cooldowns.yml");
 		YamlConfiguration configCool = new YamlConfiguration();
         
-        if(fConfig.isFile()){
+        if(fConfig.isFile())
+        {
         	try {
         		configCool.load(fConfig);
-			} catch (FileNotFoundException e) {
-				plugin.log("File not found!", Level.SEVERE);
+			} 
+        	catch (FileNotFoundException e) 
+			{
+				ClassRanks.log("File not found!", Level.SEVERE);
 				e.printStackTrace();
-			} catch (IOException e) {
-				plugin.log("IO Exception!", Level.SEVERE);
+			} 
+        	catch (IOException e) 
+			{
+				ClassRanks.log("IO Exception!", Level.SEVERE);
 				e.printStackTrace();
-			} catch (InvalidConfigurationException e) {
-				plugin.log("Invalid Configuration!", Level.SEVERE);
+			} 
+        	catch (InvalidConfigurationException e) 
+        	{
+				ClassRanks.log("Invalid Configuration!", Level.SEVERE);
 				e.printStackTrace();
 			}
-        	plugin.log("CoolDown file loaded!", Level.INFO);
-        } else {
+        	ClassRanks.log("CoolDown file loaded!", Level.INFO);
+        } else 
+        {
         	Map<String, Object> cdx = new HashMap<String, Object>();
         	cdx.put("slipcor", 0);
         	configCool.addDefault("cooldown", cdx);
@@ -127,26 +171,27 @@ public class PlayerManager {
         Map<String, Object> cds = (Map<String, Object>) configCool.getConfigurationSection("cooldown").getValues(true);
         int now = Math.round((System.currentTimeMillis() % (60*60*24*1000)) /1000);
 
-        if (cds.containsKey(comP.getName())) {
-    		db.i("player cooldown found!");
-        	// Subtract the seconds waited from the needed seconds
-        	int cd = plugin.config.getCoolDown() - (now - (Integer) cds.get(comP.getName()));
-        	if ((cd <= plugin.config.getCoolDown()) && (cd > 0)) {
-        		db.i("cooldown still is: "+cd);
+//        if (cds.containsKey(player.getName())) 
+        if (cds.containsKey(player.getUniqueId().toString())) 
+        {
+        	int cd = plugin.config.getCoolDown() - (now - (Integer) cds.get(player.getName()));
+        	if ((cd <= plugin.config.getCoolDown()) && (cd > 0)) 
+        	{
         		return cd; // we still have to wait, return how many seconds
         	}
-        	cds.remove(comP.getName()); // delete the value
-    		db.i("value deleted");
+        	cds.remove(player.getUniqueId().toString()); // delete the value
         }
 
-    	cds.put(comP.getName(), now);
-		db.i("value set");
+    	cds.put(player.getUniqueId().toString(), now);
     	
 		configCool.set("cooldown", cds);
-		try {
+		try 
+		{
 			configCool.save(fConfig);
-		} catch (IOException e) {
-			plugin.log("IO Exception!", Level.SEVERE);
+		} 
+		catch (IOException e) 
+		{
+			ClassRanks.log("IO Exception!", Level.SEVERE);
 			e.printStackTrace();
 		}
         

@@ -15,27 +15,32 @@ import org.bukkit.inventory.ItemStack;
  * @author slipcor
  */
 
-public class FormatManager {
-	private ChatColor colPlayer = ChatColor.YELLOW; // Color: Playername
-	private ChatColor colWorld = ChatColor.GOLD;   // Color: Worldname
+public class FormatManager 
+{
+	private static ChatColor colPlayer = ChatColor.YELLOW; // Color: Playername
+	private static ChatColor colWorld = ChatColor.GOLD;   // Color: Worldname
 
     /*
      * Wrap a string in the desired color
      */
-	String formatPlayer(String str) {
-		String tStr = PlayerManager.search(str);
-		if (!tStr.equals("")) {
+	public static String formatPlayer(String playerName) 
+	{
+		String tStr = PlayerManager.searchName(playerName);
+		if (tStr.equals("") == false) 
+		{
 			// if a valid playername: replace
-			str = tStr;
+			playerName = tStr;
 		}
-		return colPlayer + str + ChatColor.WHITE;
+		return colPlayer + playerName + ChatColor.WHITE;
 	}
 	
     /*
      * Wrap a string in the desired color
      */
-	String formatWorld(String str) {
-		if (str.equalsIgnoreCase("all")) {
+	public static String formatWorld(String str) 
+	{
+		if (str.equalsIgnoreCase("all")) 
+		{
 			str = "all worlds";
 		}
 		return colWorld + str + ChatColor.WHITE;
@@ -44,7 +49,8 @@ public class FormatManager {
 	/*
 	 * read a string and format it with given color code (e.g. '&e')
 	 */
-	String formatStringByColorCode(String str, String code) {
+	public static String formatStringByColorCode(String str, String code) 
+	{
 		// remove the color prefix
 		code = code.replace("&", "");
 		ChatColor cc = formatColor(code);
@@ -83,22 +89,28 @@ public class FormatManager {
 		return result;
 	}
     
-	public static ItemStack[] getItemStacksFromStringList(List<String> stringList) {
+	public static ItemStack[] getItemStacksFromStringList(List<String> stringList) 
+	{
 		String result = "";
-		for (String item : stringList) {
-			result += result.equals("")?item:","+item;
+		for (String item : stringList) 
+		{
+			result += result.equals("") ? item:","+item;
 		}
 		return getItemStacksFromCommaString(result);
 	}
 
-	public static ItemStack[] getItemStacksFromCommaString (String string) {
+	public static ItemStack[] getItemStacksFromCommaString (String string) 
+	{
 		String[] arrStacks = string.split(",");
 		ItemStack[] result = new ItemStack[arrStacks.length];
 		int i = 0;
-		for (String stack : arrStacks) {
-			if (stack.contains(":")) {
+		for (String stack : arrStacks) 
+		{
+			if (stack.contains(":")) 
+			{
 				String[] vars = stack.split(":");
-				if (vars.length == 2) {
+				if (vars.length == 2) 
+				{
 					int iAmount = 1;
 					try {
 						iAmount = Integer.parseInt(vars[1]);
@@ -149,7 +161,8 @@ public class FormatManager {
     /*
      * store the config colors into our private values
      */
-	public void setColors(String sColor, String sPlayerCode, String sWorldCode) {
+	public static void setColors(String sPlayerCode, String sWorldCode) 
+	{
 		colPlayer = formatColor(sPlayerCode);
 		colWorld = formatColor(sWorldCode);
 	}

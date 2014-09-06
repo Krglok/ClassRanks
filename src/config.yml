@@ -5,6 +5,8 @@
 updatecheck: true
 # autoupdate, is not implemented now and should always false #
 autoupdate: false
+# use UUID for permissions and player related values
+useUUID: false
 rankpublic: true
 trackRanks: false
 defaultrankallworlds: false

@@ -9,15 +9,18 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 //import org.bukkit.plugin.Plugin;
 import net.slipcor.classranks.ClassRanks;
+import net.slipcor.classranks.core.Clazz;
 import net.slipcor.classranks.core.Rank;
 
 /*
  * this Class read the config and make it persistaned
  * each config node  will be stored here.
+ * the config data stored in parameters, so not always read from file
+ * the ClassRank tree are stored in the ClassManager
  * 
- * @version v0.4.6
+ * @version v0.4.6 
  * 
- * @author krglog
+ * @author krglok
  * 
  */
 public class ConfigManager {
@@ -32,16 +35,38 @@ public class ConfigManager {
 //	private void setClasses(Map<String, Object> classes) {
 //		this.classRanks = classes;
 //	}
-	private Boolean autoUpdate;
+	private Boolean autoUpdate = new Boolean(false);
 	
 	public Boolean isAutoUpdate() {
 		return autoUpdate;
 	}
 
-	private Boolean updateCheck;
+	private Boolean updateCheck = new Boolean(false);
 	
 	public Boolean isUpdateCheck() {
 		return updateCheck;
+	}
+
+	private boolean useUUID = new Boolean(false);
+	public Boolean isUUD()
+	{
+		return useUUID;
+	}
+	
+	public void setUUID(Boolean value)
+	{
+		useUUID = value;
+	}
+	
+	private Boolean clearranks = new Boolean(false);
+	public Boolean isClearranks() 
+	{
+		return clearranks;
+	}
+
+	public void setClearranks(Boolean clearranks) 
+	{
+		this.clearranks = clearranks;
 	}
 	
 	private Map<String, Object> players;
@@ -50,14 +75,27 @@ public class ConfigManager {
 		return players;
 	}
 
-	private Map<String,Object> playerClassList;
+//	private Map<String,Object> playerClassList;		// should store the playerClasses
 	
-	private Map<String, String> playerClassRank;
+//	private Map<String, String> playerClassRank; 	// should store the playerRanks 
 	
 	private Double[] moneyCost;
+	
 	public Double[] getMoneyCost() {
 		return moneyCost;
 	}
+	
+	public Double getMoneyCost(int index) 
+	{
+		if (index <= moneyCost.length)
+		{
+			return moneyCost[index];
+		} else
+		{
+			return moneyCost[moneyCost.length-1];
+		}
+	}
+	
 	public void setMoneyCost(Double[] moneyCost) {
 		this.moneyCost = moneyCost;
 	}
@@ -65,14 +103,28 @@ public class ConfigManager {
 	public int[] getExpCost() {
 		return expCost;
 	}
+	public int getExpCost(int index) 
+	{
+		if (index <= expCost.length)
+		{
+			return expCost[index];
+		} else
+		{
+			return expCost[expCost.length-1];
+		} 
+	}
 
 	
 	public ConfigManager(ClassRanks plugin) {
 		super();
 		this.plugin = plugin;
+		moneyCost = new Double[1];
+		expCost = new int[1];
+		signs = new String[3];
+		
 	}
 
-	private Boolean debug;
+	private Boolean debug = new Boolean(false);
 	public Boolean isDebug() {
 		return debug;
 	}
@@ -80,7 +132,7 @@ public class ConfigManager {
 		this.debug = debug;
 	}
 	
-	private Boolean checkprices;
+	private Boolean checkprices = new Boolean(false);
 	public Boolean isCheckprices() {
 		return checkprices;
 	}
@@ -96,7 +148,7 @@ public class ConfigManager {
 		this.prices = prices;
 	}
 
-	private Boolean checkexp;
+	private Boolean checkexp = new Boolean(false);
 	public Boolean isCheckexp() {
 		return checkexp;
 	}
@@ -112,7 +164,7 @@ public class ConfigManager {
 		this.expprices = expprices;
 	}
 	
-	private Boolean trackRanks;
+	private Boolean trackRanks = new Boolean(false);
 	public Boolean isTrackRanks() {
 		return trackRanks;
 	}
@@ -128,7 +180,7 @@ public class ConfigManager {
 		this.rankPublic = rankpublic;
 	}
 	
-	private Boolean signcheck;
+	private Boolean signcheck = new Boolean(false);
 	public Boolean isSigncheck() {
 		return signcheck;
 	}
@@ -136,7 +188,7 @@ public class ConfigManager {
 		this.signcheck = signcheck;
 	}
 	
-	private String[] signs;
+	private String[] signs; // = new String[];
 	public String[] getSigns() {
 		return signs;
 	}
@@ -160,7 +212,7 @@ public class ConfigManager {
 		this.itemStacks = itemStacks;
 	}
 	
-	private Boolean checkitems;
+	private Boolean checkitems = new Boolean(false);
 	public Boolean isCheckitems() {
 		return checkitems;
 	}
@@ -177,7 +229,8 @@ public class ConfigManager {
 	}
 	
 	private ItemStack[][] rankItems;
-	public ItemStack[][] getRankItems() {
+	public ItemStack[][] getRankItems() 
+	{
 		return rankItems;
 	}
 	public void setRankItems(ItemStack[][] rankItems) {
@@ -192,7 +245,7 @@ public class ConfigManager {
 		this.defaultRankAllWorlds = defaultrankallworlds;
 	}
 	
-	private boolean onlyOneClass;
+	private boolean onlyOneClass = new Boolean(false);
 	public Boolean isOnlyoneclass() {
 		return onlyOneClass;
 	}
@@ -200,20 +253,22 @@ public class ConfigManager {
 		this.onlyOneClass = onlyoneclass;
 	}
 	
-	
-	
+	/**
+	 * Load Config file , stores data in parmeters
+	 */
 	public void load_config() {
 
 		if (plugin.getConfig() == null
 				|| !plugin.getConfig().getString("cversion").equals(debugVersion)) 
 		{
-			plugin.log("creating default config.yml", Level.INFO);
+			ClassRanks.log("creating default config.yml", Level.INFO);
 			plugin.getConfig().set("cversion", debugVersion);
 			plugin.getConfig().options().copyDefaults(true);
 			plugin.saveConfig();
 		}
 //		DebugManager.active = plugin.getConfig().getBoolean("debug", false);
 		debug = plugin.getConfig().getBoolean("debug", false);
+		plugin.db.active = debug;
 		// AutoUpdate Config
 		autoUpdate = plugin.getConfig().getBoolean("autoupdate", false);
 		// UpdateCheck Config
@@ -221,14 +276,20 @@ public class ConfigManager {
 		
 		// check for section is available
 		checkprices = plugin.getConfig().getBoolean("checkprices", false);
+
+		// useUUID
+		useUUID = plugin.getConfig().getBoolean("useUUID", false);
+		
 		boolean isSection = false;
 		if (plugin.getConfig().getConfigurationSection("prices") != null)
 		{
 			isSection = true;
 		}
 		
-		if ( isCheckprices()  && isSection) {
-			plugin.db.i("prices are already set, reading...");
+//		if ( isCheckprices()  && isSection) 
+		if (isSection) 
+		{
+			plugin.db.i("Config prices reading...");
 			// set prices
 			prices = (Map<String, Object>) plugin.getConfig().getConfigurationSection("prices").getValues(true);
 
@@ -243,13 +304,14 @@ public class ConfigManager {
 			int i = 0;
 			for (String Key : prices.keySet()) {
 				String sVal = (String) prices.get(Key);
-				try {
+				try 
+				{
 					moneyCost[i] = Double.parseDouble(sVal);
-					plugin.db.i("#" + i + " => "
-							+ String.valueOf(Double.parseDouble(sVal)));
-				} catch (Exception e) {
+					plugin.db.i("#" + i + " => " + String.valueOf(Double.parseDouble(sVal)));
+				} catch (Exception e) 
+				{
 					moneyCost[i] = 0.0;
-					plugin.log("Unrecognized cost key '" + String.valueOf(Key) + "': "
+					ClassRanks.log("Unrecognized cost key '" + String.valueOf(Key) + "': "
 							+ sVal, Level.INFO);
 				}
 				i++;
@@ -260,25 +322,37 @@ public class ConfigManager {
 		
 		checkexp = plugin.getConfig().getBoolean("checkexp", false);
 		isSection = (plugin.getConfig().getConfigurationSection("exp") != null);
-		if ((isCheckexp()) && (isSection)) {
+//		if ((isCheckexp()) && (isSection)) 
+
+		if (isSection) 
+		{
 			// set exp prices
-			plugin.db.i("exp costs are set, reading...");
+			plugin.db.i("CONFG exp costs reading...");
 			
 			expprices = (Map<String, Object>) plugin.getConfig().getConfigurationSection("exp").getValues(true);
 //			cmdMgr.expCost = new int[expprices.size()];
 			
 			int i = 0;
-			for (String Key : expprices.keySet()) {
+			// array erweitern, wenn zu klein
+			if (expCost.length < expprices.size() )
+			{
+			  expCost = new int [expprices.size()];
+			}
+			// config in array uebertragen 
+			for (String Key : expprices.keySet()) 
+			{
 				String sVal = (String) expprices.get(Key);
-				try {
-					plugin.cmdMgr.expCost[i] = Integer.parseInt(sVal);
+				ClassRanks.log("ExpPrice : "+sVal, Level.INFO);
+				try 
+				{
+					expCost[i] = Integer.parseInt(sVal);
 					plugin.db.i("#" + i + " => "
 							+ String.valueOf(Integer.parseInt(sVal)));
 				} catch (Exception e) {
 					
 					expCost = new int[i+1];
 					expCost[i] = 0;
-					plugin.log("Unrecognized exp cost key '" + String.valueOf(Key)
+					ClassRanks.log("Unrecognized exp cost key '" + String.valueOf(Key)
 							+ "': " + sVal, Level.INFO);
 				}
 				i++;
@@ -286,9 +360,7 @@ public class ConfigManager {
 		}
 
 		// set subcolors
-		plugin.cmdMgr.getFormatManager().setColors("world",
-				plugin.getConfig().getString("playercolor"),
-				plugin.getConfig().getString("worldcolor"));
+		FormatManager.setColors(plugin.getConfig().getString("playercolor"),plugin.getConfig().getString("worldcolor"));
 
 		// set other variables
 		rankPublic = plugin.getConfig().getBoolean("rankpublic", false);
@@ -302,15 +374,16 @@ public class ConfigManager {
 		// Sign 
 		signcheck = plugin.getConfig().getBoolean("signcheck", false);
 
-		if (signcheck) {
-			plugin.db.i("sign check activated!");
+			plugin.db.i("sign check Read!");
 			signs[0] = plugin.getConfig().getString("signchoose",
 					"[choose]");
 			signs[1] = plugin.getConfig().getString("signrankup",
 					"[rankup]");
 			signs[2] = plugin.getConfig().getString("signrankdown",
 					"[rankdown]");
-		}
+		
+		setClearranks(plugin.getConfig().getBoolean("clearranks", false));
+
 
 		///PlayerManager.coolDown = plugin.getConfig().getInt("cooldown", 0);
 		coolDown = plugin.getConfig().getInt("cooldown", 0);
@@ -319,45 +392,48 @@ public class ConfigManager {
 		checkitems = plugin.getConfig().getBoolean("checkitems");
 		
 		// check section is available
+		plugin.db.i("read items section");
 		isSection = plugin.getConfig().getConfigurationSection("items") != null;
 		// item read and check
-		if (isCheckitems() && isSection) {
+		if (isSection) 
+		{
 			plugin.db.i("items exist, parsing...");
 
 			items = (Map<String, Object>) plugin.getConfig()
 					.getConfigurationSection("items").getValues(false);
 			// items error check
-			if (items == null) {
+			if (items == null) 
+			{
 				plugin.db.i("items invalid, setting to null");
 				itemStacks = new ItemStack[ClassManager.getClasses().size()][1];
-			} else {
+			} else 
+			{
 				// for each items => ItemStack[][1,2,3]
 				int iI = 0;
 				itemStacks = new ItemStack[items.size()][];
-				for (String isKey : items.keySet()) {
+				for (String isKey : items.keySet()) 
+				{
+					plugin.db.i("Item Key : " + isKey.toString());
 					List<?> values = plugin.getConfig().getList("items." + isKey);
 					itemStacks[iI] = new ItemStack[values.size()];
 					plugin.db.i("creating itemstack:");
-					for (int iJ = 0; iJ < values.size(); iJ++) {
+					for (int iJ = 0; iJ < values.size(); iJ++) 
+					{
 						String[] vValue = (String.valueOf(values.get(iJ)))
 								.split(":");
 
-						int vAmount = vValue.length > 1 ? Integer
-								.parseInt(vValue[1]) : 1;
-						try {
+						int vAmount = vValue.length > 1 ? Integer.parseInt(vValue[1]) : 1;
+						try 
+						{
 							itemStacks[iI][iJ] = new ItemStack(
 									Material.valueOf(vValue[0]), vAmount);
 
-						} catch (Exception e) {
-							try {
-								itemStacks[iI][iJ] = new ItemStack(
-										Integer.valueOf(vValue[0]), vAmount);
-							} catch (Exception e2) {
+						} catch (Exception e) 
+						{
 
-								plugin.log("Unrecognized reagent: " + vValue[0],
+								ClassRanks.log("Unrecognized reagent: " + vValue[0],
 										Level.WARNING);
 								continue;
-							}
 						}
 					}
 					plugin.db.i(iI + " - "
@@ -370,11 +446,21 @@ public class ConfigManager {
 
 		// read basis class and ranks initialize the object
 		classes = plugin.getConfig().getConfigurationSection("classes").getValues(false);
-		for (String sClassName : classes.keySet()) {
+		for (String sClassName : classes.keySet()) 
+		{
 			Map<String, Object> ranks = ((ConfigurationSection) classes
 					.get(sClassName)).getValues(false);
 			boolean newClass = true;
-			for (String sRankName : ranks.keySet()) {
+			for (String sRankName : ranks.keySet()) 
+			{
+//				Rank definition
+//				this.sPermissionName = sPermName;
+//				this.sDisplayName = sDispName;
+//				this.cColor = cC;
+//				this.crcSuper = crc;
+//				this.items = isItems;
+//				this.cost = dCost;
+//				this.exp = iExp;
 
 				String rankName = null;
 				String rankColor = "&f";
@@ -382,27 +468,27 @@ public class ConfigManager {
 				ItemStack[] rankItems = null;
 				int rankExp = -1;
 
-				if (plugin.getConfig().get(
-						"classes." + sClassName + "." + sRankName + ".name") != null) {
+				if (plugin.getConfig().get("classes." + sClassName + "." + sRankName + ".name") != null) 
+				{
 					rankName = plugin.getConfig()
 							.getString(
 									"classes." + sClassName + "." + sRankName
 											+ ".name");
 				}
-				if (plugin.getConfig().get(
-						"classes." + sClassName + "." + sRankName + ".color") != null) {
+				if (plugin.getConfig().get("classes." + sClassName + "." + sRankName + ".color") != null) 
+				{
 					rankColor = plugin.getConfig().getString(
 							"classes." + sClassName + "." + sRankName
 									+ ".color");
 				}
-				if (plugin.getConfig().get(
-						"classes." + sClassName + "." + sRankName + ".price") != null) {
+				if (plugin.getConfig().get("classes." + sClassName + "." + sRankName + ".price") != null) 
+				{
 					rankCost = Double.valueOf(plugin.getConfig().getString(
 							"classes." + sClassName + "." + sRankName
 									+ ".price"));
 				}
-				if (plugin.getConfig().get(
-						"classes." + sClassName + "." + sRankName + ".items") != null) {
+				if (plugin.getConfig().get("classes." + sClassName + "." + sRankName + ".items") != null) 
+				{
 					rankItems = FormatManager
 							.getItemStacksFromStringList(plugin.getConfig()
 									.getStringList(
@@ -410,21 +496,20 @@ public class ConfigManager {
 													+ sRankName + ".items"));
 				}
 				if (plugin.getConfig().get(
-						"classes." + sClassName + "." + sRankName + ".exp") != null) {
+						"classes." + sClassName + "." + sRankName + ".exp") != null) 
+				{
 					rankExp = Integer.parseInt(plugin.getConfig().getString(
 							"classes." + sClassName + "." + sRankName + ".exp"));
 				}
 
-				if (newClass) {
+				if (newClass) 
+				{
 					// create class
-					ClassManager.configClassAdd(sClassName, sRankName,
-							rankName, rankColor, rankItems, rankCost, rankExp,
-							null);
-
+					ClassManager.configClassAdd(sClassName, sRankName,rankName, rankColor, rankItems, rankCost, rankExp,null);
 					newClass = false;
-				} else {
-					ClassManager.configRankAdd(sClassName, sRankName, rankName,
-							rankColor, rankItems, rankCost, rankExp, null);
+				} else 
+				{
+					ClassManager.configRankAdd(sClassName, sRankName, rankName,rankColor, rankItems, rankCost, rankExp, null);
 				}
 			}
 		}
@@ -437,17 +522,21 @@ public class ConfigManager {
 	/**
 	 * 
 	 */
-	public void readPlayerSection() {
+	public void readPlayerSection() 
+	{
 		boolean isSection = (plugin.getConfig().getConfigurationSection("players") != null);
-		if (!isSection) {
+
+		if (!isSection) 
+		{
 			players = null;
-		} else {
+		} else 
+		{
 			players = plugin.getConfig().getConfigurationSection("players").getValues(false);
 			
-			for (String sClassName : players.keySet()) {
-				
-				
-			}
+//			for (String sClassName : players.keySet()) {
+//				
+//				
+//			}
 		}
 		
 	}
@@ -457,8 +546,8 @@ public class ConfigManager {
 	 */
 	public void save_config() {
 		plugin.db.i("saving config...");
-		for (net.slipcor.classranks.core.Class cClass : ClassManager
-				.getClasses()) {
+		for (Clazz cClass : ClassManager.getClasses()) 
+		{
 			plugin.db.i(" - " + cClass.name);
 			for (Rank rRank : cClass.ranks) {
 
@@ -496,6 +585,6 @@ public class ConfigManager {
 		}
 		plugin.saveConfig();
 	}
-	
+
 
 }

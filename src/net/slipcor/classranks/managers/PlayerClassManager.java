@@ -5,11 +5,16 @@ import net.slipcor.classranks.core.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+/**
+ * 
+ * @author Windu
+ *
+ */
 public class PlayerClassManager {
 	
-	private  ArrayList<PlayerClassList> playerClassList;
+	private  ArrayList<PlayerClazzList> playerClassList;
 
-	public ArrayList<PlayerClassList> getPlayerClassList() {
+	public ArrayList<PlayerClazzList> getPlayerClassList() {
 		return playerClassList;
 	}
 
@@ -19,7 +24,7 @@ public class PlayerClassManager {
 
 	public PlayerClassManager() {
 		super();
-		this.playerClassList = new ArrayList<PlayerClassList>();
+		this.playerClassList = new ArrayList<PlayerClazzList>();
 	}
 
 	/*
@@ -30,7 +35,7 @@ public class PlayerClassManager {
 		
 		//  player not found make player entry
 		if (!checkPlayerName(playerName)) {
-			playerClassList.add(new PlayerClassList(playerName, null));
+			playerClassList.add(new PlayerClazzList(playerName, null));
 		}
 		
 	}
@@ -44,7 +49,7 @@ public class PlayerClassManager {
 			return false;
 		}
 		boolean isfound = false;
-		for (Iterator<PlayerClassList> item =  playerClassList.iterator(); item.hasNext(); ) {
+		for (Iterator<PlayerClazzList> item =  playerClassList.iterator(); item.hasNext(); ) {
 			 if ( item.next().equalsIgnoreCaseName(playerName)) {
 				 isfound = true;
 			 }

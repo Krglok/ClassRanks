@@ -1,7 +1,6 @@
 package net.slipcor.classranks.commands;
 
 import net.slipcor.classranks.ClassRanks;
-import net.slipcor.classranks.managers.CommandManager;
 import net.slipcor.classranks.managers.DebugManager;
 import net.slipcor.classranks.managers.FormatManager;
 
@@ -20,7 +19,7 @@ import org.bukkit.entity.Player;
 
 public class RankupCommand implements CommandExecutor {
 	private final ClassRanks plugin;
-	private final CommandManager cmdMgr;
+	private final PlayerCommands cmdMgr;
 	private final DebugManager db;
 	
 	/**
@@ -28,7 +27,7 @@ public class RankupCommand implements CommandExecutor {
 	 * @param cr the plugin instance to hand over
 	 * @param cm the command manager instance to hand over
 	 */
-	public RankupCommand(ClassRanks cr, CommandManager cm) {
+	public RankupCommand(ClassRanks cr, PlayerCommands cm) {
 		plugin = cr;
 		cmdMgr = cm;
 		db = new DebugManager(cr);

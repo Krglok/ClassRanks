@@ -1,9 +1,11 @@
 package net.slipcor.classranks.managers;
 
 import java.util.ArrayList;
+import java.util.logging.Level;
 
 import net.slipcor.classranks.ClassRanks;
-import net.slipcor.classranks.core.Class;
+import net.slipcor.classranks.core.Clazz;
+import net.slipcor.classranks.core.Clazz;
 import net.slipcor.classranks.core.Rank;
 
 import org.bukkit.Bukkit;
@@ -12,31 +14,35 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 /**
- * class manager class 
+ * Clazz manager Clazz 
  * - Array of Classes
+ * 
+ * used as static to workaround of initialize problems ! 
  * 
  * @version v0.4.4.2
  * 
  * @author slipcor / krglok
  */
 
-public class ClassManager {
-	private static ArrayList<Class> classes = new ArrayList<Class>();
+public class ClassManager 
+{
+	private static ArrayList<Clazz> clazzes = new ArrayList<Clazz>();
 	private static ClassRanks plugin;
-	private static DebugManager db;
+//	private static DebugManager db;
 	
 	public ClassManager(ClassRanks cr) {
 		ClassManager.plugin = cr;
-		db = new DebugManager(cr);
+//		db = new DebugManager(cr);
 	}
 	
 	public void add(String sClassName) {
-		classes.add(new Class(sClassName));
+		clazzes.add(new Clazz(sClassName));
 	}
 
-	public static String getFirstPermNameByClassName(String cString) {
+	public static String getFirstPermNameByClassName(String cString) 
+	{
 		// standard version: get first rank
-		for (Class c : classes) {
+		for (Clazz c : clazzes) {
 			for (Rank r : c.ranks) {
 				if (c.name.equals(cString))
 					return r.getPermName();
@@ -47,7 +53,7 @@ public class ClassManager {
 
 	public static String getFirstPermNameByClassName(String cString, String sPlayer) {
 		// extended version: get rank
-		for (Class c : classes) {
+		for (Clazz c : clazzes) {
 			if (c.name.equals(cString)) {
 				return c.ranks.get(ClassManager.loadClassProcess(Bukkit.getPlayer(sPlayer), c)).getPermName();
 			}
@@ -56,7 +62,7 @@ public class ClassManager {
 	}
 
 	public static String getClassNameByPermName(String rank) {
-		for (Class c : classes) {
+		for (Clazz c : clazzes) {
 			for (Rank r : c.ranks) {
 				if (r.getPermName().equals(rank))
 					return c.name;
@@ -67,9 +73,9 @@ public class ClassManager {
 
 	public static String getLastPermNameByPermGroups(ArrayList<String> permGroups) {
 		String sPermName = "";
-		for (Class c : classes) {
+		for (Clazz c : clazzes) {
 			for (Rank r : c.ranks) {
-				db.i(c.name + " => " + r.getPermName());
+				plugin.db.i(c.name + " => " + r.getPermName());
 				if (permGroups.contains(r.getPermName()))
 					sPermName = r.getPermName();
 			}
@@ -77,9 +83,13 @@ public class ClassManager {
 		return sPermName;
 	}
 
-	public static Rank getRankByPermName(String sPermName) {
-		for (Class c : classes) {
-			for (Rank r : c.ranks) {
+	public static Rank getRankByPermName(String sPermName) 
+	{
+		for (Clazz c : clazzes) 
+		{
+			for (Rank r : c.ranks) 
+			{
+			
 				if (r.getPermName().equals(sPermName))
 					return r;
 			}
@@ -87,12 +97,47 @@ public class ClassManager {
 		return null;
 	}
 
-	public static Rank getNextRank(Rank rank, int rankOffset) {
-		return rank.getSuperClass().ranks.get(rank.getSuperClass().ranks.indexOf(rank)+rankOffset);
+	public static Rank getRankByPermName(String[] sPermName) 
+	{
+		for (Clazz c : clazzes) 
+		{
+			for (Rank r : c.ranks) 
+			{
+				for (String permName : sPermName)
+				{
+					plugin.db.i("Rank: "+r.getPermName()+" Group: "+permName);
+					if (r.getPermName().equals(permName))
+					return r;
+				}
+			}
+		}
+		return null;
+	}
+
+	public static Rank getNextRank(Rank rank, int rankIndex) 
+	{
+		if (rankIndex+1 < rank.getSuperClass().ranks.size())
+		{
+		   return rank.getSuperClass().ranks.get(rankIndex+1);
+		} else
+		{
+			return null;
+		}
+	}
+
+	public static Rank getPrevRank(Rank rank, int rankIndex) 
+	{
+		if (rankIndex > 0)
+		{
+			return rank.getSuperClass().ranks.get(rankIndex-1);
+		} else
+		{
+			return null;
+		}
 	}
 	
-	private static Class getClassbyClassName(String sClassName) {
-		for (Class c : classes) {
+	private static Clazz getClassbyClassName(String sClassName) {
+		for (Clazz c : clazzes) {
 			if (c.name.equals(sClassName))
 				return c;
 		}
@@ -100,7 +145,7 @@ public class ClassManager {
 	}
 	
 	public static boolean rankExists(String sRank) {
-		for (Class c : classes) {
+		for (Clazz c : clazzes) {
 			for (Rank r : c.ranks) {
 				if (r.getPermName().equals(sRank))
 					return true;
@@ -109,24 +154,24 @@ public class ClassManager {
 		return false;
 	}
 	
-	public static ArrayList<Class> getClasses() {
-		return classes;
+	public static ArrayList<Clazz> getClasses() {
+		return clazzes;
 	}
 
 	public static boolean configClassRemove(String sClassName, Player pPlayer) {
-		Class cClass = getClassbyClassName(sClassName);
+		Clazz cClass = getClassbyClassName(sClassName);
 		if (cClass != null) {
-			classes.remove(cClass);
-			plugin.msg(pPlayer, "Class removed: " + sClassName);
+			clazzes.remove(cClass);
+			plugin.msg(pPlayer, "Clazz removed: " + sClassName);
 			plugin.config.save_config();
 			return true;
 		}
-		plugin.msg(pPlayer, "Class not found: " + sClassName);
+		plugin.msg(pPlayer, "Clazz not found: " + sClassName);
 		return true;
 	}
 
 	public static boolean configRankRemove(String sClassName, String sPermName, Player pPlayer) {
-		Class cClass = getClassbyClassName(sClassName);
+		Clazz cClass = getClassbyClassName(sClassName);
 		if (cClass != null) {
 			Rank rank = getRankByPermName(sPermName);
 			if (rank != null) {
@@ -139,41 +184,47 @@ public class ClassManager {
 			plugin.msg(pPlayer, "Rank not found: " + sPermName);
 			return true;
 		}
-		plugin.msg(pPlayer, "Class not found: " + sClassName);
+		plugin.msg(pPlayer, "Clazz not found: " + sClassName);
 		return true;
 	}
 
 
 	public static boolean configClassAdd(String sClassName, String sPermName, String sDispName, String sColor, ItemStack[] isItems, double dCost, int iExp, Player pPlayer) {
-		Class cClass = getClassbyClassName(sClassName);
+		Clazz cClass = getClassbyClassName(sClassName);
 		if (cClass == null) 
 		{
-			Class c = new Class(sClassName);
+			Clazz c = new Clazz(sClassName);
 			c.add(sPermName, sDispName, (FormatManager.formatColor(sColor)), isItems, dCost, iExp);
-			classes.add(c);
+			// add Clazz
+			clazzes.add(c);
 			if (pPlayer == null)
-				db.i("Class added: " + sClassName);
-			else
-				plugin.msg(pPlayer, "Class added: " + sClassName);
-			plugin.config.save_config();
+			{
+			    ClassRanks.log("Clazz added:" + sClassName, Level.INFO); 
+				
+				//db.i("Clazz added: " + sClassName); 
+			} else
+			{
+				plugin.msg(pPlayer, "Clazz added: " + sClassName);
+			}
+//			plugin.config.save_config();
 			return true;
-			
 		}
 		if (pPlayer == null)
-			db.i("Class already exists: " + sClassName);
+			plugin.db.i("Clazz already exists: " + sClassName);
 		else
-			plugin.msg(pPlayer, "Class already exists for " + pPlayer);
+			plugin.msg(pPlayer, "Clazz already exists for " + pPlayer);
 		return true;
 	}
 
 	public static boolean configRankAdd(String sClassName, String sPermName, String sDispName, String sColor, ItemStack[] isItems, double dCost, int iExp, Player pPlayer) {
-		Class cClass = getClassbyClassName(sClassName);
-		if (cClass != null) {
+		Clazz cClass = getClassbyClassName(sClassName);
+		if (cClass != null) 
+		{
 			cClass.ranks.add(new Rank(sPermName, sDispName, (FormatManager.formatColor(sColor)), cClass, isItems, dCost, iExp));
 			if (pPlayer == null)
 			{
-				db.i("Rank added: " + (FormatManager.formatColor(sColor)) + sPermName);
-				plugin.config.save_config();
+//				plugin.db.i("Rank added: " + (FormatManager.formatColor(sColor)) + sPermName);
+//				plugin.config.save_config();
 			} else
 			{
 				plugin.msg(pPlayer, "Rank added: " + (FormatManager.formatColor(sColor)) + sPermName +"/"+pPlayer);
@@ -182,26 +233,26 @@ public class ClassManager {
 			return true;
 		}
 		if (pPlayer == null)
-			db.i("Class not found: " + sClassName);
+			plugin.db.i("Clazz not found: " + sClassName);
 		else
-			plugin.msg(pPlayer, "Class not found: " + sClassName);
+			plugin.msg(pPlayer, "Clazz not found: " + sClassName);
 		return true;
 	}
 
 	public static boolean configClassChange(String sClassName, String sClassNewName, Player pPlayer) {
-		Class cClass = getClassbyClassName(sClassName);
+		Clazz cClass = getClassbyClassName(sClassName);
 		if (cClass != null) {
 			cClass.name = sClassNewName;
-			plugin.msg(pPlayer, "Class changed: " + sClassName + " => " + sClassNewName);
+			plugin.msg(pPlayer, "Clazz changed: " + sClassName + " => " + sClassNewName);
 			plugin.config.save_config();
 			return true;
 		}
-		plugin.msg(pPlayer, "Class not found: " + sClassName);
+		plugin.msg(pPlayer, "Clazz not found: " + sClassName);
 		return true;
 	}
 
 	public static boolean configRankChange(String sClassName, String sPermName, String sDispName, String sColor, Player pPlayer) {
-		Class cClass = getClassbyClassName(sClassName);
+		Clazz cClass = getClassbyClassName(sClassName);
 		if (cClass != null) {
 			Rank rank = getRankByPermName(sPermName);
 			if (rank != null) {
@@ -213,55 +264,56 @@ public class ClassManager {
 			}
 			plugin.msg(pPlayer, "Rank not found: " + sPermName);
 		}
-		plugin.msg(pPlayer, "Class not found: " + sClassName);
+		plugin.msg(pPlayer, "Clazz not found: " + sClassName);
 		return true;
 	}
 	
-	public static void saveClassProgress(Player pPlayer) {
-		db.i("saving class process");
+	public static void saveClassProgress(Player pPlayer) 
+	{
+		plugin.db.i("saving Clazz process");
 		String s = plugin.getConfig().getString("progress."+pPlayer.getName());
-		db.i("progress of "+pPlayer.getName()+": "+s);
-		Rank rank = ClassManager.getRankByPermName(plugin.perms.getPermNameByPlayer(pPlayer.getWorld().getName(), pPlayer.getName()));
+		plugin.db.i("progress of "+pPlayer.getName()+": "+s);
+		Rank rank = ClassManager.getRankByPermName(plugin.perms.getPermNameByPlayer(pPlayer.getWorld().getName(), pPlayer));
 		if (rank == null) {
-			db.i("rank is null!");
+			plugin.db.i("rank is null!");
 			return;
 		}
 
 		int rankID = rank.getSuperClass().ranks.indexOf(rank);
-		db.i("rank ID: "+rankID);
-		int classID = classes.indexOf(rank.getSuperClass());
-		db.i("classID: "+classID);
+		plugin.db.i("rank ID: "+rankID);
+		int classID = clazzes.indexOf(rank.getSuperClass());
+		plugin.db.i("classID: "+classID);
 		
-		if (s != null && s.length() == classes.size()) {
+		if (s != null && s.length() == clazzes.size()) {
 			
 			char[] c = s.toCharArray();
 			c[classID] = String.valueOf(rankID).charAt(0);
-			db.i("new c[classID]: "+c[classID]);
+			plugin.db.i("new c[classID]: "+c[classID]);
 
-			db.i("saving: "+c.toString());
+			plugin.db.i("saving: "+c.toString());
 			plugin.getConfig().set("progress."+pPlayer.getName(), String.valueOf(c.toString()));
 			
 			return;
 		}
 
-		db.i("no entry yet!");
+		plugin.db.i("no entry yet!");
 		String result = "";
-		for (int i = 0; i<classes.size();i++) {
+		for (int i = 0; i<clazzes.size();i++) {
 			if (i == classID) {
 				result += String.valueOf(rankID);
 			} else {
 				result += "0";
 			}
 		}
-		db.i("setting: "+result);
+		plugin.db.i("setting: "+result);
 		plugin.getConfig().set("progress."+pPlayer.getName(), String.valueOf(result));
 		plugin.saveConfig();
 	}
 	
-	public static int loadClassProcess(Player pPlayer, Class cClass) {
+	public static int loadClassProcess(Player pPlayer, Clazz cClass) {
 		try {
 			String s = plugin.getConfig().getString("progress."+pPlayer.getName());
-			int classID = classes.indexOf(cClass);
+			int classID = clazzes.indexOf(cClass);
 			
 			int rankID = Integer.parseInt(String.valueOf(s.charAt(classID)));
 			return rankID;
@@ -269,4 +321,29 @@ public class ClassManager {
 			return 0;
 		}
 	}
+
+	public static int getRankIndex(Rank  rank, Clazz oClass) 
+	{
+		// init with 0 to set default to first Rank in Clazz
+		int rankID = 0;
+		try 
+		{
+			ArrayList<Rank> ranks = oClass.ranks;
+			for (Rank oRank : ranks) 
+			{
+			    if (rank.getPermName().equals(oRank.getPermName()))
+			    {
+			    	return rankID;
+			    } else
+			    {
+			    	rankID++;
+			    }
+			}
+			return rankID;
+		} catch (Exception e) {
+			return 0;
+		}
+	}
+	
+	
 }
