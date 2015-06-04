@@ -166,10 +166,10 @@ public class HandleVaultPerms extends CRHandler {
 				if (permission.playerAddGroup(player, rank)) 
 				{
 					plugin.db.i("Vault added rank " + rank + " to player " + player	+ " in world " + player.getWorld().getName());
-					String cString = ClassManager.getClassNameByPermName(rank);
-					plugin.getConfig().set("players." + player + "." + cString, rank);
-					plugin.getConfig().set("worlds." + player.getWorld().getName() + "." + player, rank);
-					plugin.saveConfig();
+//					String cString = ClassManager.getClassNameByPermName(rank);
+//					plugin.getConfig().set("players." + player + "." + cString, rank);
+//					plugin.getConfig().set("worlds." + player.getWorld().getName() + "." + player, rank);
+//					plugin.saveConfig();
 					plugin.db.i("Vault PermName " + rank + ": user " + player + " set " + player.getWorld().getName());
 	
 				} else {
@@ -204,9 +204,6 @@ public class HandleVaultPerms extends CRHandler {
 				ClassRanks.log("Vault Global PermName " + rank + ": user " + player , Level.INFO);
 				plugin.db.i("Global added rank " + rank + " to player " + player);
 	
-				plugin.getConfig().set("players." + player + "." + cString, rank);
-				plugin.db.i("Vault added rank " + rank + " to player " + player + ", no world support");
-				plugin.saveConfig();
 			}
 		} catch (Exception e) 
 		{
@@ -304,10 +301,10 @@ public class HandleVaultPerms extends CRHandler {
 			{
 				if (permission.playerRemoveGroup(player, rank))
 				{
-					plugin.db.i("removed rank " + rank + " from player " + player+ " in world ");
+					plugin.db.i("removed rank " + rank + " from player " + player.getDisplayName()+ " in world ");
 				} else
 				{
-					plugin.db.i("NOT removed rank " + rank + " from " + player+ " in world ");
+					plugin.db.i("NOT removed rank " + rank + " from " + player.getDisplayName()+ " in world ");
 				}
 			} catch (Exception e) {
 				ClassRanks.log("Exception Remove Rank " + rank + " or user " + player+ " not found in world " , Level.WARNING);
@@ -322,9 +319,9 @@ public class HandleVaultPerms extends CRHandler {
 		try 
 		{
 			permission.playerRemoveGroup(world,player.getName(), rank);
-			plugin.db.i("removed rank " + rank + " from player " + player);
+			plugin.db.i("removed rank " + rank + " from player " + player.getDisplayName());
 		} catch (Exception e) {
-			ClassRanks.log("Exception Remove Group Global" + rank + " or user " + player+ " not found ", Level.SEVERE);
+			ClassRanks.log("Exception Remove Group Global" + rank + " or user " + player.getDisplayName()+ " not found ", Level.SEVERE);
 		}
 	}
 
@@ -342,9 +339,7 @@ public class HandleVaultPerms extends CRHandler {
 			for (String sRank : list) 
 			{
 				permission.playerRemoveGroup(player, sRank);
-				plugin.getConfig().set("players." + player, null);
 			}
-			plugin.saveConfig();
 		}
 	}
 

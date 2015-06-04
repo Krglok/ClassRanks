@@ -44,7 +44,7 @@ public class ClassRanks extends JavaPlugin
 {
 	// dont chance the order of these moduls !
 	public ConfigManager config = new ConfigManager(this);
-	private final PlayerManager pm = new PlayerManager(this);
+	public final PlayerManager pm = new PlayerManager(this);
 	public final DebugManager db = new DebugManager(this);
 	public final PlayerCommands cmdMgr = new PlayerCommands(this);
 	private final CRServerListener serverListener = new CRServerListener(this,cmdMgr);
@@ -69,10 +69,10 @@ public class ClassRanks extends JavaPlugin
 		ClassManager cm = new ClassManager(this);
 
 		// register commands
-		getCommand("class").setExecutor(new ClassCommand(this, cmdMgr));
-		getCommand("classadmin").setExecutor(new ClassAdminCommand(this, cmdMgr));
-		getCommand("rankup").setExecutor(new RankupCommand(this, cmdMgr));
-		getCommand("rankdown").setExecutor(new RankdownCommand(this, cmdMgr));
+		getCommand("class").setExecutor(new PlayerCommands(this));
+		getCommand("classadmin").setExecutor(new ClassAdminCommand(this));
+		getCommand("rankup").setExecutor(new RankupCommand(this));
+		getCommand("rankdown").setExecutor(new RankdownCommand(this));
 
 		// load the config file
 		config.load_config(); 
@@ -175,15 +175,15 @@ public class ClassRanks extends JavaPlugin
 	 */
 	public void msg(Player pPlayer, String string) 
 	{
-		pPlayer.sendMessage("[" + ChatColor.AQUA + getConfig().getString("prefix")
-				+ ChatColor.WHITE + "] " + string);
+//		pPlayer.sendMessage("[" + ChatColor.AQUA + getConfig().getString("prefix")
+//				+ ChatColor.WHITE + "] " + string);
+		pPlayer.sendMessage(string);
 		db.i("to " + pPlayer.getName() + ": " + string);
 	}
 	
 	public void error(Player pPlayer, String string) 
 	{
-		pPlayer.sendMessage("[" + ChatColor.AQUA + getConfig().getString("prefix")
-				+ ChatColor.WHITE + "] " + ChatColor.RED+ string);
+		pPlayer.sendMessage(ChatColor.RED+ string);
 		db.i("to " + pPlayer.getName() + ": " + string);
 	}
 

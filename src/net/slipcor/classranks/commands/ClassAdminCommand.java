@@ -34,7 +34,7 @@ public class ClassAdminCommand implements CommandExecutor
 	 * @param cr the plugin instance to hand over
 	 * @param cm the command manager instance to hand over
 	 */
-	public ClassAdminCommand(ClassRanks plugin, PlayerCommands cm) 
+	public ClassAdminCommand(ClassRanks plugin) 
 	{
 		this.plugin = plugin;
 		this.db = plugin.getDebugManager(); 

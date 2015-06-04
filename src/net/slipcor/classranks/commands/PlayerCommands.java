@@ -15,6 +15,8 @@ import net.slipcor.classranks.register.payment.Method.MethodAccount;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -29,17 +31,10 @@ import org.bukkit.inventory.ItemStack;
  * </pre>
  */
 
-public class PlayerCommands {
-	private final ClassRanks plugin;
-	private PlayerManager pm;
-	private  DebugManager db;
+public class PlayerCommands extends ClassCommand
+{
 
-	public double[] moneyCost = new double[ClassManager.getClasses().size()]; // Costs
-	public int[] expCost = new int[ClassManager.getClasses().size()]; // EXP
 
-	Double checkedCost;		// checked cost for rank up / add
-	int  checkedExp;		// checked Exp Cost for rank up / add
-	ItemStack[] checkedItems;  // checked list of required items for rank up / add
 	
 	// Costs
 //	public boolean rankpublic; // do we spam changed to the public?
@@ -47,310 +42,26 @@ public class PlayerCommands {
 //	public ItemStack[][] rankItems;
 //	public String[] signCheck = { null, null, null }; // SignCheck variable
 
-	public PlayerCommands(ClassRanks plugin) {
-		this.plugin = plugin;
-		this.pm = plugin.getPlayerManager();
-		this.db = plugin.getDebugManager();
+	public PlayerCommands(ClassRanks plugin) 
+	{
+		super(plugin);
 	}
 
-	public boolean rankDown(Player sender, Player player, String className, String world) 
+	
+	@Override
+	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) 
 	{
-		plugin.db.i("ranking " + player.getName() + " : " +  className);
-
-		plugin.db.i("CoolDown Check for " + player.getName());
-		int cDown = pm.coolDownCheck(player);
-		if (cDown > 0) 
-		{
-			plugin.msg(sender,
-					"You have to wait " + ChatColor.RED + String.valueOf(cDown)
-							+ ChatColor.WHITE + " seconds!");
-			return true; // cooldown timer still counting => OUT!
-		}
-		plugin.db.i("cooldown check positive");
-
-		if ((!plugin.perms.hasPerms(sender, "classranks.rankdown", player.getWorld().getName()))) 
-		{
-			// if we either are no OP or try to rank down, but we may not
-			plugin.msg(sender, "You don't have permission to rank down!");
-			return true;
-		}
-		plugin.db.i("perm check successful");
-
-
-		String playerName = player.getName(); // store the player we want to
-
-				
-//		Boolean self = true; // we want to change ourselves ... maybe
-
-		// does player have a rank?
-		Rank rank = null; // actual Rank
-		if (hasClass(className, player, world))
-		{
-			rank = hasRank( className, player, world);
-			if (rank == null) 
-			{
-				plugin.msg(sender, "Player " + FormatManager.formatPlayer(playerName)
-						+ " does not have a class !");
-				return true;
-			}
-		} else
-		{
-			plugin.msg(sender, "Player " + FormatManager.formatPlayer(playerName)
-					+ " not in class "+ className);
-			return true;
-		}
-
-		plugin.db.i("rank check successful");
-
-		Clazz oClass = rank.getSuperClass();   // actual Rank class
-
-		int rID = ClassManager.getRankIndex(rank, oClass );	//  Index des Rank
-		int iMaxRank = oClass.ranks.size() - 1; // Classes max tree rank
-		plugin.db.i("rank " + rID + " of " + iMaxRank);
-
-			if (rID < 1) 
-			{
-				// We are at lowest rank
-				plugin.msg(sender, "Player " + FormatManager.formatPlayer(playerName) + " already at lowest rank!");
-				return true;
-			}
-			if (plugin.config.isDefaultrankallworlds())
-			{
-				plugin.perms.rankRemoveGlobal(player, rank.getPermName()); // do it!
-				
-			} else
-			{
-				plugin.perms.rankRemove(player, rank.getPermName()); // do it!
-			}
-
-			Rank tempRank = ClassManager.getPrevRank(rank, rID);
-			plugin.perms.rankAdd(player, tempRank.getPermName());
-			plugin.db.i("Rank Down to" + tempRank.getDispName());
-			plugin.msg(sender, "Player " + FormatManager.formatPlayer(playerName)
-					+ " Rank Down to " + tempRank.getDispName());
-			return true;
-	}	
-	/**
-	 * This function provides the main ranking process - including error
-	 * messages when stuff is not right. Parameter check must be done before.
-	 * processes rank up / down 
-	 * <pre>
-	 * - check cooldown for player
-	 * - get old rank 
-	 * - calculate new rank
-	 * - check money, exp, items for new rank 
-	 * - eventually delete from old rank 
-	 * - add to new rank
-	 * </pre>
-	 */
-	public boolean rankUp(Player sender, Player player, String className, String world) 
-	{
-		plugin.db.i("ranking " + player.getName() + " : " +  className);
-
-		plugin.db.i("CoolDown Check for " + player.getName());
-		int cDown = pm.coolDownCheck(player);
-		if (cDown > 0) 
-		{
-			plugin.msg(sender,
-					"You have to wait " + ChatColor.RED + String.valueOf(cDown)
-							+ ChatColor.WHITE + " seconds!");
-			return true; // cooldown timer still counting => OUT!
-		}
-		plugin.db.i("cooldown check positive");
-
-		if ((!plugin.perms.hasPerms(sender, "classranks.rankup", player.getWorld().getName()))) 
-		{
-			// if we either are no OP or try to rank down, but we may not
-			plugin.msg(sender, "You don't have permission to rank up!");
-			return true;
-		}
-		plugin.db.i("perm check successful");
-
-
-		String playerName = player.getName(); // store the player we want to
-
-				
-//		Boolean self = true; // we want to change ourselves ... maybe
-
-		// does player have a rank?
-		Rank rank = null; // actual Rank
-		if (hasClass(className, player, world))
-		{
-			rank = hasRank( className, player, world);
-			if (rank == null) 
-			{
-				plugin.msg(player, "Player " + FormatManager.formatPlayer(playerName)
-						+ " does not have a class !");
-				return true;
-			}
-		} else
-		{
-			plugin.msg(sender, "Player " + FormatManager.formatPlayer(playerName)
-					+ " not in class "+ className);
-			return true;
-		}
-
-		plugin.db.i("rank check successful");
-
-		String cDispName = rank.getDispName(); // actual Display rank name
-		ChatColor c_Color = rank.getColor();   // actual Rank color
-		Clazz oClass = rank.getSuperClass();   // actual Rank class
-
-		int rID = ClassManager.getRankIndex(rank, oClass );	//  Index des Rank
-		int iMaxRank = oClass.ranks.size() - 1; // Classes max tree rank
-		plugin.db.i("rank " + rID + " of " + iMaxRank);
-		// placeholder: cost
-		double rank_cost = 0;
-		
-			// we want to rank up!
-			if (rID >= iMaxRank)
-			{
-				plugin.msg(sender, "Player " + FormatManager.formatPlayer(playerName)
-						+ " is in MaxRank of class "+ className);
-				return true;
-			}
-			// if we rank ourselves, that might cost money
-			// (otherwise, thats not the players problem ;) )
-			try 
-			{
-				rank_cost = moneyCost[rID + 1];
-			} catch (Exception e) 
-			{
-				ClassRanks.log("cost not set: "+(rID + 1), Level.WARNING);
-				rank_cost = 0;
-			}
-			
-			Rank tempRank =  ClassManager.getNextRank(rank, rID);  // New Rank
-//			if (rNext != null) 
-//			{
-//				if (rNext.getCost() != -1337D) 
-//				{
-//					rank_cost = rNext.getCost();
-//				}
-//			}
-
-			// Check for money to rank up
-			// rankCosts stored in checkedCost
-			if (checkCost(sender, player , tempRank, rID+1)== false)
-			{
-				// not enough money message send to player and to promoter
-				plugin.msg(player,"You don't have enough money to choose your class! ("
-				+ ClassRanks.economy.format(checkedCost)
-				+"/ "+ClassRanks.economy.getBalance(player.getName())
-				+ ")");
-				plugin.msg(sender,"The player don't have enough money ! ("
-				+ ClassRanks.economy.format(checkedCost)
-				+"/ "+ClassRanks.economy.getBalance(player.getName())
-				+ ")");
-				return true;
-				
-			} 
-			plugin.db.i("money check successful");
-
-			// check for experience to rank up
-			// expcost stored in checkedExp
-			if (checkExp(sender, player, tempRank, rID+1) == false)
-			{
-				// not enough exp message send to player and to promoter
-				plugin.msg(player,"You don't have enough experience! You need "+ checkedExp);
-				plugin.msg(sender,"Player don't have enough experience! You need "+ checkedExp);
-				return true;
-			}
-			plugin.db.i("Exp check done");
-
-			// check items for rank up
-			if (!checkitems(sender, player , tempRank, rID+1))
-			{
-				// not enough items message send to player and to promoter
-				plugin.msg(player,"You don't have enough items!");
-				plugin.msg(sender,"Player don't have enough items!");
-				return true;
-			}
-			
-			plugin.db.i("item check done");
-
-//			cPermName = tempRank.getPermName(); // Display new rank name
-			cDispName = tempRank.getDispName(); // Display new rank name
-			c_Color = tempRank.getColor(); // new Rank color
-
-			// success!
-
-			// Do Cost and Addrank 
-			if (checkedCost > 0)
-			{
-				ClassRanks.economy.withdrawPlayer(player.getName(), checkedCost);
-				plugin.msg(player, "You paid " + checkedCost + " money !");
-				plugin.msg(sender, "Player paid " + checkedCost + " money !");
-			}
-			
-			if (checkedExp > 0)
-			{
-				player.setTotalExperience(player.getTotalExperience() - checkedExp);
-				plugin.msg(player, "You paid " + checkedExp + " experience points!");
-				plugin.msg(player, "Player paid " + checkedExp + " experience points!");
-			}
-
-			if (plugin.config.isCheckitems())
-			{
-				pm.takeItems(player, checkedItems);
-				plugin.msg(player, "You paid the required items!");
-				plugin.msg(player, "Player paid the required items!");
-			}
-
-			plugin.perms.rankRemove(player, rank.getPermName()); // do it!
-
-			plugin.db.i(">>>> adding new rank...");
-			plugin.perms.rankAdd(player, tempRank.getPermName());
-
-			if ((rank_cost > 0)) 
-			{
-				// take the money, inform the player
-				String text = 
-				ChatColor.DARK_GREEN + "[" + ChatColor.WHITE
-						+ "Money" + ChatColor.DARK_GREEN + "] " + ChatColor.RED
-						+ "Your account had " + ChatColor.WHITE
-						+ ClassRanks.economy.format(rank_cost) + ChatColor.RED
-						+ " debited.";
-
-				if (ClassRanks.economy != null) 
-				{
-					ClassRanks.economy.withdrawPlayer(player.getName(), rank_cost);
-					sender.sendMessage(text);
-				} else if (plugin.method != null) 
-				{
-					MethodAccount ma = plugin.method.getAccount(player.getName());
-					ma.subtract(rank_cost);
-					sender.sendMessage(text);
-				} else
-				{
-					sender.sendMessage("NO Economy found!");
-				}
-			}
-
-			if (plugin.config.isRankpublic()) 
-			{
-				// we rank ourselves and do NOT want that to be public
-				plugin.msg(sender,
-						" Player " + FormatManager.formatPlayer(playerName)
-						+ " now a " + c_Color + cDispName + ChatColor.WHITE
-						+ ChatColor.WHITE + " in " + FormatManager.formatWorld(world)
-						+ "!");
-				plugin.msg(player,
-						"You are now a " + c_Color + cDispName + ChatColor.WHITE
-								+ ChatColor.WHITE + " in " + FormatManager.formatWorld(world)
-								+ "!");
-			} else 
-			{
-				plugin.getServer().broadcastMessage(
-						"[" + ChatColor.AQUA + plugin.getConfig().getString("prefix") + ChatColor.WHITE
-								+ "] Player " + FormatManager.formatPlayer(playerName)
-								+ " now is a " + c_Color + cDispName
-								+ ChatColor.WHITE + " in " + FormatManager.formatWorld(world)
-								+ "!");
-			}
-
-		return true;
+    	if (!(sender instanceof Player)) 
+    	{
+    		plugin.msg(sender, "Console access is not implemented. ");
+    		plugin.msg(sender, "Because a player instance is necessary");
+    		return true;
+    	}
+		// admin class command, parse it!
+		db.i("/classadmin detected! parsing...");
+		return parseCommand((Player) sender, args);
 	}
+	
 
 	/**
 	 * Send command Info to player
@@ -374,47 +85,86 @@ public class PlayerCommands {
 		
 	}
 
-	/**
-	 * Send command Info for /rank to player
-	 * @param pPlayer
-	 */
-	private void cmdRankInfo (Player pPlayer)
-	{
-		plugin.msg(pPlayer, "Plugin ClassRanks Ver: " + plugin.getDescription().getVersion());
-		plugin.msg(pPlayer, ChatColor.YELLOW+"-----------------------------------------");
-		plugin.msg(pPlayer, ChatColor.YELLOW+"usage: [] = required  {} = optional ");
-		plugin.msg(pPlayer, ChatColor.YELLOW+"/rank [classname] | Choose the class for yourself");
-		plugin.msg(pPlayer, ChatColor.YELLOW+"need permissions <classranks.self.rank>");
-		
-	}
 
 	/**
-	 * Send command Info for /rankup to player
-	 * @param pPlayer
+	 * Remove Player from Rank
+	 * Args[0] = Subcommand
+	 * Args[1] = Playername
+	 * Args[2] = Classname
+	 * Args[3] = Worldname default = all  
+	 * 
+	 * @param sender
+	 * @param player
+	 * @param args
+	 * @param world
+	 * @return
 	 */
-	private void cmdRankUpInfo (Player pPlayer)
+	private boolean cmdRemove(Player sender,  String[] args)
 	{
-		plugin.msg(pPlayer, "Plugin ClassRanks Ver: " + plugin.getDescription().getVersion());
-		plugin.msg(pPlayer, ChatColor.YELLOW+"-----------------------------------------");
-		plugin.msg(pPlayer, ChatColor.YELLOW+"usage: [] = required  {} = optional ");
-		plugin.msg(pPlayer, ChatColor.YELLOW+"/rankup [classname] | rankup for yourself");
-		plugin.msg(pPlayer, ChatColor.YELLOW+"need permissions <classranks.self.rank>");
-		
-	}
+		String world = "";
+		String className = "";
+		String playerName  = "";
+		// es müssen mindestens  3 Argumente vorhanden sein
+		if (args.length < 3) 
+		{
+			// not enough arguments ;)
+			plugin.msg(sender,"Not enough arguments ("+ String.valueOf(args.length) + ")!");
+			plugin.msg(sender,"/class [remove] [playername] [classname] {world} | Remove user from a class");
 
-	/**
-	 * Send command Info for /rank to player
-	 * @param pPlayer
-	 */
-	private void cmdRankDownInfo (Player pPlayer)
-	{
-		plugin.msg(pPlayer, "Plugin ClassRanks Ver: " + plugin.getDescription().getVersion());
-		plugin.msg(pPlayer, ChatColor.YELLOW+"-----------------------------------------");
-		plugin.msg(pPlayer, ChatColor.YELLOW+"usage: [] = required  {} = optional ");
-		plugin.msg(pPlayer, ChatColor.YELLOW+"/rankdown [classname] | rankdown for yourself");
-		plugin.msg(pPlayer, ChatColor.YELLOW+"need permissions <classranks.self.rank>");
+			return false;
+		} else
+		{
+			playerName = args[1];
+			className  = args[2];
+			// Args[4] = world
+			if (args.length > 3)
+			{
+				world =  args[3];
+			}
+		}
+		Player player = plugin.getServer().getPlayer(playerName);
+
+		if (plugin.trackRanks) 
+		{
+			ClassManager.saveClassProgress(player);
+		}
 		
+		if (hasClass(className, player, world))
+		{
+			className = getClassName(className);
+			removeRanks(className, player, world);
+			plugin.config.playerSectionRemove(player, className);
+			
+			// show public message 
+			if (plugin.config.isRankpublic() ) 
+			{
+				// self remove successful!
+				plugin.getServer().broadcastMessage(player+
+							" are removed from class " + ChatColor.RED
+							+ className + ChatColor.WHITE
+							+ " in "
+							+ FormatManager.formatWorld(world) + "!");
+			} else
+			{
+				// self remove successful!
+				plugin.msg(player,ChatColor.GREEN+"Class removed " + ChatColor.RED
+							+ className + ChatColor.WHITE
+							+ " in "
+							+ FormatManager.formatWorld(world) + "!");
+				if ((sender.getUniqueId() != player.getUniqueId()))
+				{
+					// self remove successful!
+					plugin.msg(sender,playerName+" are removed from class " + ChatColor.RED
+								+ className + ChatColor.WHITE
+								+ " in "
+								+ FormatManager.formatWorld(world) + "!");
+				}
+			}
+		}
+		return true;
 	}
+	
+
 	
 	/**
 	 * printout Classas and/or Clazz Ranks
@@ -530,8 +280,8 @@ public class PlayerCommands {
 		if (list != null) 
 		{
 			int max = list.length;
-			plugin.msg(pPlayer, "[ClassRanks] "+ChatColor.YELLOW+"Clazz "+ "User Groups of "+ChatColor.DARK_GREEN+playerName);
-			plugin.msg(pPlayer, ChatColor.YELLOW+"--------------------------------");
+			plugin.msg(pPlayer, ChatColor.YELLOW+"-------------------------------------------");
+			plugin.msg(pPlayer, "[ClassRanks] "+ChatColor.YELLOW+"Class "+ "User Groups of "+ChatColor.DARK_GREEN+playerName);
 			for (int i = 0; i < list.length; i++) 
 			{
 				plugin.msg(pPlayer, ChatColor.YELLOW+": "+list[i]);
@@ -541,616 +291,6 @@ public class PlayerCommands {
 		
 	}
 
-	private boolean hasAdminPerms(Player player)
-	{
-		if (player.isOp())
-		{
-			return true;
-		}
-		if (plugin.perms.hasPerms(player,"classranks.admin.addremove", player.getWorld().getName())) 
-		{
-			return true;
-		}
-		// only if we are NOT op or may NOT add/remove classes
-		return false;
-	}
-
-	/**
-	 * 
-	 * @param className
-	 * @param playerName
-	 * @param world
-	 * @return
-	 */
-	private Rank hasRank(String className, Player player, String world)
-	{
-		ArrayList<Clazz> classes = ClassManager.getClasses();
-		String sPermName = "";
-		Rank isRank = null;
-		for (Clazz oClass : classes) 
-		{
-		    //  check  Classname
-		    if (className.equalsIgnoreCase(oClass.name))
-		    {
-		    	plugin.db.i("Found : " + oClass.name);
-//		    	ArrayList<Rank> ranks = oClass.ranks;
-		    	// check for each  Rank the permName in permissionsgroups
-				for (Rank rank : oClass.ranks) 
-				{
-				    sPermName = rank.getPermName();
-			    	plugin.db.i("Search Perm : " + sPermName);
-				    // pruefe ob Permname als group vorhanden ist
-				    // wenn gefunden ,  setze reult rank 
-				    if (hasPlayerGroup(sPermName, player))
-				    {
-				    	isRank = rank;
-				    	return rank;
-				    }
-				}
-
-		    }
-		}
-		return isRank;
-	}
-	
-
-	private void removeRanks(String className, Player player, String world)
-	{
-		ArrayList<Clazz> classes = ClassManager.getClasses();
-		String sPermName = "";
-		for (Clazz oClass : classes) 
-		{
-		    //  check  Classname
-		    if (className.equalsIgnoreCase(oClass.name))
-		    {
-		    	plugin.db.i("Found : " + oClass.name);
-				for (Rank rank : oClass.ranks) 
-				{
-				    sPermName = rank.getPermName();
-			    	plugin.db.i("Search Perm : " + sPermName);
-				    // pruefe ob Permname als group vorhanden ist
-				    // wenn gefunden ,  remove groups 
-				    if (hasPlayerGroup(sPermName, player))
-				    {
-				    	if (plugin.config.isDefaultrankallworlds())
-				    	{
-				    		plugin.perms.rankRemoveGlobal(player, sPermName);
-				    	} else
-				    	{
-				    		plugin.perms.rankRemove(player, sPermName);
-				    	}
-				    }
-				}
-
-		    }
-		}
-	}
-	
-	
-	private boolean hasPlayerGroup(String PermName, Player player)
-	{
-		plugin.db.i("Check group : " + PermName);
-		String[] list = plugin.perms.getPlayerGroups(player);
-		boolean isPerm = false;
-		for (int i = 0; i < list.length; i++) 
-		{
-			plugin.db.i("Check " + i +  " : " + list[i]);
-			if(list[i].equalsIgnoreCase(PermName))
-			{
-				isPerm = true;
-			}
-		}
-		return isPerm;
-	}
-	
-	/**
-	 * Sucht das Clazz Array nach dem Classnamen
-	 * und sucht die Group zu den Raengen
-	 * TRUE , wenn Group gesetzt
-	 * 
-	 * @param className
-	 * @param playerName
-	 * @param world
-	 * @return
-	 */
-	private boolean hasClass(String className, Player player, String world)
-	{
-		ArrayList<Clazz> classes = ClassManager.getClasses();
-		String sPermName = "";
-		boolean isClass = false;
-    	plugin.db.i("SearchClass : " + className);
-		for (Clazz oClass : classes) 
-		{
-		    //  pruefe ob KLassenname identisch 
-		    if (className.equalsIgnoreCase(oClass.name))
-		    {
-		    	plugin.db.i("Found : " + oClass.name);
-//				ArrayList<Rank> ranks = oClass.getRanks();
-				for (Rank rank : oClass.ranks) 
-				{
-				    sPermName = rank.getPermName();
-			    	plugin.db.i("Search Perm : " + sPermName);
-				    // pruefe ob Permname als group vorhanden ist
-				    // wenn gefunden ,  setze result
-				    if (hasPlayerGroup(sPermName, player))
-				    {
-				    	plugin.db.i("HasPerm : " + sPermName);
-				    	isClass = true;
-				    	return true;
-				    }
-				}
-
-		    }
-		}
-		return isClass;
-	}
-
-	
-	/**
-	 * Durchsucht die ClassList nach dem ClassNamen
-	 * @param ClassRank
-	 * @return
-	 */
-	private boolean existClass( String className)
-	{
-		ArrayList<Clazz> classes = ClassManager.getClasses();
-		for (Clazz oClass : classes) 
-		{
-		    //  pruefe ob KLassenname identisch 
-		    if (className.equalsIgnoreCase(oClass.name))
-		    {
-		    	return true;
-		    }
-		}
-		return false;
-	}
-	
-	
-//	private void cmdTemp (Player pPlayer, String[] args) {
-//		
-//	}
-	/**
-	 * Remove Player from Rank
-	 * Args[0] = Subcommand
-	 * Args[1] = Playername
-	 * Args[2] = Classname
-	 * Args[3] = Worldname default = all  
-	 * 
-	 * @param sender
-	 * @param player
-	 * @param args
-	 * @param world
-	 * @return
-	 */
-	private boolean cmdRemove(Player sender,  String[] args)
-	{
-		String world = "";
-		String className = "";
-		String playerName  = "";
-		// es müssen mindestens  3 Argumente vorhanden sein
-		if (args.length < 3) 
-		{
-			// not enough arguments ;)
-			plugin.msg(sender,"Not enough arguments ("+ String.valueOf(args.length) + ")!");
-			plugin.msg(sender,"/class [remove] [playername] [classname] {world} | Remove user from a class");
-
-			return false;
-		} else
-		{
-			playerName = args[1];
-			className  = args[2];
-			// Args[4] = world
-			if (args.length > 3)
-			{
-				world =  args[3];
-			}
-		}
-		Player player = plugin.getServer().getPlayer(playerName);
-
-		if (plugin.trackRanks) 
-		{
-			ClassManager.saveClassProgress(player);
-		}
-		
-		if (hasClass(className, player, world))
-		{
-			
-//			Rank rank = hasRank( className, player, world);
-//			if (rank == null) 
-//			{
-//				plugin.msg(sender, "Player " + FormatManager.formatPlayer(playerName)
-//						+ " does not have class : " + className);
-//				return true;
-//			}
-//			plugin.perms.rankRemove(world, player, rank.getPermName()); // do it!
-			removeRanks(className, player, world);
-			System.out.println("debug :  remove ready");
-			
-			if (plugin.config.isRankpublic() ) 
-			{
-				// self remove successful!
-				plugin.getServer().broadcastMessage(player+
-							" are removed from rank " + ChatColor.RED
-							+ className + ChatColor.WHITE
-							+ " in "
-							+ FormatManager.formatWorld(world) + "!");
-			} else
-			{
-				// self remove successful!
-				plugin.msg(player,"You are removed from rank " + ChatColor.RED
-							+ className + ChatColor.WHITE
-							+ " in "
-							+ FormatManager.formatWorld(world) + "!");
-				if (!(sender == player))
-				{
-					// self remove successful!
-					plugin.msg(sender,playerName+" are removed from rank " + ChatColor.RED
-								+ className + ChatColor.WHITE
-								+ " in "
-								+ FormatManager.formatWorld(world) + "!");
-				}
-			}
-		}
-		return true;
-	}
-	
-	/**
-	 * Check the Rank cost with default value and individual value
-	 * @param sender , command sneder 
-	 * @param player , ranked player
-	 * @param rank	, new rank
-	 * @param rID   , index of rank in Clazz
-	 * @return  true = cost available or not relevant / false = not enough money
-	 */
-	private boolean checkCost(Player sender, Player player , Rank rank, int rID)
-	{
-		plugin.db.i("Get Rank Cost");
-		double rank_cost = 0; 	// tempvalue
-	
-		// get default cost from Config table
-		rank_cost =  plugin.config.getMoneyCost(rID);
-		
-		// get individual rank cost
-		if (rank.getCost() != -1337D) 
-		{
-			rank_cost = rank.getCost();
-		}
-		plugin.db.i("Get Rank Cost : " + rank_cost);
-		
-		// Check if the player has got the money
-		// check loaded economy 
-		plugin.db.i("Check economy");
-		if (ClassRanks.economy != null) 
-		{
-			plugin.db.i("Economy found : " + ClassRanks.economy.getName() );
-			plugin.db.i("isCheckCost : " + plugin.config.isCheckprices());
-			// should Cost be checked 
-			if (plugin.config.isCheckprices()) 
-			{
-				if (ClassRanks.economy.getBalance(player.getName()) < rank_cost)
-				{
-					plugin.db.i("money check NOT successful");
-					checkedCost = rank_cost;
-					return false;
-				} else
-				{
-					plugin.db.i("money check NOT successful");
-					checkedCost = rank_cost;
-					return true;
-				}
-			} else
-			{
-				plugin.db.i("money check successful");
-				checkedCost = rank_cost;
-				return true;
-			}
-		} else if (plugin.method != null) 
-		{
-			plugin.db.i("No economy found, use Method : " + plugin.method.getName());
-			plugin.db.i("isCheckCost" + plugin.config.isCheckprices());
-			// should cost be checked 
-			if (plugin.config.isCheckprices())
-			{
-				MethodAccount ma = plugin.method.getAccount(player.getName());
-				if (!ma.hasEnough(rank_cost)) 
-				{
-					checkedCost = rank_cost;
-					return false;
-				} else
-				{
-					plugin.db.i("money check NOT successful");
-					checkedCost = rank_cost;
-					return false;
-				}
-			} else
-			{
-				plugin.db.i("money check successful");
-				checkedCost = rank_cost;
-				return true;
-			}
-		} else
-		{
-			plugin.db.i("money check done, NO economy");
-			checkedCost = 0.0;
-			return true;
-		}
-	}
-	
-	
-	private boolean checkExp(Player sender, Player player , Rank rank, int rID)
-	{
-		int exp_cost = -1;
-		// get default exp cost from config
-		exp_cost = plugin.config.getExpCost(rID);
-		
-		// get individual expCost from rank
-		if (rank.getExp() > 0)
-		{
-			exp_cost = rank.getExp();
-		}
-		plugin.db.i("Get ExpCost : " + exp_cost);
-		
-		plugin.db.i("isCheckExp : " + plugin.config.isCheckexp());
-		if (plugin.config.isCheckexp()) 
-		{
-			if (player.getTotalExperience() < exp_cost) {
-				plugin.msg(player,
-						"You don't have enough experience! You need "
-								+ exp_cost);
-				checkedExp = exp_cost;
-				return false;
-			} else
-			{
-				plugin.db.i("exp check successful");
-				checkedExp = exp_cost;
-				return true;
-			}
-		} else
-		{
-			plugin.db.i("exp check not relevant");
-			checkedExp = 0;
-			return true;
-		}
-	}
-		
-	/**
-	 * Check the default and rank items against player inventory
-	 *  
-	 * @param sender   , promoter
-	 * @param player   , ranked player
-	 * @param rank     , new Rank
-	 * @param rID      , Index actual Rank 
-	 * @return  true = items available, not relevant, false = items not available
-	 */
-	private boolean checkitems(Player sender, Player player , Rank rank, int rID)
-	{
-
-		ItemStack[] items = null;
-		ItemStack[][] rankItems = plugin.config.getRankItems(); // per rank a list of items 
-		
-		items = rankItems[rID];
-
-		if (rank.getItemstacks() != null) 
-		{
-			items = rank.getItemstacks();
-		}
-		
-		if (plugin.config.isCheckitems())
-		{
-			plugin.db.i("Get Item Cost : " + items.length);
-			plugin.db.i("isCheckItems : " + plugin.config.isCheckitems());
-			plugin.db.i("item check start");
-			plugin.db.i("Player "+player.getName());
-			if (pm.hasItems(player, items) == false) 
-			{
-				return false;
-			} else
-			{
-				plugin.db.i("Items found ");
-				checkedItems = items;
-				return true;
-				
-			}
-		} else
-		{
-			plugin.db.i("No Items found !");
-			plugin.db.i("item check NOT relevant");
-			checkedItems = null;
-			return true;
-		}
-	
-	}
-	
-	/**
-	 * Add Clazz d first Rank to player
-     * /class [add]     [playername] [classname] {world} | Add user to a class
-	 * 
-	 * @param sender	of the Command
-	 * @param player	to promot ein class
-	 * @param className 
-	 * @param world
-	 * @return
-	 */
-	private boolean cmdAddRank(Player sender, Player player, String className, String world)
-	{
-		///  ADD 
-		//  Check for Rank is always given
-		plugin.db.i("Check hasClass");
-		if (hasClass(className, player, world))
-		{
-			plugin.error(sender,
-							"Player " + FormatManager.formatPlayer(player.getName())
-							+ " already has the Clazz "
-							+ ChatColor.RED + className + "!");
-			plugin.msg(sender,"Use  /class [rankup]  [playername] {world} | Rank user up");
-			return true;
-		}
-		
-		// ADD
-		plugin.db.i("Get TempRank");
-		Rank tempRank = ClassManager.getRankByPermName( ClassManager.getFirstPermNameByClassName(className));
-		
-		//  ClassRank does not exist
-		if (tempRank == null) 
-		{
-			plugin.error(sender,"The class you entered does not exist!"+className);
-			return true;
-		}
-
-
-		int rID = ClassManager.getRankIndex(tempRank, tempRank.getSuperClass());	//  Index des Rank
-		// Track Rank 
-//		if (plugin.trackRanks) 
-//		{
-////			rID = ClassManager.loadClassProcess(player,
-////					tempRank.getSuperClass());
-//		}
-		plugin.db.i("Get Rank Index : " + rID);
-
-		// Check for money to rank up
-		// rankCosts stored in checkedCost
-		if (checkCost(sender, player , tempRank, rID) == false)
-		{
-			// not enough money message send to player and to promoter
-			plugin.error(player,"You don't have enough money to choose your class! ("
-			+ ClassRanks.economy.format(checkedCost)
-			+"/ "+ClassRanks.economy.getBalance(player.getName())
-			+ ")");
-			plugin.error(sender,"The player don't have enough money ! ("
-			+ ClassRanks.economy.format(checkedCost)
-			+"/ "+ClassRanks.economy.getBalance(player.getName())
-			+ ")");
-			return true;
-			
-		} 
-		plugin.db.i("money check successful");
-
-		// check for experience to rank up
-		// expcost stored in checkedExp
-		if (checkExp(sender, player, tempRank, rID) == false)
-		{
-			// not enough exp message send to player and to promoter
-			plugin.error(player,"You don't have enough experience! You need "+ checkedExp);
-			plugin.error(sender,"Player don't have enough experience! You need "+ checkedExp);
-			return true;
-		}
-		plugin.db.i("Exp check done");
-
-		// check items for rank up
-		if (checkitems(sender, player , tempRank, rID) == false)
-		{
-			// not enough items message send to player and to promoter
-			plugin.error(player,"You don't have enough items!");
-			plugin.error(sender,"Player don't have enough items!");
-			return true;
-		}
-		
-		plugin.db.i("item check done");
-
-		String cPermName = tempRank.getPermName(); // Display rank name
-		String cDispName = tempRank.getDispName(); // Display rank name
-		ChatColor c_Color = tempRank.getColor(); // Rank color
-
-		// success!
-
-		// Do Cost and Addrank 
-		if (checkedCost > 0)
-		{
-			ClassRanks.economy.withdrawPlayer(player.getName(), checkedCost);
-			plugin.msg(player, "You paid " + checkedCost + " money !");
-			plugin.msg(sender, "Player paid " + checkedCost + " money !");
-		}
-		
-		if (checkedExp > 0)
-		{
-			player.setTotalExperience(player.getTotalExperience() - checkedExp);
-			plugin.msg(player, "You paid " + checkedExp + " experience points!");
-			plugin.msg(player, "Player paid " + checkedExp + " experience points!");
-		}
-
-		if (plugin.config.isCheckitems())
-		{
-			pm.takeItems(player, checkedItems);
-			plugin.msg(player, "You paid the required items!");
-			plugin.msg(player, "Player paid the required items!");
-		}
-		
-		// remove oldRank
-		plugin.db.i("isClearRanks : " + plugin.config.isClearranks());
-		if (plugin.config.isClearranks()) 
-		{
-			plugin.perms.removeGroups(player);
-			plugin.error(sender, "The old perms are removed !");
-			plugin.db.i("Remove Groups from Permission");
-		}
-
-//		world = plugin.config.isDefaultrankallworlds() ? "all" : player.getWorld().getName();
-		if (plugin.config.isDefaultrankallworlds())
-		{
-			plugin.perms.rankAddGlobal(player, cPermName);
-		} else
-		{
-			plugin.perms.rankAdd(player, cPermName);
-		}
-		plugin.db.i("Added Group to Permission");
-		plugin.msg(sender,"Added Perms to Group "+cPermName);
-		
-		if (plugin.config.isRankpublic() ) 
-		{
-			plugin.getServer().broadcastMessage(
-					"[" + ChatColor.AQUA + plugin.getConfig().getString("prefix") + ChatColor.WHITE
-							+ "] " + FormatManager.formatPlayer(player.getName())
-							+ " now is a " + c_Color + cDispName);
-			return true;
-		} else 
-		{
-			plugin.msg(player, "You now are in Class " + c_Color + cDispName);
-			return true;
-		}
-//END ADD / REMOVE			
-	}
-
-	/**
-	 * Prueft die Command Parameter auf World
-	 * @param args
-	 * @return
-	 */
-	private boolean isWorld (String[] args)
-	{
-		if (args.length > 3) 
-		{
-			return true;
-		} else
-		{
-			return false;
-		}
-	}
-	
-	/**
-	 * Setzt World Parameter oder default wert "all"
-	 * @param world
-	 * @param args
-	 * @return
-	 */
-	private String getWorldArg(String world, String[] args)
-	{
-		
-		if (isWorld(args)) 
-		{
-			// => /class add *player* *classname* world
-			return args[3];
-		} else
-		{
-			if (plugin.config.isDefaultrankallworlds())
-			{
-				return "all";
-			} else
-			{
-				return world;
-			}
-			
-		}
-	}
 	
 
 
@@ -1176,6 +316,7 @@ public class PlayerCommands {
 	 * @param args , arguments of the Command /class
 	 * @return
 	 */
+
 	public boolean parseCommand(Player pPlayer, String[] args) 
 	{
 //		Player player = pPlayer;
@@ -1204,7 +345,7 @@ public class PlayerCommands {
 		
 		if (args[0].equalsIgnoreCase("info")) 
 		{
-			plugin.msg(pPlayer,"Not implementedt yet !");
+			plugin.msg(pPlayer,ChatColor.RED+"Not implementedt yet !");
 		}
 		// GET
 		if (args[0].equalsIgnoreCase("get")) {
@@ -1240,13 +381,13 @@ public class PlayerCommands {
 					return rankUp(pPlayer, player, className, world);
 				} else 
 				{
-					plugin.msg(pPlayer,"Not enough arguments ("+ String.valueOf(args.length) + ")!");
-					plugin.msg(pPlayer," /class [rankup] [playername] [classname] {world} | Rank user up");
+					plugin.msg(pPlayer,ChatColor.RED+"Not enough arguments ( 2 )!");
+					plugin.msg(pPlayer,ChatColor.GREEN+" /class [rankup] [playername] [classname] {world} | Rank user up");
 					return true;
 				}
 			} else 
 			{
-				plugin.msg(pPlayer, "You don't have the right permission !");
+				plugin.error(pPlayer, "You don't have the right permission !");
 			}
 		}
 
@@ -1270,14 +411,14 @@ public class PlayerCommands {
 					
 					return rankDown(pPlayer, player, className, world);
 				} else {
-					plugin.msg(pPlayer,"Not enough arguments ("+ String.valueOf(args.length) + ")!");
-					plugin.msg(pPlayer," /class [rankdown] [playername] [classname] {world} | Rank user down");
+					plugin.msg(pPlayer,ChatColor.RED+"Not enough arguments ( 2 )!");
+					plugin.msg(pPlayer,ChatColor.GREEN+" /class [rankdown] [playername] [classname] {world} | Rank user down");
 					return true;
 				}
 
 			} else 
 			{
-				plugin.msg(pPlayer, "You don't have the right permission !");
+				plugin.error(pPlayer, "You don't have the right permission !");
 			}
 
 		}
@@ -1293,7 +434,7 @@ public class PlayerCommands {
 				cmdRemove(pPlayer, args);
 			} else 
 			{
-				plugin.msg(pPlayer, "You don't have the right permission !");
+				plugin.error(pPlayer, "You don't have the right permission !");
 				return true;
 			}
 
@@ -1307,8 +448,8 @@ public class PlayerCommands {
 			if (args.length < 3) 
 			{
 				// not enough arguments ;)
-				plugin.msg(pPlayer,"Not enough arguments ("+ String.valueOf(args.length) + ")!");
-				plugin.msg(pPlayer," /class [add] [playername] [classname] {world} | Add user to a class");
+				plugin.msg(pPlayer,ChatColor.RED+"Not enough arguments ( 2 )!");
+				plugin.msg(pPlayer,ChatColor.GREEN+" /class [add] [playername] [classname] {world} | Add user to a class");
 				return true;
 			} else
 			{
@@ -1326,12 +467,12 @@ public class PlayerCommands {
 						world  = player.getWorld().getName();
 					} else
 					{
-						plugin.msg(pPlayer, "Not found player " + PlayerName);
+						plugin.error(pPlayer, "Not found player " + PlayerName);
 						return true;
 					}
 				} else
 				{
-					plugin.msg(pPlayer, "You don't have the right permission !");
+					plugin.error(pPlayer, "You don't have the right permission !");
 					return true;
 				}
 				className = args[2];
@@ -1357,7 +498,7 @@ public class PlayerCommands {
 				return true;
 			} else 
 			{
-				plugin.msg(pPlayer, "You don't have the right permission !");
+				plugin.error(pPlayer, "You don't have the right permission !");
 				return true;
 			}
 		}
@@ -1378,7 +519,7 @@ public class PlayerCommands {
 				plugin.msg(pPlayer, "Config reloaded!");
 			} else 
 			{
-				plugin.msg(pPlayer, "You don't have the right permission !");
+				plugin.error(pPlayer, "You don't have the right permission !");
 				return true;
 			}
 		}
@@ -1389,7 +530,7 @@ public class PlayerCommands {
 		// command wird nur ausgefuehrt bei permissions
 		if (isSelf == false) 
 		{
-			plugin.msg(pPlayer,"You don't have permission to choose your class!");
+			plugin.error(pPlayer,"You don't have permission to choose your class!");
 			return true;
 		} else
 		{
@@ -1401,83 +542,13 @@ public class PlayerCommands {
 				return true;
 			} else
 			{
-				plugin.msg(pPlayer,"The class name not exist!");
-				plugin.msg(pPlayer,"/class [classname] | Choose the class [classname] for yourself in all worlds");
+				plugin.error(pPlayer,"The class name not exist!");
+				plugin.msg(pPlayer,ChatColor.GREEN+"/class [classname] | Choose the class [classname] for yourself in all worlds");
 				return true;
 			}
 		}
 		
 	}
-
-	public boolean parseSelfRank(Player pPlayer, String[] args) 
-	{
-		if (args.length == 0)
-		{
-			//zeigt command description aus Plugi.yml
-			cmdRankInfo (pPlayer);
-			return true;  
-		} 
-		if (plugin.perms.hasPerms(pPlayer, "classranks.self.rank", pPlayer.getWorld().getName()))
-		{
-			plugin.msg(pPlayer, "You don't have the right permission !");
-			return true;
-		}
-		String className = args[0];
-	    // rank  [classname] | Add yourself to a class
-		String world = "";
-		
-		//world name auswerten und setzen
-		world = getWorldArg(world, args);
-		plugin.db.i("precheck successful");
-		// Add Rank
-		cmdAddRank(pPlayer,pPlayer,className, world);
-		return true;
-	
-	}
-
-	public boolean parseSelfRankUp(Player pPlayer, String[] args) 
-	{
-		if (args.length == 0)
-		{
-			//zeigt command description aus Plugi.yml
-			cmdRankUpInfo (pPlayer);
-			return true;  
-		} 
-		String className = args[0];
-	    // rank  [classname] | Add yourself to a class
-		String world = "";
-		
-		//world name auswerten und setzen
-		world = getWorldArg(world, args);
-		plugin.db.i("precheck successful");
-		// Add Rank
-		
-		rankUp(pPlayer, pPlayer, className, world);
-		return true;
-	}
-
-	public boolean parseSelfRankDown(Player pPlayer, String[] args) 
-	{
-		if (args.length == 0)
-		{
-			//zeigt command description aus Plugi.yml
-			cmdRankDownInfo (pPlayer);
-			return true;  
-		} 
-		String className = args[0];
-	    // rank  [classname] | Add yourself to a class
-		String world = "";
-		
-		//world name auswerten und setzen
-		world = getWorldArg(world, args);
-		plugin.db.i("precheck successful");
-		// Add Rank
-		
-		rankDown(pPlayer, pPlayer, className, world);
-	
-		return true;
-	}
-	
 
 
 }

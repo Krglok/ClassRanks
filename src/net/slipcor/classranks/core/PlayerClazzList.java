@@ -1,128 +1,108 @@
 package net.slipcor.classranks.core;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 
 /**
  * 
  * @author Windu
- *
- *	define a player Class Rank List object
- *  will be used to track player classes
+ * 
+ *         define a player Class Rank List object will be used to track player
+ *         classes
  */
-public class PlayerClazzList  extends ArrayList<PlayerClazzRank>
+public class PlayerClazzList extends HashMap<String, String>
 {
-	
+
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -3071712660629867671L;
-	
-	private String playerName;
-	
-//	private ArrayList<PlayerClassRank> playerClassRanks;
 
-	public PlayerClazzList(String playerName, ArrayList<PlayerClazzRank> playerClassRanks) 
+	private String uuid;
+
+	// private ArrayList<PlayerClassRank> playerClassRanks;
+
+	public PlayerClazzList(String uuid, String playerName)
 	{
 		super();
-		this.playerName = playerName;
-		this.addAll(playerClassRanks);
+		this.uuid =uuid;
+		this.put("name", playerName);
 	}
 	
-	public void setPlayerName(String playerName) {
-		this.playerName = playerName;
+	/**
+	 * @return the uuid
+	 */
+	public String getUuid()
+	{
+		return uuid;
 	}
-	
-	public String getPlayerName() {
-		return this.playerName;
+
+	/**
+	 * @param uuid the uuid to set
+	 */
+	public void setUuid(String uuid)
+	{
+		this.uuid = uuid;
 	}
-	
-	public boolean equalsIgnoreCaseName(String playerName) {
+
+
+	public void setPlayerName(String playerName)
+	{
+		this.setUuid(playerName);
+		this.put("name", playerName);
+	}
+
+	public String getPlayerName()
+	{
+		if (this.containsKey("name"))
+		{
+			return "";
+		}
+		return this.get("name");
+	}
+
+	public boolean equalsIgnoreCaseName(String playerName)
+	{
 		return playerName.equalsIgnoreCase(playerName);
 	}
-	
-	public boolean addPlayerClassRank (String className, String rankName) {
-		
-		this.add(new PlayerClazzRank(className, rankName));
-		
+
+	public boolean addPlayerClassRank(String className, String rankName)
+	{
+		this.put(className, rankName);
+
 		return true;
 	}
-	
-	public PlayerClazzRank getPlayerClassRank(int index) {
-		
-		return this.get(index); 
-	}
 
-	public String getPlayerClass(int index) {
-		
-		return this.get(index).className; 
-	}
-
-	public String getPlayerRank(int index) {
-		
-		return this.get(index).rankName; 
-	}
-	
-	
-	public boolean equalsIgnoreCaseClass(String className) {
-		boolean isfound = false;
-		for (Iterator<PlayerClazzRank> item =  this.iterator(); item.hasNext(); ) {
-			 if ( item.next().className.equalsIgnoreCase(className)) {
-				 isfound = true;
-			 }
-		}
-		return isfound;
-	}
-
-	public boolean equalsIgnoreCaseRank(String rankName) 
+	public String getPlayerRank(String className)
 	{
-		boolean isfound = false;
-		for (Iterator<PlayerClazzRank> item =  this.iterator(); item.hasNext(); ) 
-		{
-			 if ( item.next().rankName.equalsIgnoreCase(rankName)) 
-			 {
-				 isfound = true;
-			 }
-		}
-		return isfound;
+
+		return this.get(className);
 	}
 
-	@SuppressWarnings("null")
-	public int getClassIndex(String className) 
+	public boolean equalsIgnoreCaseClass(String className)
 	{
-		int found = -1;
-		PlayerClazzRank[] items = null; 
-		if (this.size() > 0) 
+		for (String name : this.keySet())
 		{
-			this.toArray(items);
-			for (int i=0; i<items.length; i++) 
+			if (name.equalsIgnoreCase(className))
 			{
-				 if ( items[i].className.equalsIgnoreCase(className)) 
-				 {
-					 found = i;
-				 }
+				return true;
 			}
 		}
-		return found;
+		return false;
 	}
 
-	@SuppressWarnings("null")
-	public int getRankIndex(String rankName) 
+	public boolean equalsIgnoreCaseRank(String rankName)
 	{
-		int found = -1;
-		PlayerClazzRank[] items = null; 
-		if (this.size() > 0) 
+		for (String rank : this.values())
 		{
-			this.toArray(items);
-			for (int i=0; i<items.length; i++) 
+			if (rank.equalsIgnoreCase(rankName))
 			{
-				 if ( items[i].rankName.equalsIgnoreCase(rankName)) 
-				 {
-					 found = i;
-				 }
+				return true;
 			}
 		}
-		return found;
+		return false;
 	}
-	
+
+
 }

@@ -1,15 +1,19 @@
 package net.slipcor.classranks.managers;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 //import org.bukkit.plugin.Plugin;
 import net.slipcor.classranks.ClassRanks;
 import net.slipcor.classranks.core.Clazz;
+import net.slipcor.classranks.core.PlayerClazzList;
+import net.slipcor.classranks.core.PlayerClazzRank;
 import net.slipcor.classranks.core.Rank;
 
 /*
@@ -69,10 +73,10 @@ public class ConfigManager {
 		this.clearranks = clearranks;
 	}
 	
-	private Map<String, Object> players;
+	private HashMap<String,PlayerClazzList> playersClazzList;
 	
-	public Map<String, Object> getPlayers() {
-		return players;
+	public HashMap<String,PlayerClazzList> getPlayers() {
+		return playersClazzList;
 	}
 
 //	private Map<String,Object> playerClassList;		// should store the playerClasses
@@ -121,7 +125,7 @@ public class ConfigManager {
 		moneyCost = new Double[1];
 		expCost = new int[1];
 		signs = new String[3];
-		
+		playersClazzList = new HashMap<String,PlayerClazzList>();
 	}
 
 	private Boolean debug = new Boolean(false);
@@ -515,6 +519,7 @@ public class ConfigManager {
 		}
 
 //		getConfig().getString("progress."+pPlayer.getName());
+		playerSectionRead() ;
 		
 		plugin.saveConfig();
 	}
@@ -522,29 +527,76 @@ public class ConfigManager {
 	/**
 	 * 
 	 */
-	public void readPlayerSection() 
+	public void playerSectionRead() 
 	{
 		boolean isSection = (plugin.getConfig().getConfigurationSection("players") != null);
 
 		if (!isSection) 
 		{
-			players = null;
+			playersClazzList = null;
 		} else 
 		{
-			players = plugin.getConfig().getConfigurationSection("players").getValues(false);
+			Map<String,Object> playerList = plugin.getConfig().getConfigurationSection("players").getValues(false);
 			
-//			for (String sClassName : players.keySet()) {
-//				
-//				
-//			}
+			if (playerList != null)
+			{
+				System.out.println("PlayerClassRank List");
+		    	for (String playerName : playerList.keySet())
+		    	{
+		    		PlayerClazzList playerClazzList = new PlayerClazzList(playerName,"");
+		    		
+					Map<String,Object> playerClass = plugin.getConfig().getConfigurationSection("players."+playerName).getValues(false);
+					for (String clazzName : playerClass.keySet())
+					{
+						String rankName = plugin.getConfig().getString("players."+playerName+"."+clazzName,"");
+		            	playerClazzList.addPlayerClassRank(clazzName, rankName);
+		            	
+					}
+					playersClazzList.put(playerName, playerClazzList);
+		    	}
+		    	// Test output 
+		    	for (PlayerClazzList playerClazz : playersClazzList.values())
+		    	{
+		    		for (String name : playerClazz.keySet())
+		    		{
+		    			String rankName = playerClazz.get(name);
+		                System.out.println(playerClazz.getUuid()+":"+name+":"+rankName);
+		    		}
+		    	}
+			}
+			
 		}
 		
 	}
+	
+	private void playerSectionWrite()
+	{
+		plugin.getConfig().set("players",playersClazzList);
+		plugin.saveConfig();
+	}
+	
+	public void playerSectionWrite(Player player, String className, String rank)
+	{
+		plugin.getConfig().set("players." + player.getUniqueId().toString() + "." + className, rank);
+		plugin.db.i("Save to config added rank " + rank + " to player " + player + ", no world support");
+		plugin.saveConfig();
+	}
 
+	public void playerSectionRemove(Player player, String className)
+	{
+		plugin.db.i("Remove config " + player.getUniqueId().toString() + " : "+className);
+		PlayerClazzList playerClazz = playersClazzList.get(player.getUniqueId().toString());
+		playerClazz.remove(className);
+		plugin.db.i("Save player section after remove " );
+		playerSectionWrite();
+		
+	}
+	
 	/**
 	 * save the classrank map to the config
 	 */
-	public void save_config() {
+	public void save_config() 
+	{
 		plugin.db.i("saving config...");
 		for (Clazz cClass : ClassManager.getClasses()) 
 		{
