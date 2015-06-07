@@ -5,6 +5,7 @@ import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.command.Command;
 //import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 //import org.bukkit.configuration.ConfigurationSection;
@@ -19,7 +20,7 @@ import net.milkbowl.vault.Vault;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 import net.slipcor.classranks.commands.ClassAdminCommand;
-import net.slipcor.classranks.commands.ClassCommand;
+import net.slipcor.classranks.commands.AbstractClassCommand;
 import net.slipcor.classranks.commands.PlayerCommands;
 import net.slipcor.classranks.commands.RankdownCommand;
 import net.slipcor.classranks.commands.RankupCommand;
@@ -69,6 +70,7 @@ public class ClassRanks extends JavaPlugin
 		ClassManager cm = new ClassManager(this);
 
 		// register commands
+//		getCommand("classranks").setExecutor(new PlayerCommands(this));
 		getCommand("class").setExecutor(new PlayerCommands(this));
 		getCommand("classadmin").setExecutor(new ClassAdminCommand(this));
 		getCommand("rankup").setExecutor(new RankupCommand(this));
@@ -125,6 +127,28 @@ public class ClassRanks extends JavaPlugin
 		log("disabled", Level.INFO);
 	}
 
+	
+	@Override
+	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) 
+	{
+    	if (!(sender instanceof Player)) 
+    	{
+    		msg(sender, "Console access is not implemented. ");
+    		msg(sender, "Because a player instance is necessary");
+    		return true;
+    	}
+		// admin class command, parse it!
+		db.i("/classrank detected! parsing...");
+		msg(sender, ChatColor.GREEN+"ClassRanks Ver: " + getDescription().getVersion());
+		msg(sender, ChatColor.GOLD+"----------------------------------------");
+		msg(sender, ChatColor.GOLD+"/class ,player command for choose the class");
+		msg(sender, ChatColor.GOLD+"/rankup ,player rankup his class");
+		msg(sender, ChatColor.GOLD+"/rankdown ,player rankdown his class");
+		msg(sender, ChatColor.GOLD+"/classadmin , admin or op command for configuration");
+		msg(sender, ChatColor.GREEN+"for help type command without parameter");
+		return true;
+	}
+	
 	/**
 	 * (re)load the config
 	 */

@@ -31,7 +31,7 @@ import org.bukkit.inventory.ItemStack;
  * </pre>
  */
 
-public class PlayerCommands extends ClassCommand
+public class PlayerCommands extends AbstractClassCommand
 {
 
 

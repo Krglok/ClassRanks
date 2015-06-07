@@ -21,7 +21,7 @@ import org.bukkit.entity.Player;
  * @author slipcor
  */
 
-public class RankupCommand extends ClassCommand 
+public class RankupCommand extends AbstractClassCommand 
 {
 	
 	/**

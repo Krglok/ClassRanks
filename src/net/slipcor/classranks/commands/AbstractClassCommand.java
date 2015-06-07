@@ -26,7 +26,7 @@ import org.bukkit.inventory.ItemStack;
  * @author slipcor
  */
 
-public abstract class ClassCommand implements CommandExecutor 
+public abstract class AbstractClassCommand implements CommandExecutor 
 {
 	protected final ClassRanks plugin;
 //	protected final PlayerCommands cmdMgr;
@@ -45,7 +45,7 @@ public abstract class ClassCommand implements CommandExecutor
 	 * @param cr the plugin instance to hand over
 	 * @param cm the command manager instance to hand over
 	 */
-	public ClassCommand(ClassRanks plugin) 
+	public AbstractClassCommand(ClassRanks plugin) 
 	{
 		this.plugin = plugin;
 //		cmdMgr = plugin.getCommandMgr();
