@@ -136,11 +136,21 @@ public class RankdownCommand extends AbstractClassCommand
 		} else
 		{
 			Rank rank = ClassManager.getRankByPermName(plugin.perms.getPlayerGroups(pPlayer));
-			className = ClassManager.getClassNameByPermName(rank.getPermName());
-			if (existClass(className))
+			if (rank != null)
 			{
-				rankDown(pPlayer, pPlayer, className, world);
-				return true;
+
+				className = ClassManager.getClassNameByPermName(rank.getPermName());
+				if (existClass(className))
+				{
+					rankDown(pPlayer, pPlayer, className, world);
+					return true;
+				} else
+				{
+					plugin.msg(pPlayer,ChatColor.RED+"The class name are not found!");
+					plugin.msg(pPlayer,ChatColor.RED+"Are have any class or rank ?");
+					plugin.msg(pPlayer,"/class info show your class and rank");
+					return true;
+				}
 			} else
 			{
 				plugin.msg(pPlayer,ChatColor.RED+"The class name are not found!");
