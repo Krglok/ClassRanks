@@ -584,11 +584,14 @@ public class ConfigManager {
 
 	public void playerSectionRemove(Player player, String className)
 	{
-		plugin.db.i("Remove config " + player.getUniqueId().toString() + " : "+className);
-		PlayerClazzList playerClazz = playersClazzList.get(player.getUniqueId().toString());
-		playerClazz.remove(className);
-		plugin.db.i("Save player section after remove " );
-		playerSectionWrite();
+		if (className != null)
+		{
+			plugin.db.i("Remove config " + player.getUniqueId().toString() + " : "+className);
+			PlayerClazzList playerClazz = playersClazzList.get(player.getUniqueId().toString());
+			playerClazz.remove(className);
+			plugin.db.i("Save player section after remove " );
+			playerSectionWrite();
+		}
 		
 	}
 	

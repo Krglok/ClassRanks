@@ -131,7 +131,7 @@ public class RankupCommand extends AbstractClassCommand
 		
 		if (isSelf == false) 
 		{
-			plugin.msg(pPlayer,ChatColor.RED+"You don't have permission to choose your class!");
+			plugin.msg(pPlayer,ChatColor.RED+"permission classranks.self.rank not set to you , call your admin!");
 			return true;
 		}
 

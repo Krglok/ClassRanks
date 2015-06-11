@@ -252,6 +252,8 @@ public class PlayerCommands extends AbstractClassCommand
 	
 	private void cmdConfig (Player pPlayer, String[] args) 
 	{
+		boolean isSelf = plugin.perms.hasPerms(pPlayer, "classranks.self.rank", pPlayer.getWorld().getName()); 
+		
 		pPlayer.sendMessage(ChatColor.YELLOW+"[ClassRanks] "+ChatColor.GREEN+"Configuration ");
 		pPlayer.sendMessage(ChatColor.YELLOW+"----------"+"Ver: " + ChatColor.GREEN+plugin.getDescription().getVersion());
 		pPlayer.sendMessage(ChatColor.YELLOW+"OneClass  : "+ChatColor.GREEN+plugin.config.isOnlyoneclass());
@@ -262,6 +264,7 @@ public class PlayerCommands extends AbstractClassCommand
 		pPlayer.sendMessage(ChatColor.YELLOW+"ClearRanks:  "+ChatColor.GREEN+plugin.config.isClearranks());
 		pPlayer.sendMessage(ChatColor.YELLOW+"DefaultRankWorld: "+ChatColor.GREEN+plugin.config.isDefaultrankallworlds());
 		pPlayer.sendMessage(ChatColor.YELLOW+"RankPublic:  "+ChatColor.GREEN+plugin.config.isRankpublic());
+		pPlayer.sendMessage(ChatColor.YELLOW+"SelfRank   :  "+ChatColor.GREEN+isSelf);
 		plugin.msg(pPlayer, ChatColor.YELLOW+" ");
 	}
 	
@@ -530,7 +533,7 @@ public class PlayerCommands extends AbstractClassCommand
 		// command wird nur ausgefuehrt bei permissions
 		if (isSelf == false) 
 		{
-			plugin.error(pPlayer,"You don't have permission to choose your class!");
+			plugin.msg(pPlayer,ChatColor.RED+"permission classranks.self.rank not set to you , call your admin!");
 			return true;
 		} else
 		{
