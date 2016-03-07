@@ -3,6 +3,7 @@ package net.slipcor.classranks.managers;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -60,12 +61,12 @@ public class PlayerManager
 	 */	
 	public static String searchName(String playerName) 
 	{
-		Player[] p = Bukkit.getServer().getOnlinePlayers();
-		for (int i=0;i<p.length;i++)
+		Collection<? extends Player> players = Bukkit.getServer().getOnlinePlayers();
+		for (Player p : players)
 		{
-			if (p[i].getName().toLowerCase().contains(playerName.toLowerCase()))
+			if (p.getName().toLowerCase().contains(playerName.toLowerCase()))
 			{
-				return p[i].getName(); // gotcha!
+				return p.getName(); // gotcha!
 			}
 		}
 //		db.i("player not online: " + player);
