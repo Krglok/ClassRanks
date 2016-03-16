@@ -9,6 +9,9 @@ import java.util.Map;
 import java.util.logging.Level;
 
 import net.slipcor.classranks.ClassRanks;
+import net.slipcor.classranks.core.Item;
+import net.slipcor.classranks.core.ItemList;
+
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -82,21 +85,23 @@ public class PlayerManager
 		{
 			return false;
 		}
+		ItemList playerItems = new ItemList();
+		playerItems.addList(player.getInventory().getContents());
         for (int i=0;i<items.length;i++) 
         {
             if (items[i] != null) 
             {
             	isContain = false;
             	plugin.db.i("checkItem : "+items[i].getData().toString() + " : " + items[i].getAmount());
-            	for (ItemStack item : player.getInventory().getContents())
+            	for (Item item : playerItems.values())
             	{
-            		if ((item != null) && (item.getType() == items[i].getType()))
+            		if ((item != null) && (item.ItemRef() == items[i].getType()))
             		{
 //	                	plugin.db.i("Inventory: "+item.getType().name() + " : " + item.getAmount());
-		            	if (item.getAmount() >= items[i].getAmount())
+		            	if (item.value() >= items[i].getAmount())
 		            	{
 		            		isContain = true;
-		                	plugin.db.i("Found : "+item.getData().getItemType().name() + " : " + item.getAmount());
+		                	plugin.db.i("Found : "+item.ItemRef() + " : " + item.value());
 		            		//getData().getItemType().name();
 		            	}
             		}
