@@ -128,11 +128,13 @@ public class PlayerCommands extends AbstractClassCommand
 		{
 			ClassManager.saveClassProgress(player);
 		}
-		
+		// suche plass in permissions
 		if (hasClass(className, player, world))
 		{
 			className = getClassName(className);
+			// remove permission group
 			removeRanks(className, player, world);
+			// remove playerSection
 			plugin.config.playerSectionRemove(player, className);
 			
 			// show public message 

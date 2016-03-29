@@ -109,7 +109,7 @@ public class ConfigManager {
 	}
 	public int getExpCost(int index) 
 	{
-		if (index <= expCost.length)
+		if (index < expCost.length)
 		{
 			return expCost[index];
 		} else
@@ -588,9 +588,12 @@ public class ConfigManager {
 		{
 			plugin.db.i("Remove config " + player.getUniqueId().toString() + " : "+className);
 			PlayerClazzList playerClazz = playersClazzList.get(player.getUniqueId().toString());
-			playerClazz.remove(className);
-			plugin.db.i("Save player section after remove " );
-			playerSectionWrite();
+			if(playerClazz.containsKey(className))
+			{
+				playerClazz.remove(className);
+				plugin.db.i("Save player section after remove " );
+				playerSectionWrite();
+			}
 		}
 		
 	}
