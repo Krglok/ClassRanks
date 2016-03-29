@@ -8,8 +8,8 @@ import java.util.Iterator;
  * 
  * @author Windu
  * 
- *         define a player Class Rank List object will be used to track player
- *         classes
+ * define a player Class Rank List object will be used to track player
+ * classes
  */
 public class PlayerClazzList extends HashMap<String, String>
 {
@@ -20,6 +20,7 @@ public class PlayerClazzList extends HashMap<String, String>
 	private static final long serialVersionUID = -3071712660629867671L;
 
 	private String uuid;
+	private String playername;
 
 	// private ArrayList<PlayerClassRank> playerClassRanks;
 
@@ -27,6 +28,7 @@ public class PlayerClazzList extends HashMap<String, String>
 	{
 		super();
 		this.uuid =uuid;
+		this.playername = playername;
 		this.put("name", playerName);
 	}
 	

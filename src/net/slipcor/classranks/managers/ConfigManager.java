@@ -20,7 +20,7 @@ import net.slipcor.classranks.core.Rank;
  * this Class read the config and make it persistaned
  * each config node  will be stored here.
  * the config data stored in parameters, so not always read from file
- * the ClassRank tree are stored in the ClassManager
+ * the ClassRank tree are stored in the ClazzList
  * 
  * @version v0.4.6 
  * 
@@ -103,7 +103,7 @@ public class ConfigManager {
 	public void setMoneyCost(Double[] moneyCost) {
 		this.moneyCost = moneyCost;
 	}
-	private int[] expCost; //= new int[ClassManager.getClasses().size()]; // EXP
+	private int[] expCost; //= new int[ClazzList.getClasses().size()]; // EXP
 	public int[] getExpCost() {
 		return expCost;
 	}
@@ -409,7 +409,7 @@ public class ConfigManager {
 			if (items == null) 
 			{
 				plugin.db.i("items invalid, setting to null");
-				itemStacks = new ItemStack[ClassManager.getClasses().size()][1];
+				itemStacks = new ItemStack[ClazzList.getClasses().size()][1];
 			} else 
 			{
 				// for each items => ItemStack[][1,2,3]
@@ -509,11 +509,11 @@ public class ConfigManager {
 				if (newClass) 
 				{
 					// create class
-					ClassManager.configClassAdd(sClassName, sRankName,rankName, rankColor, rankItems, rankCost, rankExp,null);
+					ClazzList.configClassAdd(sClassName, sRankName,rankName, rankColor, rankItems, rankCost, rankExp,null);
 					newClass = false;
 				} else 
 				{
-					ClassManager.configRankAdd(sClassName, sRankName, rankName,rankColor, rankItems, rankCost, rankExp, null);
+					ClazzList.configRankAdd(sClassName, sRankName, rankName,rankColor, rankItems, rankCost, rankExp, null);
 				}
 			}
 		}
@@ -604,7 +604,7 @@ public class ConfigManager {
 	public void save_config() 
 	{
 		plugin.db.i("saving config...");
-		for (Clazz cClass : ClassManager.getClasses()) 
+		for (Clazz cClass : ClazzList.getClasses()) 
 		{
 			plugin.db.i(" - " + cClass.name);
 			for (Rank rRank : cClass.ranks) {

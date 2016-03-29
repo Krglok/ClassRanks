@@ -26,7 +26,7 @@ import net.slipcor.classranks.commands.RankdownCommand;
 import net.slipcor.classranks.commands.RankupCommand;
 import net.slipcor.classranks.handlers.*;
 import net.slipcor.classranks.listeners.*;
-import net.slipcor.classranks.managers.ClassManager;
+import net.slipcor.classranks.managers.ClazzList;
 import net.slipcor.classranks.managers.ConfigManager;
 import net.slipcor.classranks.managers.DebugManager;
 import net.slipcor.classranks.managers.FormatManager;
@@ -67,7 +67,7 @@ public class ClassRanks extends JavaPlugin
 		pm.registerEvents(serverListener, this);
 
 		@SuppressWarnings("unused")
-		ClassManager cm = new ClassManager(this);
+		ClazzList cm = new ClazzList(this);
 
 		// register commands
 //		getCommand("classranks").setExecutor(new PlayerCommands(this));

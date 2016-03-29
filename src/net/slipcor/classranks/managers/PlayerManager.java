@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.logging.Level;
 
 import net.slipcor.classranks.ClassRanks;
+import net.slipcor.classranks.core.Clazz;
 import net.slipcor.classranks.core.Item;
 import net.slipcor.classranks.core.ItemList;
 
@@ -203,6 +204,6 @@ public class PlayerManager
         
 		return 0;
 	}
-	
+
 
 }

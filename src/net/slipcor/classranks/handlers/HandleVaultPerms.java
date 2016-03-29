@@ -6,7 +6,7 @@ import java.util.logging.Level;
 
 import net.milkbowl.vault.permission.Permission;
 import net.slipcor.classranks.ClassRanks;
-import net.slipcor.classranks.managers.ClassManager;
+import net.slipcor.classranks.managers.ClazzList;
 //import net.slipcor.classranks.managers.DebugManager;
 import net.slipcor.classranks.managers.PlayerManager;
 
@@ -166,7 +166,7 @@ public class HandleVaultPerms extends CRHandler {
 				if (permission.playerAddGroup(player, rank)) 
 				{
 					plugin.db.i("Vault added rank " + rank + " to player " + player	+ " in world " + player.getWorld().getName());
-//					String cString = ClassManager.getClassNameByPermName(rank);
+//					String cString = ClazzList.getClassNameByPermName(rank);
 //					plugin.getConfig().set("players." + player + "." + cString, rank);
 //					plugin.getConfig().set("worlds." + player.getWorld().getName() + "." + player, rank);
 //					plugin.saveConfig();
@@ -190,7 +190,7 @@ public class HandleVaultPerms extends CRHandler {
 	{
 		ClassRanks.log("ADD PermName " + rank + " or user " + player + " ", Level.INFO);
 //		player = PlayerManager.searchName(player); // auto-complete playername
-		String cString = ClassManager.getClassNameByPermName(rank);
+		String cString = ClazzList.getClassNameByPermName(rank);
 		String world = null;
 		try 
 		{
@@ -271,13 +271,13 @@ public class HandleVaultPerms extends CRHandler {
 		for (String sRank : list) 
 		{
 			plugin.db.i("checking rank "+sRank);
-			if (ClassManager.rankExists(sRank)) 
+			if (ClazzList.rankExists(sRank)) 
 			{
 				permGroups.add(sRank);
 			}
 		}
 		plugin.db.i("player has groups: " + permGroups.toString());
-		return ClassManager.getLastPermNameByPermGroups(permGroups);
+		return ClazzList.getLastPermNameByPermGroups(permGroups);
 	}
 
 

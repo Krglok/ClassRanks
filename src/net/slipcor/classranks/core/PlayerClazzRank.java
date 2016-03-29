@@ -4,7 +4,12 @@ package net.slipcor.classranks.core;
  * 
  * @author Windu
  *
- *	define a Player Class Rank, will be used to track player clases
+ *	define a Player Rank in a Clazz , will be used to track player clazzes
+ *  - className = name of the ClassRank
+ *  - rankName  = name of the rank or permissionGroup
+ * The player  can go rankUp or rankDown in the Clazz
+ * A player can have only one rank in each Clazz, given by this key/value
+ *  
  */
 public class PlayerClazzRank 
 {

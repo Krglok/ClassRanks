@@ -6,11 +6,16 @@ import org.bukkit.ChatColor;
 import org.bukkit.inventory.ItemStack;
 
 /**
- * rank class
- * - rank parameter 
+ * the class define a rank for a clazz. there multiple parameter for a rank.
+	 * @param sPermName  the permission name to use
+	 * @param sDispName  the display name
+	 * @param cC         the name ChatColor
+	 * @param crc        the class to add to
+	 * @param isItems    the rank items cost is a array of Items
+	 * @param dCost      the rank cost
+	 * @param iExp       the rank experience cost
  * 
  * @version v0.3.0 
- * 
  * @author slipcor
  */
 public class Rank 
@@ -27,20 +32,13 @@ public class Rank
 	/**
 	 * create a rank instance
 	 * 
-	 * @param sPermName
-	 *            the permission name to use
-	 * @param sDispName
-	 *            the display name
-	 * @param cC
-	 *            the name ChatColor
-	 * @param crc
-	 *            the class to add to
-	 * @param isItems
-	 *            the rank items cost
-	 * @param dCost
-	 *            the rank cost
-	 * @param iExp
-	 *            the rank experience cost
+	 * @param sPermName  the permission name to use
+	 * @param sDispName  the display name
+	 * @param cC         the name ChatColor
+	 * @param crc        the class to add to
+	 * @param isItems    the rank items cost
+	 * @param dCost      the rank cost
+	 * @param iExp       the rank experience cost
 	 */
 	public Rank(String sPermName, String sDispName, ChatColor cC, Clazz crc, ItemStack[] isItems, double dCost, int iExp) 
 	{

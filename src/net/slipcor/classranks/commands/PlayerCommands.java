@@ -7,7 +7,7 @@ import java.util.logging.Level;
 import net.slipcor.classranks.ClassRanks;
 import net.slipcor.classranks.core.Clazz;
 import net.slipcor.classranks.core.Rank;
-import net.slipcor.classranks.managers.ClassManager;
+import net.slipcor.classranks.managers.ClazzList;
 import net.slipcor.classranks.managers.DebugManager;
 import net.slipcor.classranks.managers.FormatManager;
 import net.slipcor.classranks.managers.PlayerManager;
@@ -126,7 +126,7 @@ public class PlayerCommands extends AbstractClassCommand
 
 		if (plugin.trackRanks) 
 		{
-			ClassManager.saveClassProgress(player);
+			ClazzList.saveClassProgress(player);
 		}
 		// suche plass in permissions
 		if (hasClass(className, player, world))
@@ -177,7 +177,7 @@ public class PlayerCommands extends AbstractClassCommand
 	private void cmdList (Player pPlayer, String[] args) 
 	{
 	
-		ArrayList<Clazz> classes = ClassManager.getClasses();
+		ArrayList<Clazz> classes = ClazzList.getClasses();
 		if (args.length > 1) 
 		{
 			for (Clazz c : classes) 
@@ -232,7 +232,7 @@ public class PlayerCommands extends AbstractClassCommand
 		}
 
 		plugin.msg(pPlayer, "Player " + FormatManager.formatPlayer(playerName)+ " Get in " + FormatManager.formatWorld(world) + "!");
-		Rank rank = ClassManager.getRankByPermName(plugin.perms.getPlayerGroups(pPlayer));
+		Rank rank = ClazzList.getRankByPermName(plugin.perms.getPlayerGroups(pPlayer));
 
 		if (rank == null) 
 		{

@@ -2,7 +2,7 @@ package net.slipcor.classranks.commands;
 
 import net.slipcor.classranks.ClassRanks;
 import net.slipcor.classranks.core.Rank;
-import net.slipcor.classranks.managers.ClassManager;
+import net.slipcor.classranks.managers.ClazzList;
 import net.slipcor.classranks.managers.DebugManager;
 import net.slipcor.classranks.managers.FormatManager;
 import net.slipcor.classranks.managers.PlayerManager;
@@ -135,11 +135,11 @@ public class RankdownCommand extends AbstractClassCommand
 			return true;
 		} else
 		{
-			Rank rank = ClassManager.getRankByPermName(plugin.perms.getPlayerGroups(pPlayer));
+			Rank rank = ClazzList.getRankByPermName(plugin.perms.getPlayerGroups(pPlayer));
 			if (rank != null)
 			{
 
-				className = ClassManager.getClassNameByPermName(rank.getPermName());
+				className = ClazzList.getClassNameByPermName(rank.getPermName());
 				if (existClass(className))
 				{
 					rankDown(pPlayer, pPlayer, className, world);

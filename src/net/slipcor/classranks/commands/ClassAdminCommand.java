@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import net.slipcor.classranks.ClassRanks;
 import net.slipcor.classranks.core.Clazz;
 import net.slipcor.classranks.core.Rank;
-import net.slipcor.classranks.managers.ClassManager;
+import net.slipcor.classranks.managers.ClazzList;
 import net.slipcor.classranks.managers.DebugManager;
 import net.slipcor.classranks.managers.FormatManager;
 
@@ -78,7 +78,7 @@ public class ClassAdminCommand implements CommandExecutor
 	private void cmdList (Player pPlayer, String[] args) 
 	{
 	
-		ArrayList<Clazz> classes = ClassManager.getClasses();
+		ArrayList<Clazz> classes = ClazzList.getClasses();
 		{
 			
 			plugin.msg(pPlayer, "[ClassRanks] "+ChatColor.YELLOW+"Class List");
@@ -105,7 +105,7 @@ public class ClassAdminCommand implements CommandExecutor
 	private void cmdListClass (Player pPlayer, String[] args) 
 	{
 	
-		ArrayList<Clazz> classes = ClassManager.getClasses();
+		ArrayList<Clazz> classes = ClazzList.getClasses();
 		if (args.length > 1) 
 		{
 			for (Clazz c : classes) 
@@ -128,7 +128,7 @@ public class ClassAdminCommand implements CommandExecutor
 	private void cmdListClassRank (Player pPlayer, String[] args) 
 	{
 	
-		ArrayList<Clazz> classes = ClassManager.getClasses();
+		ArrayList<Clazz> classes = ClazzList.getClasses();
 		if (args.length > 1) 
 		{
 			for (Clazz c : classes) 
@@ -333,7 +333,7 @@ public class ClassAdminCommand implements CommandExecutor
 									+ String.valueOf(args.length) + ")!");
 					return false;
 				}
-				return ClassManager.configClassRemove(args[2], pPlayer);
+				return ClazzList.configClassRemove(args[2], pPlayer);
 			} else if (args[1].equalsIgnoreCase("rank")) {
 				if (args.length != 4) {
 					plugin.msg(
@@ -342,7 +342,7 @@ public class ClassAdminCommand implements CommandExecutor
 									+ String.valueOf(args.length) + ")!");
 					return false;
 				}
-				return ClassManager.configRankRemove(args[2], args[3], pPlayer);
+				return ClazzList.configRankRemove(args[2], args[3], pPlayer);
 			}
 			// second argument unknown
 			return false;
@@ -394,7 +394,7 @@ public class ClassAdminCommand implements CommandExecutor
 				}
 			if (args[1].equalsIgnoreCase("class")) 
 			{// , ItemStack[] isItems, double dCost, int iExp
-				return ClassManager.configClassAdd(
+				return ClazzList.configClassAdd(
 						args[2], 
 						args[3], 
 						args[4],
@@ -406,7 +406,7 @@ public class ClassAdminCommand implements CommandExecutor
 			}
 			if (args[1].equalsIgnoreCase("rank")) 
 			{
-				return ClassManager.configRankAdd(
+				return ClazzList.configRankAdd(
 						args[2], 
 						args[3], 
 						args[4],
@@ -433,7 +433,7 @@ public class ClassAdminCommand implements CommandExecutor
 									+ String.valueOf(args.length) + ")!");
 					return false;
 				}
-				return ClassManager
+				return ClazzList
 						.configClassChange(args[2], args[3], pPlayer);
 			} else if (args[1].equalsIgnoreCase("rank")) {
 				if (args.length != 6) {
@@ -443,7 +443,7 @@ public class ClassAdminCommand implements CommandExecutor
 									+ String.valueOf(args.length) + ")!");
 					return false;
 				}
-				return ClassManager.configRankChange(args[2], args[3], args[4],
+				return ClazzList.configRankChange(args[2], args[3], args[4],
 						args[5], pPlayer);
 			}
 			// second argument unknown
