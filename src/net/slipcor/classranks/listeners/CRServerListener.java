@@ -4,7 +4,7 @@ import java.util.logging.Level;
 
 import net.slipcor.classranks.ClassRanks;
 import net.slipcor.classranks.Update;
-import net.slipcor.classranks.managers.CommandManager;
+import net.slipcor.classranks.commands.PlayerCommands;
 import net.slipcor.classranks.managers.DebugManager;
 import net.slipcor.classranks.register.payment.Methods;
 
@@ -26,22 +26,24 @@ import org.bukkit.event.server.PluginEnableEvent;
  * 
  * -
  * 
- * @version v0.4.0
+ * @version v0.4.6
  * 
- * @author slipcor
+ * @author slipcor/krglog
  */
 
-public class CRServerListener implements Listener {
+public class CRServerListener implements Listener 
+{
 	private final Methods methods;
 	private final ClassRanks plugin;
 
-	private final CommandManager cmdMgr;
+	private final PlayerCommands cmdMgr;
 	private final DebugManager db;
 	
-    public CRServerListener(ClassRanks plugin, CommandManager classes) {
+    public CRServerListener(ClassRanks plugin, PlayerCommands cmdMgr) 
+    {
     	this.plugin = plugin;
     	this.methods = new Methods();
-		cmdMgr = classes;
+		this.cmdMgr = cmdMgr;
 		db = new DebugManager(plugin);
     }
     
@@ -63,7 +65,8 @@ public class CRServerListener implements Listener {
 
 		db.i("right block click!");
 		// we clicked a block
-		if (cmdMgr.signCheck[0] == null) {
+		if ((plugin.config.isSigncheck() == false) || (plugin.config.isSigncheck() == null)) 
+		{
 			return; // no sign usage => OUT
 		}
 		db.i("we want to check for sign usage!");
@@ -74,23 +77,38 @@ public class CRServerListener implements Listener {
 		}
 		db.i("we clicked a sign!");
 		// we clicked a sign!
-		Sign s = (Sign) bBlock.getState();
+		Sign sign = (Sign) bBlock.getState();
+		db.i("sign 0: "+plugin.config.getSigns()[0]);
 
-		if (s.getLine(0).equals(cmdMgr.signCheck[0])) {
-    		db.i("parsing command " + s.getLine(1));
-			String[] sArgs = {s.getLine(1)}; // parse the command!
+		if (sign.getLine(0).equals(plugin.config.getSigns()[0])) 
+		{
+    		db.i("parsing command " + sign.getLine(1));
+			String[] sArgs = new String[3];
+			sArgs[0] = "ADD";
+			sArgs[1] = event.getPlayer().getName();
+			sArgs[2] = sign.getLine(1); // parse the command!
 			cmdMgr.parseCommand(event.getPlayer(), sArgs);
-		} else {
+		} else 
+		{
     		db.i("searching for rank commands");
-			for (int i = 0 ; i <= 3; i++) {
-				if (s.getLine(i).equals(cmdMgr.signCheck[1])) {
+			for (int i = 0 ; i <= 3; i++) 
+			{
+				if (sign.getLine(i).equals(plugin.config.getSigns()[1])) 
+				{
 		    		db.i("rankup found, parsing...");
-					String[] sArgs = {"rankup"};
+					String[] sArgs = new String[3];
+					sArgs[0] = "RANKUP";
+					sArgs[1] = event.getPlayer().getName();
+					sArgs[2] = sign.getLine(1); // parse the command!
 					cmdMgr.parseCommand(event.getPlayer(), sArgs);
 					return;
-				} else if (s.getLine(i).equals(cmdMgr.signCheck[2])) {
+				} else if (sign.getLine(i).equals(plugin.config.getSigns()[2])) 
+				{
 		    		db.i("rankup found, parsing");
-					String[] sArgs = {"rankdown"};
+					String[] sArgs = new String[3];
+					sArgs[0] = "RANKDOWN";
+					sArgs[1] = event.getPlayer().getName();
+					sArgs[2] = sign.getLine(1); // parse the command!
 					cmdMgr.parseCommand(event.getPlayer(), sArgs);
 					return;
 				}
@@ -127,5 +145,6 @@ public class CRServerListener implements Listener {
                 plugin.log("<3 " + plugin.method.getName() + " version: " + plugin.method.getVersion(),Level.INFO);
             }
         }
+        // Autoupdate are not used
     }
 }

@@ -17,10 +17,11 @@ import net.slipcor.classranks.ClassRanks;
  */
 
 public class DebugManager {
-	public static boolean active;
+	public static boolean active = false;
 	public final ClassRanks plugin;
 	
-	public DebugManager(ClassRanks plugin) {
+	public DebugManager(ClassRanks plugin) 
+	{
 		this.plugin = plugin;
 	}
 	

@@ -1,30 +1,33 @@
 package net.slipcor.classranks;
 
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
+import org.bukkit.command.Command;
+//import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.ConfigurationSection;
+//import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
+//import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import net.milkbowl.vault.Vault;
 import net.milkbowl.vault.economy.Economy;
+import net.milkbowl.vault.permission.Permission;
 import net.slipcor.classranks.commands.ClassAdminCommand;
-import net.slipcor.classranks.commands.ClassCommand;
+import net.slipcor.classranks.commands.AbstractClassCommand;
+import net.slipcor.classranks.commands.PlayerCommands;
 import net.slipcor.classranks.commands.RankdownCommand;
 import net.slipcor.classranks.commands.RankupCommand;
-import net.slipcor.classranks.core.Rank;
 import net.slipcor.classranks.handlers.*;
 import net.slipcor.classranks.listeners.*;
-import net.slipcor.classranks.managers.ClassManager;
-import net.slipcor.classranks.managers.CommandManager;
+import net.slipcor.classranks.managers.ClazzList;
+import net.slipcor.classranks.managers.ConfigManager;
 import net.slipcor.classranks.managers.DebugManager;
 import net.slipcor.classranks.managers.FormatManager;
 import net.slipcor.classranks.managers.PlayerManager;
@@ -33,21 +36,29 @@ import net.slipcor.classranks.register.payment.Method;
 /**
  * main plugin class
  * 
- * @version v0.3.1
+ * @version v0.6.1 
  * 
- * @author slipcor
+ * @author slipcor/krglok
  */
 
-public class ClassRanks extends JavaPlugin {
-	private final CommandManager cmdMgr = new CommandManager(this);
-	private final CRServerListener serverListener = new CRServerListener(this,
-			cmdMgr);
-	private final DebugManager db = new DebugManager(this);
+public class ClassRanks extends JavaPlugin 
+{
+	// dont chance the order of these moduls !
+	public ConfigManager config = new ConfigManager(this);
+	public final PlayerManager pm = new PlayerManager(this);
+	public final DebugManager db = new DebugManager(this);
+	public final PlayerCommands cmdMgr = new PlayerCommands(this);
+	private final CRServerListener serverListener = new CRServerListener(this,cmdMgr);
+//	private final FormatManager fm = new FormatManager();
+	
 	public boolean trackRanks = false;
 
 	public Method method = null; // eConomy access
     public static Economy economy = null;
-	public CRHandler perms; // Permissions access
+    public static Permission permission = null;
+	public HandleVaultPerms perms; // Permissions access
+	
+	private Map<String, Object> classes;
 
 	@Override
 	public void onEnable() {
@@ -56,252 +67,91 @@ public class ClassRanks extends JavaPlugin {
 		pm.registerEvents(serverListener, this);
 
 		@SuppressWarnings("unused")
-		ClassManager cm = new ClassManager(this);
+		ClazzList cm = new ClazzList(this);
 
-		getCommand("class").setExecutor(new ClassCommand(this, cmdMgr));
-		getCommand("classadmin").setExecutor(
-				new ClassAdminCommand(this, cmdMgr));
-		getCommand("rankup").setExecutor(new RankupCommand(this, cmdMgr));
-		getCommand("rankdown").setExecutor(new RankdownCommand(this, cmdMgr));
+		// register commands
+//		getCommand("classranks").setExecutor(new PlayerCommands(this));
+		getCommand("class").setExecutor(new PlayerCommands(this));
+		getCommand("classadmin").setExecutor(new ClassAdminCommand(this));
+		getCommand("rankup").setExecutor(new RankupCommand(this));
+		getCommand("rankdown").setExecutor(new RankdownCommand(this));
 
-		load_config(); // load the config file
+		// load the config file
+		config.load_config(); 
 
-		if (pm.getPlugin("Vault") != null) {
+		// load Vault
+        Plugin vaultPlugin = pm.getPlugin("Vault");
+        if (vaultPlugin != null) {
+            log("[ClassRanks] found Vault Economy !",Level.INFO);
+            RegisteredServiceProvider<Economy> economyProvider = Bukkit.getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
+            if (economyProvider != null) {
+                economy = economyProvider.getProvider();
+            }
+        } else {
+            log("[ClassRanks] didnt find Vault.",Level.WARNING);
+            log("[ClassRanks] please install the plugin Vault .",Level.INFO);
+            log("[ClassRanks] will NOT be Enabled",Level.SEVERE);
+            this.setEnabled(false);
+            return;
+        }
+		if ( vaultPlugin != null) 
+		{
 			db.i("Vault found!");
-			if (getConfig().getBoolean("vaultpermissions")) {
+//			if (getConfig().getBoolean("vaultpermissions")) 
 				this.perms = new HandleVaultPerms(this);
-			}
-			if (getConfig().getBoolean("vaulteconomy")) {
-				setupEconomy();
-			}
+			    log("ClassRank  Vault permissions plugin found", Level.INFO); // success!
+				RegisteredServiceProvider<Permission> permissionProvider = Bukkit.getServicesManager().getRegistration(net.milkbowl.vault.permission.Permission.class);
+			    permission = permissionProvider.getProvider();
+			    if (this.perms.setupPermissions() == false)
+			    {
+				    log("ClassRank  Vault permissions NOT initialized", Level.SEVERE); // success!
+			    }
+//			if (getConfig().getBoolean("vaulteconomy")) 
+//			{
+//				setupEconomy();
+//			}
 		}
 		
-		if (this.perms == null || (this.perms != null && !this.perms.setupPermissions())) {
-		
-			if (pm.getPlugin("bPermissions") != null) {
-				db.i("bPermissions found!");
-				this.perms = new HandleBPerms(this);
-			} else if (pm.getPlugin("PermissionsEx") != null) {
-				db.i("PermissionsEX found!");
-				this.perms = new HandlePEX(this);
-			} else {
-				db.i("No perms found, defaulting to SuperPermissions!");
-				this.perms = new HandleSuperPerms(this);
-			}
-			this.perms.setupPermissions();
+		// backup permissions
+
+		if(config.isUpdateCheck())
+		{
+		    log(" UpdateCheck", Level.INFO); // success!
+			Update.updateCheck(this);
 		}
-
-
-		Tracker tracker = new Tracker(this);
-		tracker.start();
-		Update.updateCheck(this);
-
-		log("v" + this.getDescription().getVersion() + " enabled", Level.INFO);
+		log("Version " + this.getDescription().getVersion() + " init ready", Level.INFO);
 	}
 
 	@Override
 	public void onDisable() {
-		Tracker.stop();
 		log("disabled", Level.INFO);
 	}
 
+	
+	@Override
+	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) 
+	{
+    	if (!(sender instanceof Player)) 
+    	{
+    		msg(sender, "Console access is not implemented. ");
+    		msg(sender, "Because a player instance is necessary");
+    		return true;
+    	}
+		// admin class command, parse it!
+		db.i("/classrank detected! parsing...");
+		msg(sender, ChatColor.GREEN+"ClassRanks Ver: " + getDescription().getVersion());
+		msg(sender, ChatColor.GOLD+"----------------------------------------");
+		msg(sender, ChatColor.GOLD+"/class ,player command for choose the class");
+		msg(sender, ChatColor.GOLD+"/rankup ,player rankup his class");
+		msg(sender, ChatColor.GOLD+"/rankdown ,player rankdown his class");
+		msg(sender, ChatColor.GOLD+"/classadmin , admin or op command for configuration");
+		msg(sender, ChatColor.GREEN+"for help type command without parameter");
+		return true;
+	}
+	
 	/**
 	 * (re)load the config
 	 */
-	public void load_config() {
-		String debugVersion = "0310";
-
-		if (getConfig() == null
-				|| !getConfig().getString("cversion").equals(debugVersion)) {
-			log("creating default config.yml", Level.INFO);
-			getConfig().set("cversion", debugVersion);
-			getConfig().options().copyDefaults(true);
-			saveConfig();
-		}
-		DebugManager.active = getConfig().getBoolean("debug", false);
-
-		if (getConfig().getBoolean("checkprices")
-				&& getConfig().getConfigurationSection("prices") != null) {
-			db.i("prices are already set, reading...");
-			// set prices
-			Map<String, Object> prices = (Map<String, Object>) getConfig()
-					.getConfigurationSection("prices").getValues(true);
-			cmdMgr.moneyCost = new double[prices.size()];
-			int i = 0;
-			for (String Key : prices.keySet()) {
-				String sVal = (String) prices.get(Key);
-				try {
-					cmdMgr.moneyCost[i] = Double.parseDouble(sVal);
-					db.i("#" + i + " => "
-							+ String.valueOf(Double.parseDouble(sVal)));
-				} catch (Exception e) {
-					cmdMgr.moneyCost[i] = 0;
-					log("Unrecognized cost key '" + String.valueOf(Key) + "': "
-							+ sVal, Level.INFO);
-				}
-				i++;
-			}
-		}
-
-		if (getConfig().getBoolean("checkexp")
-				&& getConfig().getConfigurationSection("exp") != null) {
-			// set exp prices
-
-			db.i("exp costs are set, reading...");
-			Map<String, Object> expprices = (Map<String, Object>) getConfig()
-					.getConfigurationSection("exp").getValues(true);
-			cmdMgr.expCost = new int[expprices.size()];
-			int i = 0;
-			for (String Key : expprices.keySet()) {
-				String sVal = (String) expprices.get(Key);
-				try {
-					cmdMgr.expCost[i] = Integer.parseInt(sVal);
-					db.i("#" + i + " => "
-							+ String.valueOf(Integer.parseInt(sVal)));
-				} catch (Exception e) {
-					cmdMgr.expCost[i] = 0;
-					log("Unrecognized exp cost key '" + String.valueOf(Key)
-							+ "': " + sVal, Level.INFO);
-				}
-				i++;
-			}
-		}
-
-		// set subcolors
-		cmdMgr.getFormatManager().setColors("world",
-				getConfig().getString("playercolor"),
-				getConfig().getString("worldcolor"));
-
-		// set other variables
-		cmdMgr.rankpublic = getConfig().getBoolean("rankpublic", false);
-		cmdMgr.defaultrankallworlds = getConfig().getBoolean(
-				"defaultrankallworlds", false);
-		cmdMgr.onlyoneclass = getConfig().getBoolean("onlyoneclass", true);
-		trackRanks = getConfig().getBoolean("trackRanks", false);
-
-		boolean signs = getConfig().getBoolean("signcheck", false);
-		if (signs) {
-			db.i("sign check activated!");
-			cmdMgr.signCheck[0] = getConfig().getString("signchoose",
-					"[choose]");
-			cmdMgr.signCheck[1] = getConfig().getString("signrankup",
-					"[rankup]");
-			cmdMgr.signCheck[2] = getConfig().getString("signrankdown",
-					"[rankdown]");
-		}
-
-		PlayerManager.coolDown = getConfig().getInt("cooldown", 0);
-
-		ItemStack[][] itemStacks = null;
-		if (getConfig().getBoolean("checkitems")
-				&& getConfig().getConfigurationSection("items") != null) {
-			db.i("items exist, parsing...");
-			Map<String, Object> items = (Map<String, Object>) getConfig()
-					.getConfigurationSection("items").getValues(false);
-			if (items == null) {
-				db.i("items invalid, setting to null");
-				itemStacks = new ItemStack[ClassManager.getClasses().size()][1];
-			} else {
-				// for each items => ItemStack[][1,2,3]
-				int iI = 0;
-				itemStacks = new ItemStack[items.size()][];
-				for (String isKey : items.keySet()) {
-					List<?> values = getConfig().getList("items." + isKey);
-					itemStacks[iI] = new ItemStack[values.size()];
-					db.i("creating itemstack:");
-					for (int iJ = 0; iJ < values.size(); iJ++) {
-						String[] vValue = (String.valueOf(values.get(iJ)))
-								.split(":");
-
-						int vAmount = vValue.length > 1 ? Integer
-								.parseInt(vValue[1]) : 1;
-						try {
-							itemStacks[iI][iJ] = new ItemStack(
-									Material.valueOf(vValue[0]), vAmount);
-
-						} catch (Exception e) {
-							try {
-								itemStacks[iI][iJ] = new ItemStack(
-										Integer.valueOf(vValue[0]), vAmount);
-							} catch (Exception e2) {
-
-								log("Unrecognized reagent: " + vValue[0],
-										Level.WARNING);
-								continue;
-							}
-						}
-					}
-					db.i(iI + " - "
-							+ FormatManager.formatItemStacks(itemStacks[iI]));
-					iI++;
-				}
-			}
-		}
-		cmdMgr.rankItems = itemStacks;
-
-		Map<String, Object> classRanks = getConfig().getConfigurationSection(
-				"classes").getValues(false);
-		for (String sClassName : classRanks.keySet()) {
-			Map<String, Object> ranks = ((ConfigurationSection) classRanks
-					.get(sClassName)).getValues(false);
-			boolean newClass = true;
-			for (String sRankName : ranks.keySet()) {
-
-				String rankName = null;
-				String rankColor = "&f";
-				double rankCost = -1337D;
-				ItemStack[] rankItems = null;
-				int rankExp = -1;
-
-				if (getConfig().get(
-						"classes." + sClassName + "." + sRankName + ".name") != null) {
-					rankName = getConfig()
-							.getString(
-									"classes." + sClassName + "." + sRankName
-											+ ".name");
-				}
-				if (getConfig().get(
-						"classes." + sClassName + "." + sRankName + ".color") != null) {
-					rankColor = getConfig().getString(
-							"classes." + sClassName + "." + sRankName
-									+ ".color");
-				}
-				if (getConfig().get(
-						"classes." + sClassName + "." + sRankName + ".price") != null) {
-					rankCost = Double.valueOf(getConfig().getString(
-							"classes." + sClassName + "." + sRankName
-									+ ".price"));
-				}
-				if (getConfig().get(
-						"classes." + sClassName + "." + sRankName + ".items") != null) {
-					rankItems = FormatManager
-							.getItemStacksFromStringList(getConfig()
-									.getStringList(
-											"classes." + sClassName + "."
-													+ sRankName + ".items"));
-				}
-				if (getConfig().get(
-						"classes." + sClassName + "." + sRankName + ".exp") != null) {
-					rankExp = Integer.parseInt(getConfig().getString(
-							"classes." + sClassName + "." + sRankName + ".exp"));
-				}
-
-				if (newClass) {
-					// create class
-					ClassManager.configClassAdd(sClassName, sRankName,
-							rankName, rankColor, rankItems, rankCost, rankExp,
-							null);
-
-					newClass = false;
-				} else {
-					ClassManager.configRankAdd(sClassName, sRankName, rankName,
-							rankColor, rankItems, rankCost, rankExp, null);
-				}
-			}
-		}
-
-		saveConfig();
-	}
 
 	/**
 	 * log a prefixed message to the logfile
@@ -311,9 +161,33 @@ public class ClassRanks extends JavaPlugin {
 	 * @param level
 	 *            the logging level
 	 */
-	public void log(String message, Level level) {
+	public static void log(String message, Level level) {
 		Bukkit.getLogger().log(level, "[ClassRanks] " + message);
 	}
+
+//	public FormatManager getFormatManager() 
+//	{
+//		return fm;
+//	}
+
+	public DebugManager getDebugManager()
+	{
+		return db;
+	}
+
+	public PlayerCommands getCommandMgr()
+	{
+		return cmdMgr;
+	}
+
+	/**
+	 * @return the pm
+	 */
+	public PlayerManager getPlayerManager()
+	{
+		return pm;
+	}
+
 
 	/**
 	 * send a message to a player
@@ -323,68 +197,36 @@ public class ClassRanks extends JavaPlugin {
 	 * @param string
 	 *            the string to send
 	 */
-	public void msg(Player pPlayer, String string) {
-		pPlayer.sendMessage("[" + ChatColor.AQUA + getConfig().getString("prefix")
-				+ ChatColor.WHITE + "] " + string);
+	public void msg(Player pPlayer, String string) 
+	{
+//		pPlayer.sendMessage("[" + ChatColor.AQUA + getConfig().getString("prefix")
+//				+ ChatColor.WHITE + "] " + string);
+		pPlayer.sendMessage(string);
+		db.i("to " + pPlayer.getName() + ": " + string);
+	}
+	
+	public void error(Player pPlayer, String string) 
+	{
+		pPlayer.sendMessage(ChatColor.RED+ string);
 		db.i("to " + pPlayer.getName() + ": " + string);
 	}
 
 	/**
 	 * send a message to a commandsender
 	 * 
-	 * @param sender
-	 *            the commandsender to message
-	 * @param string
-	 *            the string to send
+	 * @param sender  the commandsender to message
+	 * @param string  the string to send
 	 */
-	public void msg(CommandSender sender, String string) {
+	public void msg(CommandSender sender, String string) 
+	{
 		sender.sendMessage("[" + ChatColor.AQUA + getConfig().getString("prefix")
 				+ ChatColor.WHITE + "] " + string);
 	}
 
-	/**
-	 * save the classrank map to the config
-	 */
-	public void save_config() {
-		db.i("saving config...");
-		for (net.slipcor.classranks.core.Class cClass : ClassManager
-				.getClasses()) {
-			db.i(" - " + cClass.name);
-			for (Rank rRank : cClass.ranks) {
-
-				rRank.debugPrint();
-
-				getConfig().set(
-						"classes." + cClass.name + "." + rRank.getPermName()
-								+ ".name", String.valueOf(rRank.getDispName()));
-				getConfig().set(
-						"classes." + cClass.name + "." + rRank.getPermName()
-								+ ".color",
-						String.valueOf("&"
-								+ Integer.toHexString(rRank.getColor()
-										.ordinal())));
-				getConfig().set(
-						"classes." + cClass.name + "." + rRank.getPermName()
-								+ ".price", String.valueOf(rRank.getCost()));
-
-				if (rRank.getExp() > -1)
-					getConfig().set(
-							"classes." + cClass.name + "."
-									+ rRank.getPermName() + ".exp",
-							String.valueOf(rRank.getExp()));
-				if (rRank.getItems() != null)
-					getConfig().set(
-							"classes." + cClass.name + "."
-									+ rRank.getPermName() + ".items",
-							rRank.getItems());
-				if (rRank.getCost() != -1337D)
-					getConfig().set(
-							"classes." + cClass.name + "."
-									+ rRank.getPermName() + ".price",
-							String.valueOf(rRank.getCost()));
-			}
-		}
-		saveConfig();
+	public void error(CommandSender sender, String string) 
+	{
+		sender.sendMessage("[" + ChatColor.AQUA + getConfig().getString("prefix")
+				+ ChatColor.WHITE + "] " +ChatColor.RED+ string);
 	}
     
     private boolean setupEconomy()
@@ -396,4 +238,6 @@ public class ClassRanks extends JavaPlugin {
 
         return (economy != null);
     }
+
+
 }

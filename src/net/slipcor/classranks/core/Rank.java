@@ -6,18 +6,24 @@ import org.bukkit.ChatColor;
 import org.bukkit.inventory.ItemStack;
 
 /**
- * rank class
+ * the class define a rank for a clazz. there multiple parameter for a rank.
+	 * @param sPermName  the permission name to use
+	 * @param sDispName  the display name
+	 * @param cC         the name ChatColor
+	 * @param crc        the class to add to
+	 * @param isItems    the rank items cost is a array of Items
+	 * @param dCost      the rank cost
+	 * @param iExp       the rank experience cost
  * 
  * @version v0.3.0 
- * 
  * @author slipcor
  */
-
-public class Rank {
-	String sPermissionName;
+public class Rank 
+{
+	String sPermissionName;  // is also the rankName for references
 	String sDisplayName;
 	ChatColor cColor;
-	Class crcSuper;
+	Clazz crcSuper;
 
 	ItemStack[] items;
 	private Double cost;
@@ -26,23 +32,16 @@ public class Rank {
 	/**
 	 * create a rank instance
 	 * 
-	 * @param sPermName
-	 *            the permission name to use
-	 * @param sDispName
-	 *            the display name
-	 * @param cC
-	 *            the name ChatColor
-	 * @param crc
-	 *            the class to add to
-	 * @param isItems
-	 *            the rank items cost
-	 * @param dCost
-	 *            the rank cost
-	 * @param iExp
-	 *            the rank experience cost
+	 * @param sPermName  the permission name to use
+	 * @param sDispName  the display name
+	 * @param cC         the name ChatColor
+	 * @param crc        the class to add to
+	 * @param isItems    the rank items cost
+	 * @param dCost      the rank cost
+	 * @param iExp       the rank experience cost
 	 */
-	public Rank(String sPermName, String sDispName, ChatColor cC, Class crc,
-			ItemStack[] isItems, double dCost, int iExp) {
+	public Rank(String sPermName, String sDispName, ChatColor cC, Clazz crc, ItemStack[] isItems, double dCost, int iExp) 
+	{
 		this.sPermissionName = sPermName;
 		this.sDisplayName = sDispName;
 		this.cColor = cC;
@@ -57,7 +56,8 @@ public class Rank {
 	 * 
 	 * @return the display name
 	 */
-	public String getDispName() {
+	public String getDispName() 
+	{
 		return this.sDisplayName;
 	}
 
@@ -66,7 +66,8 @@ public class Rank {
 	 * 
 	 * @return the color
 	 */
-	public ChatColor getColor() {
+	public ChatColor getColor() 
+	{
 		return this.cColor;
 	}
 
@@ -75,7 +76,8 @@ public class Rank {
 	 * 
 	 * @return the class
 	 */
-	public Class getSuperClass() {
+	public Clazz getSuperClass() 
+	{
 		return this.crcSuper;
 	}
 
@@ -84,7 +86,8 @@ public class Rank {
 	 * 
 	 * @return the permission name
 	 */
-	public String getPermName() {
+	public String getPermName() 
+	{
 		return sPermissionName;
 	}
 
@@ -94,7 +97,8 @@ public class Rank {
 	 * @param sDisplayName
 	 *            the display to use
 	 */
-	public void setDispName(String sDisplayName) {
+	public void setDispName(String sDisplayName) 
+	{
 		this.sDisplayName = sDisplayName;
 	}
 
@@ -104,31 +108,40 @@ public class Rank {
 	 * @param cColor
 	 *            the color to use
 	 */
-	public void setColor(ChatColor cColor) {
+	public void setColor(ChatColor cColor) 
+	{
 		this.cColor = cColor;
 	}
 
-	public Double getCost() {
+	public Double getCost() 
+	{
 		return cost;
 	}
 	
-	public ArrayList<String> getItems() {
-		if (items == null) {
+	public ArrayList<String> getItems() 
+	{
+		if (items == null) 
+		{
 			return null;
 		}
 		ArrayList<String> result = new ArrayList<String>();
-		for (ItemStack i : items) {
-			if (i == null) {
+		for (ItemStack item : items) 
+		{
+			if (item == null) {
 				continue;
 			}
 			
-			if (i.getDurability() != 0) {
-				result.add(i.getType().toString() + ":" + i.getDurability() + ":"+i.getAmount());
-			} else {
-				if (i.getAmount() != 0) {
-					result.add(i.getType().toString() + ":"+i.getAmount());
-				} else {
-					result.add(i.getType().toString());
+			if (item.getDurability() != 0) 
+			{
+				result.add(item.getType().toString() + ":" + item.getDurability() + ":"+item.getAmount());
+			} else 
+			{
+				if (item.getAmount() != 0) 
+				{
+					result.add(item.getType().toString() + ":"+item.getAmount());
+				} else 
+				{
+					result.add(item.getType().toString());
 				}
 			}
 		}

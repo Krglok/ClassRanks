@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClassDiagram>
+    <Class name="net.slipcor.classranks.commands.RankupCommand" x="671" y="1064">
+        <AttributesDisplayFilter public-accepted="true"
+            private-accepted="true" protected-accepted="true"
+            default-accepted="true" static-accepted="false"/>
+        <MethodDisplayFilter public-accepted="true"
+            private-accepted="false" protected-accepted="false"
+            default-accepted="false" static-accepted="false"
+            accessors-accepted="false" constructors-accepted="false"/>
+        <Association
+            destinationClassName="net.slipcor.classranks.commands.PlayerCommands"
+            endpointName="cmdMgr" kind="Simple"/>
+        <Association
+            destinationClassName="net.slipcor.classranks.ClassRanks"
+            endpointName="plugin" kind="Simple"/>
+        <Communication destinationClassName="net.slipcor.classranks.ClassRanks"/>
+        <Communication destinationClassName="net.slipcor.classranks.commands.PlayerCommands"/>
+    </Class>
+    <Class name="net.slipcor.classranks.commands.RankdownCommand"
+        x="1058" y="897">
+        <AttributesDisplayFilter public-accepted="true"
+            private-accepted="true" protected-accepted="true"
+            default-accepted="true" static-accepted="false"/>
+        <MethodDisplayFilter public-accepted="true"
+            private-accepted="false" protected-accepted="false"
+            default-accepted="false" static-accepted="false"
+            accessors-accepted="false" constructors-accepted="false"/>
+        <Association
+            destinationClassName="net.slipcor.classranks.commands.PlayerCommands"
+            endpointName="cmdMgr" kind="Simple"/>
+        <Association
+            destinationClassName="net.slipcor.classranks.ClassRanks"
+            endpointName="plugin" kind="Simple"/>
+        <Communication destinationClassName="net.slipcor.classranks.ClassRanks"/>
+        <Communication destinationClassName="net.slipcor.classranks.commands.PlayerCommands"/>
+    </Class>
+    <Class name="net.slipcor.classranks.managers.ConfigManager" x="1192" y="-7">
+        <AttributesDisplayFilter public-accepted="true"
+            private-accepted="true" protected-accepted="true"
+            default-accepted="true" static-accepted="false"/>
+        <MethodDisplayFilter public-accepted="true"
+            private-accepted="false" protected-accepted="false"
+            default-accepted="false" static-accepted="false"
+            accessors-accepted="false" constructors-accepted="false"/>
+        <Association
+            destinationClassName="net.slipcor.classranks.ClassRanks"
+            endpointName="plugin" kind="Simple"/>
+        <Communication destinationClassName="net.slipcor.classranks.core.Rank"/>
+        <Communication destinationClassName="net.slipcor.classranks.ClassRanks"/>
+        <Communication destinationClassName="net.slipcor.classranks.managers.ClassManager"/>
+    </Class>
+    <Class name="net.slipcor.classranks.managers.PlayerClassManager"
+        x="427" y="410">
+        <AttributesDisplayFilter public-accepted="true"
+            private-accepted="true" protected-accepted="true"
+            default-accepted="true" static-accepted="false"/>
+        <MethodDisplayFilter public-accepted="true"
+            private-accepted="false" protected-accepted="false"
+            default-accepted="false" static-accepted="false"
+            accessors-accepted="false" constructors-accepted="false"/>
+        <Association
+            destinationClassName="net.slipcor.classranks.core.PlayerClazzList"
+            endpointName="playerClassList" kind="Simple"/>
+        <Communication destinationClassName="net.slipcor.classranks.core.PlayerClazzList"/>
+    </Class>
+    <Class name="net.slipcor.classranks.core.Rank" x="229" y="106">
+        <AttributesDisplayFilter public-accepted="true"
+            private-accepted="true" protected-accepted="true"
+            default-accepted="true" static-accepted="false"/>
+        <MethodDisplayFilter public-accepted="true"
+            private-accepted="false" protected-accepted="false"
+            default-accepted="false" static-accepted="false"
+            accessors-accepted="false" constructors-accepted="false"/>
+        <Association
+            destinationClassName="net.slipcor.classranks.core.Clazz"
+            endpointName="crcSuper" kind="Simple"/>
+    </Class>
+    <Class name="net.slipcor.classranks.ClassRanks" x="1148" y="502">
+        <AttributesDisplayFilter public-accepted="true"
+            private-accepted="true" protected-accepted="true"
+            default-accepted="true" static-accepted="false"/>
+        <MethodDisplayFilter public-accepted="true"
+            private-accepted="false" protected-accepted="false"
+            default-accepted="false" static-accepted="false"
+            accessors-accepted="false" constructors-accepted="false"/>
+        <Association
+            destinationClassName="net.slipcor.classranks.managers.PlayerManager"
+            endpointName="pm" kind="Simple"/>
+        <Association
+            destinationClassName="net.slipcor.classranks.managers.ConfigManager"
+            endpointName="config" kind="Simple"/>
+        <Association
+            destinationClassName="net.slipcor.classranks.commands.PlayerCommands"
+            endpointName="cmdMgr" kind="Simple"/>
+        <Communication destinationClassName="net.slipcor.classranks.managers.ConfigManager"/>
+    </Class>
+    <Class name="net.slipcor.classranks.commands.ClassAdminCommand"
+        x="1412" y="1023">
+        <AttributesDisplayFilter public-accepted="true"
+            private-accepted="true" protected-accepted="true"
+            default-accepted="true" static-accepted="false"/>
+        <MethodDisplayFilter public-accepted="true"
+            private-accepted="false" protected-accepted="false"
+            default-accepted="false" static-accepted="false"
+            accessors-accepted="false" constructors-accepted="false"/>
+        <Association
+            destinationClassName="net.slipcor.classranks.ClassRanks"
+            endpointName="plugin" kind="Simple"/>
+        <Communication destinationClassName="net.slipcor.classranks.managers.ConfigManager"/>
+        <Communication destinationClassName="net.slipcor.classranks.core.Rank"/>
+        <Communication destinationClassName="net.slipcor.classranks.ClassRanks"/>
+        <Communication destinationClassName="net.slipcor.classranks.managers.ClassManager"/>
+    </Class>
+    <Class name="net.slipcor.classranks.managers.ClassManager" x="511" y="58">
+        <AttributesDisplayFilter public-accepted="true"
+            private-accepted="true" protected-accepted="true"
+            default-accepted="true" static-accepted="false"/>
+        <MethodDisplayFilter public-accepted="true"
+            private-accepted="false" protected-accepted="false"
+            default-accepted="false" static-accepted="false"
+            accessors-accepted="false" constructors-accepted="false"/>
+        <Association
+            destinationClassName="net.slipcor.classranks.ClassRanks"
+            endpointName="plugin" kind="Simple"/>
+        <Association
+            destinationClassName="net.slipcor.classranks.core.Clazz"
+            endpointName="clazzes" kind="Simple"/>
+        <Communication destinationClassName="net.slipcor.classranks.managers.ConfigManager"/>
+        <Communication destinationClassName="net.slipcor.classranks.core.Rank"/>
+        <Communication destinationClassName="net.slipcor.classranks.ClassRanks"/>
+        <Communication destinationClassName="net.slipcor.classranks.core.Clazz"/>
+    </Class>
+    <Class name="net.slipcor.classranks.core.Clazz" x="65" y="51">
+        <AttributesDisplayFilter public-accepted="true"
+            private-accepted="true" protected-accepted="true"
+            default-accepted="true" static-accepted="false"/>
+        <MethodDisplayFilter public-accepted="true"
+            private-accepted="false" protected-accepted="false"
+            default-accepted="false" static-accepted="false"
+            accessors-accepted="false" constructors-accepted="false"/>
+        <Association
+            destinationClassName="net.slipcor.classranks.core.Rank"
+            endpointName="ranks" kind="Simple"/>
+    </Class>
+    <Class name="net.slipcor.classranks.commands.PlayerCommands" x="617" y="716">
+        <AttributesDisplayFilter public-accepted="true"
+            private-accepted="true" protected-accepted="true"
+            default-accepted="true" static-accepted="false"/>
+        <MethodDisplayFilter public-accepted="true"
+            private-accepted="false" protected-accepted="false"
+            default-accepted="false" static-accepted="false"
+            accessors-accepted="false" constructors-accepted="false"/>
+        <Association
+            destinationClassName="net.slipcor.classranks.managers.PlayerManager"
+            endpointName="pm" kind="Simple"/>
+        <Association
+            destinationClassName="net.slipcor.classranks.ClassRanks"
+            endpointName="plugin" kind="Simple"/>
+        <Communication destinationClassName="net.slipcor.classranks.managers.ConfigManager"/>
+        <Communication destinationClassName="net.slipcor.classranks.core.Rank"/>
+        <Communication destinationClassName="net.slipcor.classranks.ClassRanks"/>
+        <Communication destinationClassName="net.slipcor.classranks.managers.ClassManager"/>
+        <Communication destinationClassName="net.slipcor.classranks.managers.PlayerManager"/>
+    </Class>
+    <Class name="net.slipcor.classranks.managers.PlayerManager" x="623" y="508">
+        <AttributesDisplayFilter public-accepted="true"
+            private-accepted="true" protected-accepted="true"
+            default-accepted="true" static-accepted="false"/>
+        <MethodDisplayFilter public-accepted="true"
+            private-accepted="false" protected-accepted="false"
+            default-accepted="false" static-accepted="false"
+            accessors-accepted="false" constructors-accepted="false"/>
+        <Association
+            destinationClassName="net.slipcor.classranks.ClassRanks"
+            endpointName="plugin" kind="Simple"/>
+        <Communication destinationClassName="net.slipcor.classranks.managers.ConfigManager"/>
+        <Communication destinationClassName="net.slipcor.classranks.ClassRanks"/>
+    </Class>
+    <Class name="net.slipcor.classranks.core.PlayerClazzList" x="100" y="473">
+        <AttributesDisplayFilter public-accepted="true"
+            private-accepted="true" protected-accepted="true"
+            default-accepted="true" static-accepted="false"/>
+        <MethodDisplayFilter public-accepted="true"
+            private-accepted="false" protected-accepted="false"
+            default-accepted="false" static-accepted="false"
+            accessors-accepted="false" constructors-accepted="false"/>
+    </Class>
+    <Class name="net.slipcor.classranks.commands.ClassCommand" x="110" y="624">
+        <AttributesDisplayFilter public-accepted="true"
+            private-accepted="true" protected-accepted="true"
+            default-accepted="true" static-accepted="false"/>
+        <MethodDisplayFilter public-accepted="true"
+            private-accepted="false" protected-accepted="false"
+            default-accepted="false" static-accepted="false"
+            accessors-accepted="false" constructors-accepted="false"/>
+        <Association
+            destinationClassName="net.slipcor.classranks.commands.PlayerCommands"
+            endpointName="cmdMgr" kind="Simple"/>
+        <Association
+            destinationClassName="net.slipcor.classranks.ClassRanks"
+            endpointName="plugin" kind="Simple"/>
+        <Communication destinationClassName="net.slipcor.classranks.ClassRanks"/>
+        <Communication destinationClassName="net.slipcor.classranks.commands.PlayerCommands"/>
+    </Class>
+    <Class name="net.slipcor.classranks.core.PlayerClazzRank" x="87" y="377">
+        <AttributesDisplayFilter public-accepted="true"
+            private-accepted="true" protected-accepted="true"
+            default-accepted="true" static-accepted="false"/>
+        <MethodDisplayFilter public-accepted="true"
+            private-accepted="false" protected-accepted="false"
+            default-accepted="false" static-accepted="false"
+            accessors-accepted="false" constructors-accepted="false"/>
+    </Class>
+</ClassDiagram>

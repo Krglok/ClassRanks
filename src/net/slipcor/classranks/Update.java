@@ -15,8 +15,6 @@ import org.w3c.dom.NodeList;
 /**
  * update manager class
  * 
- * -
- * 
  * provides access to update check and methods
  * 
  * @author slipcor
@@ -38,10 +36,12 @@ public class Update {
 	/**
 	 * check for updates, update variables
 	 */
-	public static void updateCheck(Plugin instance) {
+	public static void updateCheck(Plugin instance) 
+	{
 		plugin = instance;
 		String pluginUrlString = "http://dev.bukkit.org/server-mods/classranks/files.rss";
-		try {
+		try 
+		{
 			URL url = new URL(pluginUrlString);
 			Document doc = DocumentBuilderFactory.newInstance()
 					.newDocumentBuilder()
@@ -71,7 +71,9 @@ public class Update {
 				calculateVersions();
 				return;
 			}
-		} catch (Exception localException) {
+		} catch (Exception localException) 
+		{
+			Bukkit.getLogger().info("Exception [ClassRanks] Update Check!");
 		}
 	}
 
