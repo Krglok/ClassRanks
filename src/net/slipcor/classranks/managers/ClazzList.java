@@ -34,9 +34,9 @@ public class ClazzList
 
 	// private static DebugManager db;
 
-	public ClazzList(ClassRanks cr)
+	public ClazzList(ClassRanks plugin)
 	{
-		this.plugin = cr;
+		this.plugin = plugin;
 		// db = new DebugManager(cr);
 	}
 
@@ -285,7 +285,7 @@ public class ClazzList
 		return false;
 	}
 
-	public  HashMap<String,Clazz> getClasses()
+	public  HashMap<String,Clazz> getClazzes()
 	{
 		return clazzes;
 	}

@@ -32,8 +32,8 @@ public abstract class AbstractClassCommand implements CommandExecutor
 //	protected final PlayerCommands cmdMgr;
 	protected final DebugManager db;
 
-	protected double[] moneyCost = new double[ClazzList.getClasses().size()]; // Costs
-	protected int[] expCost = new int[ClazzList.getClasses().size()]; // EXP
+	protected ArrayList<Double> moneyCost = new ArrayList<Double>(); // Costs
+	protected ArrayList<Integer> expCost = new ArrayList<Integer>(); // EXP
 	
 	protected Double checkedCost;		// checked cost for rank up / add
 	protected int  checkedExp;		// checked Exp Cost for rank up / add
@@ -95,7 +95,7 @@ public abstract class AbstractClassCommand implements CommandExecutor
 		
 		// ADD
 		plugin.db.i("Get TempRank");
-		Rank tempRank = ClazzList.getRankByPermName( ClazzList.getFirstPermNameByClassName(className));
+		Rank tempRank = plugin.clazzList().getRankByPermName( plugin.clazzList().getFirstPermNameByClassName(className));
 		
 		//  ClassRank does not exist
 		if (tempRank == null) 
@@ -105,7 +105,7 @@ public abstract class AbstractClassCommand implements CommandExecutor
 		}
 
 
-		int rID = ClazzList.getRankIndex(tempRank, tempRank.getSuperClass());	//  Index des Rank
+		int rID = plugin.clazzList().getRankIndex(tempRank, tempRank.getSuperClass());	//  Index des Rank
 		// Track Rank 
 //		if (plugin.trackRanks) 
 //		{
@@ -294,12 +294,12 @@ public abstract class AbstractClassCommand implements CommandExecutor
 
 	protected String getClassName(String className)
 	{
-		for (Clazz oClass : ClazzList.getClasses()) 
+		for (Clazz oClass : plugin.clazzList().getClazzes().values()) 
 		{
 		    //  check  Classname
-		    if (className.equalsIgnoreCase(oClass.name))
+		    if (className.equalsIgnoreCase(oClass.clazzName))
 		    {
-		    	return oClass.name;
+		    	return oClass.clazzName;
 		    }
 		}
 		return "";
@@ -314,18 +314,17 @@ public abstract class AbstractClassCommand implements CommandExecutor
 	 */
 	protected Rank hasRank(String className, Player player, String world)
 	{
-		ArrayList<Clazz> classes = ClazzList.getClasses();
 		String sPermName = "";
 		Rank isRank = null;
-		for (Clazz oClass : classes) 
+		for (Clazz oClass : plugin.clazzList().getClazzes().values()) 
 		{
 		    //  check  Classname
-		    if (className.equalsIgnoreCase(oClass.name))
+		    if (className.equalsIgnoreCase(oClass.clazzName))
 		    {
-		    	plugin.db.i("Found : " + oClass.name);
+		    	plugin.db.i("Found : " + oClass.clazzName);
 //		    	ArrayList<Rank> ranks = oClass.ranks;
 		    	// check for each  Rank the permName in permissionsgroups
-				for (Rank rank : oClass.ranks) 
+				for (Rank rank : oClass.ranks.values()) 
 				{
 				    sPermName = rank.getPermName();
 			    	plugin.db.i("Search Perm : " + sPermName);
@@ -337,7 +336,6 @@ public abstract class AbstractClassCommand implements CommandExecutor
 				    	return rank;
 				    }
 				}
-
 		    }
 		}
 		return isRank;
@@ -346,15 +344,14 @@ public abstract class AbstractClassCommand implements CommandExecutor
 
 	protected void removeRanks(String className, Player player, String world)
 	{
-		ArrayList<Clazz> classes = ClazzList.getClasses();
 		String sPermName = "";
-		for (Clazz oClass : classes) 
+		for (Clazz oClass : plugin.clazzList().getClazzes().values()) 
 		{
 		    //  check  Classname
-		    if (className.equalsIgnoreCase(oClass.name))
+		    if (className.equalsIgnoreCase(oClass.clazzName))
 		    {
-		    	plugin.db.i("Found : " + oClass.name);
-				for (Rank rank : oClass.ranks) 
+		    	plugin.db.i("Found : " + oClass.clazzName);
+				for (Rank rank : oClass.ranks.values()) 
 				{
 				    sPermName = rank.getPermName();
 			    	plugin.db.i("Search Perm : " + sPermName);
@@ -405,18 +402,17 @@ public abstract class AbstractClassCommand implements CommandExecutor
 	 */
 	protected boolean hasClass(String className, Player player, String world)
 	{
-		ArrayList<Clazz> classes = ClazzList.getClasses();
 		String sPermName = "";
 		boolean isClass = false;
     	plugin.db.i("SearchClass : " + className);
-		for (Clazz oClass : classes) 
+		for (Clazz oClass : plugin.clazzList().getClazzes().values()) 
 		{
 		    //  pruefe ob KLassenname identisch 
-		    if (className.equalsIgnoreCase(oClass.name))
+		    if (className.equalsIgnoreCase(oClass.clazzName))
 		    {
-		    	plugin.db.i("Found : " + oClass.name);
+		    	plugin.db.i("Found : " + oClass.clazzName);
 //				ArrayList<Rank> ranks = oClass.getRanks();
-				for (Rank rank : oClass.ranks) 
+				for (Rank rank : oClass.ranks.values()) 
 				{
 				    sPermName = rank.getPermName();
 			    	plugin.db.i("Search Perm : " + sPermName);
@@ -438,16 +434,15 @@ public abstract class AbstractClassCommand implements CommandExecutor
 	
 	/**
 	 * Durchsucht die ClassList nach dem ClassNamen
-	 * @param ClassRank
+	 * @param className
 	 * @return
 	 */
 	protected boolean existClass( String className)
 	{
-		ArrayList<Clazz> classes = ClazzList.getClasses();
-		for (Clazz oClass : classes) 
+		for (Clazz oClass : plugin.clazzList().getClazzes().values()) 
 		{
 		    //  pruefe ob KLassenname identisch 
-		    if (className.equalsIgnoreCase(oClass.name))
+		    if (className.equalsIgnoreCase(oClass.clazzName))
 		    {
 		    	return true;
 		    }
@@ -694,7 +689,7 @@ public abstract class AbstractClassCommand implements CommandExecutor
 		ChatColor c_Color = rank.getColor();   // actual Rank color
 		Clazz oClass = rank.getSuperClass();   // actual Rank class
 
-		int rID = ClazzList.getRankIndex(rank, oClass );	//  Index des Rank
+		int rID = plugin.clazzList().getRankIndex(rank, oClass );	//  Index des Rank
 		int iMaxRank = oClass.ranks.size() - 1; // Classes max tree rank
 		plugin.db.i("rank " + rID + " of " + iMaxRank);
 		// placeholder: cost
@@ -708,7 +703,7 @@ public abstract class AbstractClassCommand implements CommandExecutor
 				return true;
 			}
 			
-			Rank tempRank =  ClazzList.getNextRank(rank, rID);  // New Rank
+			Rank tempRank =  plugin.clazzList().getNextRank(rank, rID);  // New Rank
 
 			// Check for money to rank up
 			// rankCosts stored in checkedCost
@@ -866,7 +861,7 @@ public abstract class AbstractClassCommand implements CommandExecutor
 
 		Clazz oClass = rank.getSuperClass();   // actual Rank class
 
-		int rID = ClazzList.getRankIndex(rank, oClass );	//  Index des Rank
+		int rID = plugin.clazzList().getRankIndex(rank, oClass );	//  Index des Rank
 		int iMaxRank = oClass.ranks.size() - 1; // Classes max tree rank
 		plugin.db.i("rank " + rID + " of " + iMaxRank);
 
@@ -885,7 +880,7 @@ public abstract class AbstractClassCommand implements CommandExecutor
 				plugin.perms.rankRemove(player, rank.getPermName()); // do it!
 			}
 
-			Rank tempRank = ClazzList.getPrevRank(rank, rID);
+			Rank tempRank = plugin.clazzList().getPrevRank(rank, rID);
 			plugin.perms.rankAdd(player, tempRank.getPermName());
 			plugin.config.playerSectionWrite(player, className, tempRank.getPermName());
 			plugin.db.i("Rank Down to" + tempRank.getDispName());

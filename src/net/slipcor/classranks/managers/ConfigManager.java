@@ -409,7 +409,7 @@ public class ConfigManager {
 			if (items == null) 
 			{
 				plugin.db.i("items invalid, setting to null");
-				itemStacks = new ItemStack[ClazzList.getClasses().size()][1];
+				itemStacks = new ItemStack[plugin.clazzList().getClazzes().size()][1];
 			} else 
 			{
 				// for each items => ItemStack[][1,2,3]
@@ -509,11 +509,11 @@ public class ConfigManager {
 				if (newClass) 
 				{
 					// create class
-					ClazzList.configClassAdd(sClassName, sRankName,rankName, rankColor, rankItems, rankCost, rankExp,null);
+					plugin.clazzList().configClassAdd(sClassName, sRankName,rankName, rankColor, rankItems, rankCost, rankExp,null);
 					newClass = false;
 				} else 
 				{
-					ClazzList.configRankAdd(sClassName, sRankName, rankName,rankColor, rankItems, rankCost, rankExp, null);
+					plugin.clazzList().configRankAdd(sClassName, sRankName, rankName,rankColor, rankItems, rankCost, rankExp, null);
 				}
 			}
 		}
@@ -604,39 +604,39 @@ public class ConfigManager {
 	public void save_config() 
 	{
 		plugin.db.i("saving config...");
-		for (Clazz cClass : ClazzList.getClasses()) 
+		for (Clazz cClass : plugin.clazzList().getClazzes().values()) 
 		{
-			plugin.db.i(" - " + cClass.name);
-			for (Rank rRank : cClass.ranks) {
+			plugin.db.i(" - " + cClass.clazzName);
+			for (Rank rRank : cClass.ranks.values()) {
 
 				rRank.debugPrint();
 
 				plugin.getConfig().set(
-						"classes." + cClass.name + "." + rRank.getPermName()
+						"classes." + cClass.clazzName + "." + rRank.getPermName()
 								+ ".name", String.valueOf(rRank.getDispName()));
 				plugin.getConfig().set(
-						"classes." + cClass.name + "." + rRank.getPermName()
+						"classes." + cClass.clazzName + "." + rRank.getPermName()
 								+ ".color",
 						String.valueOf("&"
 								+ Integer.toHexString(rRank.getColor()
 										.ordinal())));
 				plugin.getConfig().set(
-						"classes." + cClass.name + "." + rRank.getPermName()
+						"classes." + cClass.clazzName + "." + rRank.getPermName()
 								+ ".price", String.valueOf(rRank.getCost()));
 
 				if (rRank.getExp() > -1)
 					plugin.getConfig().set(
-							"classes." + cClass.name + "."
+							"classes." + cClass.clazzName + "."
 									+ rRank.getPermName() + ".exp",
 							String.valueOf(rRank.getExp()));
 				if (rRank.getItems() != null)
 					plugin.getConfig().set(
-							"classes." + cClass.name + "."
+							"classes." + cClass.clazzName + "."
 									+ rRank.getPermName() + ".items",
 							rRank.getItems());
 				if (rRank.getCost() != -1337D)
 					plugin.getConfig().set(
-							"classes." + cClass.name + "."
+							"classes." + cClass.clazzName + "."
 									+ rRank.getPermName() + ".price",
 							String.valueOf(rRank.getCost()));
 			}

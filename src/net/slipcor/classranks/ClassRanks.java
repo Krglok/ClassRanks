@@ -50,6 +50,7 @@ public class ClassRanks extends JavaPlugin
 	public final PlayerCommands cmdMgr = new PlayerCommands(this);
 	private final CRServerListener serverListener = new CRServerListener(this,cmdMgr);
 //	private final FormatManager fm = new FormatManager();
+	private ClazzList clazzList = new ClazzList(this); 
 	
 	public boolean trackRanks = false;
 
@@ -58,7 +59,7 @@ public class ClassRanks extends JavaPlugin
     public static Permission permission = null;
 	public HandleVaultPerms perms; // Permissions access
 	
-	private Map<String, Object> classes;
+//	private Map<String, Object> classes;
 
 	@Override
 	public void onEnable() {
@@ -188,6 +189,11 @@ public class ClassRanks extends JavaPlugin
 		return pm;
 	}
 
+	public  ClazzList clazzList()
+	{
+		return clazzList;
+	}
+	
 
 	/**
 	 * send a message to a player
