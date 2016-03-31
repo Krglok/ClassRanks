@@ -1,11 +1,8 @@
 package net.slipcor.classranks.commands;
 
-import java.util.ArrayList;
-
 import net.slipcor.classranks.ClassRanks;
 import net.slipcor.classranks.core.Clazz;
 import net.slipcor.classranks.core.Rank;
-import net.slipcor.classranks.managers.ClazzList;
 import net.slipcor.classranks.managers.DebugManager;
 import net.slipcor.classranks.managers.FormatManager;
 
@@ -78,20 +75,17 @@ public class ClassAdminCommand implements CommandExecutor
 	private void cmdList (Player pPlayer, String[] args) 
 	{
 	
-		ArrayList<Clazz> classes = ClazzList.getClasses();
+			
+		plugin.msg(pPlayer, "[ClassRanks] "+ChatColor.YELLOW+"Class List");
+		plugin.msg(pPlayer, ChatColor.YELLOW+"--------------------");
+		
+		for (Clazz clazz : plugin.clazzList().getClazzes().values()) 
 		{
-			
-			plugin.msg(pPlayer, "[ClassRanks] "+ChatColor.YELLOW+"Class List");
-			plugin.msg(pPlayer, ChatColor.YELLOW+"--------------------");
-			
-			for (Clazz c : classes) 
+			if (clazz.clazzName.startsWith("%") && !pPlayer.isOp()) 
 			{
-				if (c.name.startsWith("%") && !pPlayer.isOp()) 
-				{
-					continue;
-				}
-				plugin.msg(pPlayer, "Class "+ ChatColor.GREEN + c.name);
+				continue;
 			}
+			plugin.msg(pPlayer, "Class "+ ChatColor.GREEN + clazz.clazzName);
 		}
 		
 	}
@@ -105,16 +99,15 @@ public class ClassAdminCommand implements CommandExecutor
 	private void cmdListClass (Player pPlayer, String[] args) 
 	{
 	
-		ArrayList<Clazz> classes = ClazzList.getClasses();
 		if (args.length > 1) 
 		{
-			for (Clazz c : classes) 
+			for (Clazz clazz : plugin.clazzList().getClazzes().values()) 
 			{
-				if (c.name.equalsIgnoreCase(args[1]) ) 
+				if (clazz.clazzName.equalsIgnoreCase(args[1]) ) 
 				{
-					plugin.msg(pPlayer, "[ClassRanks] "+ChatColor.YELLOW+"Class "+ ChatColor.GREEN + c.name);
+					plugin.msg(pPlayer, "[ClassRanks] "+ChatColor.YELLOW+"Class "+ ChatColor.GREEN + clazz.clazzName);
 					plugin.msg(pPlayer, ChatColor.YELLOW+"--------------------");
-					for (Rank r : c.ranks) 
+					for (Rank r : clazz.ranks.values()) 
 					{
 						plugin.msg(pPlayer, "=> "+r.getPermName()+" : " + r.getColor() + r.getDispName());
 					}
@@ -128,16 +121,15 @@ public class ClassAdminCommand implements CommandExecutor
 	private void cmdListClassRank (Player pPlayer, String[] args) 
 	{
 	
-		ArrayList<Clazz> classes = ClazzList.getClasses();
 		if (args.length > 1) 
 		{
-			for (Clazz c : classes) 
+			for (Clazz clazz : plugin.clazzList().getClazzes().values()) 
 			{
-				if (c.name.equalsIgnoreCase(args[1]) ) 
+				if (clazz.clazzName.equalsIgnoreCase(args[1]) ) 
 				{
-					plugin.msg(pPlayer, "[ClassRanks] "+ChatColor.YELLOW+"Class "+ ChatColor.GREEN + c.name);
+					plugin.msg(pPlayer, "[ClassRanks] "+ChatColor.YELLOW+"Class "+ ChatColor.GREEN + clazz.clazzName);
 					plugin.msg(pPlayer, ChatColor.YELLOW+"--------------------");
-					for (Rank r : c.ranks) 
+					for (Rank r : clazz.ranks.values()) 
 					{
 						if (r.getPermName().equalsIgnoreCase(args[2]))
 						{
@@ -333,7 +325,7 @@ public class ClassAdminCommand implements CommandExecutor
 									+ String.valueOf(args.length) + ")!");
 					return false;
 				}
-				return ClazzList.configClassRemove(args[2], pPlayer);
+				return plugin.clazzList().configClassRemove(args[2], pPlayer);
 			} else if (args[1].equalsIgnoreCase("rank")) {
 				if (args.length != 4) {
 					plugin.msg(
@@ -342,7 +334,7 @@ public class ClassAdminCommand implements CommandExecutor
 									+ String.valueOf(args.length) + ")!");
 					return false;
 				}
-				return ClazzList.configRankRemove(args[2], args[3], pPlayer);
+				return plugin.clazzList().configRankRemove(args[2], args[3], pPlayer);
 			}
 			// second argument unknown
 			return false;
@@ -394,7 +386,7 @@ public class ClassAdminCommand implements CommandExecutor
 				}
 			if (args[1].equalsIgnoreCase("class")) 
 			{// , ItemStack[] isItems, double dCost, int iExp
-				return ClazzList.configClassAdd(
+				return plugin.clazzList().configClassAdd(
 						args[2], 
 						args[3], 
 						args[4],
@@ -406,7 +398,7 @@ public class ClassAdminCommand implements CommandExecutor
 			}
 			if (args[1].equalsIgnoreCase("rank")) 
 			{
-				return ClazzList.configRankAdd(
+				return plugin.clazzList().configRankAdd(
 						args[2], 
 						args[3], 
 						args[4],
@@ -433,8 +425,7 @@ public class ClassAdminCommand implements CommandExecutor
 									+ String.valueOf(args.length) + ")!");
 					return false;
 				}
-				return ClazzList
-						.configClassChange(args[2], args[3], pPlayer);
+				return plugin.clazzList().configClassChange(args[2], args[3], pPlayer);
 			} else if (args[1].equalsIgnoreCase("rank")) {
 				if (args.length != 6) {
 					plugin.msg(
@@ -443,7 +434,7 @@ public class ClassAdminCommand implements CommandExecutor
 									+ String.valueOf(args.length) + ")!");
 					return false;
 				}
-				return ClazzList.configRankChange(args[2], args[3], args[4],
+				return plugin.clazzList().configRankChange(args[2], args[3], args[4],
 						args[5], pPlayer);
 			}
 			// second argument unknown

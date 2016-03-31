@@ -190,7 +190,7 @@ public class HandleVaultPerms extends CRHandler {
 	{
 		ClassRanks.log("ADD PermName " + rank + " or user " + player + " ", Level.INFO);
 //		player = PlayerManager.searchName(player); // auto-complete playername
-		String cString = ClazzList.getClassNameByPermName(rank);
+		String cString = plugin.clazzList().getClassNameByPermName(rank);
 		String world = null;
 		try 
 		{
@@ -271,13 +271,13 @@ public class HandleVaultPerms extends CRHandler {
 		for (String sRank : list) 
 		{
 			plugin.db.i("checking rank "+sRank);
-			if (ClazzList.rankExists(sRank)) 
+			if (plugin.clazzList().rankExists(sRank)) 
 			{
 				permGroups.add(sRank);
 			}
 		}
 		plugin.db.i("player has groups: " + permGroups.toString());
-		return ClazzList.getLastPermNameByPermGroups(permGroups);
+		return plugin.clazzList().getLastPermNameByPermGroups(permGroups);
 	}
 
 

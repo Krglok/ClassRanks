@@ -126,7 +126,7 @@ public class PlayerCommands extends AbstractClassCommand
 
 		if (plugin.trackRanks) 
 		{
-			ClazzList.saveClassProgress(player);
+			plugin.clazzList().saveClassProgress(player);
 		}
 		// suche plass in permissions
 		if (hasClass(className, player, world))
@@ -177,16 +177,15 @@ public class PlayerCommands extends AbstractClassCommand
 	private void cmdList (Player pPlayer, String[] args) 
 	{
 	
-		ArrayList<Clazz> classes = ClazzList.getClasses();
 		if (args.length > 1) 
 		{
-			for (Clazz c : classes) 
+			for (Clazz clazz : plugin.clazzList().getClazzes().values()) 
 			{
-				if (c.name.equalsIgnoreCase(args[1]) ) 
+				if (clazz.clazzName.equalsIgnoreCase(args[1]) ) 
 				{
-					plugin.msg(pPlayer, "[ClassRanks] "+ChatColor.YELLOW+"Clazz "+ ChatColor.GREEN + c.name);
+					plugin.msg(pPlayer, "[ClassRanks] "+ChatColor.YELLOW+"Clazz "+ ChatColor.GREEN + clazz.clazzName);
 					plugin.msg(pPlayer, ChatColor.YELLOW+"--------------------");
-					for (Rank r : c.ranks) 
+					for (Rank r : clazz.ranks.values()) 
 					{
 						plugin.msg(pPlayer, "=> " + r.getColor() + r.getDispName());
 					}
@@ -198,13 +197,13 @@ public class PlayerCommands extends AbstractClassCommand
 			plugin.msg(pPlayer, "[ClassRanks] "+ChatColor.YELLOW+"Clazz List");
 			plugin.msg(pPlayer, ChatColor.YELLOW+"--------------------");
 			
-			for (Clazz c : classes) 
+			for (Clazz clazz : plugin.clazzList().getClazzes().values()) 
 			{
-				if (c.name.startsWith("%") && !pPlayer.isOp()) 
+				if (clazz.clazzName.startsWith("%") && !pPlayer.isOp()) 
 				{
 					continue;
 				}
-				plugin.msg(pPlayer, "Clazz "+ ChatColor.GREEN + c.name);
+				plugin.msg(pPlayer, "Clazz "+ ChatColor.GREEN + clazz.clazzName);
 			}
 		}
 		
@@ -232,7 +231,7 @@ public class PlayerCommands extends AbstractClassCommand
 		}
 
 		plugin.msg(pPlayer, "Player " + FormatManager.formatPlayer(playerName)+ " Get in " + FormatManager.formatWorld(world) + "!");
-		Rank rank = ClazzList.getRankByPermName(plugin.perms.getPlayerGroups(pPlayer));
+		Rank rank = plugin.clazzList().getRankByPermName(plugin.perms.getPlayerGroups(pPlayer));
 
 		if (rank == null) 
 		{
@@ -245,7 +244,7 @@ public class PlayerCommands extends AbstractClassCommand
 			ChatColor c_Color = rank.getColor(); // Rank color
 
 			plugin.msg(pPlayer, "" + playerName
-					+ " is in " + c_Color + rank.getSuperClass().name + ChatColor.WHITE
+					+ " is in " + c_Color + rank.getSuperClass().clazzName + ChatColor.WHITE
 					+ " as " + c_Color + cDispName + ChatColor.WHITE
 					+ " in " + FormatManager.formatWorld(world) + "!");
 		}

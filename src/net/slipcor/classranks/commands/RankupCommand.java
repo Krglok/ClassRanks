@@ -160,10 +160,10 @@ public class RankupCommand extends AbstractClassCommand
 				return true;
 			} else
 			{
-				Rank rank = ClazzList.getRankByPermName(plugin.perms.getPlayerGroups(pPlayer));
+				Rank rank = plugin.clazzList().getRankByPermName(plugin.perms.getPlayerGroups(pPlayer));
 				if (rank != null)
 				{
-					className = ClazzList.getClassNameByPermName(rank.getPermName());
+					className = plugin.clazzList().getClassNameByPermName(rank.getPermName());
 					if (existClass(className))
 					{
 						rankUp(pPlayer, pPlayer, className, world);
