@@ -37,7 +37,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class PlayerManager 
 {
-	private final ClassRanks plugin;
+	private ClassRanks plugin;
 	
 	public PlayerManager(ClassRanks plugin) 
 	{

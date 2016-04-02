@@ -1,8 +1,8 @@
 package net.slipcor.classranks.commands;
 
 import net.slipcor.classranks.ClassRanks;
+import net.slipcor.classranks.core.ClazzList;
 import net.slipcor.classranks.core.Rank;
-import net.slipcor.classranks.managers.ClazzList;
 import net.slipcor.classranks.managers.DebugManager;
 import net.slipcor.classranks.managers.FormatManager;
 import net.slipcor.classranks.managers.PlayerManager;

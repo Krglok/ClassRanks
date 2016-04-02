@@ -6,8 +6,8 @@ import java.util.logging.Level;
 
 import net.slipcor.classranks.ClassRanks;
 import net.slipcor.classranks.core.Clazz;
+import net.slipcor.classranks.core.ClazzList;
 import net.slipcor.classranks.core.Rank;
-import net.slipcor.classranks.managers.ClazzList;
 import net.slipcor.classranks.managers.DebugManager;
 import net.slipcor.classranks.managers.FormatManager;
 import net.slipcor.classranks.managers.PlayerManager;
@@ -122,6 +122,7 @@ public class PlayerCommands extends AbstractClassCommand
 				world =  args[3];
 			}
 		}
+		@SuppressWarnings("deprecation")
 		Player player = plugin.getServer().getPlayer(playerName);
 
 		if (plugin.trackRanks) 
@@ -181,11 +182,11 @@ public class PlayerCommands extends AbstractClassCommand
 		{
 			for (Clazz clazz : plugin.clazzList().getClazzes().values()) 
 			{
-				if (clazz.clazzName.equalsIgnoreCase(args[1]) ) 
+				if (clazz.clazzName().equalsIgnoreCase(args[1]) ) 
 				{
-					plugin.msg(pPlayer, "[ClassRanks] "+ChatColor.YELLOW+"Clazz "+ ChatColor.GREEN + clazz.clazzName);
+					plugin.msg(pPlayer, "[ClassRanks] "+ChatColor.YELLOW+"Clazz "+ ChatColor.GREEN + clazz.clazzName());
 					plugin.msg(pPlayer, ChatColor.YELLOW+"--------------------");
-					for (Rank r : clazz.ranks.values()) 
+					for (Rank r : clazz.ranks().values()) 
 					{
 						plugin.msg(pPlayer, "=> " + r.getColor() + r.getDispName());
 					}
@@ -199,11 +200,11 @@ public class PlayerCommands extends AbstractClassCommand
 			
 			for (Clazz clazz : plugin.clazzList().getClazzes().values()) 
 			{
-				if (clazz.clazzName.startsWith("%") && !pPlayer.isOp()) 
+				if (clazz.clazzName().startsWith("%") && !pPlayer.isOp()) 
 				{
 					continue;
 				}
-				plugin.msg(pPlayer, "Clazz "+ ChatColor.GREEN + clazz.clazzName);
+				plugin.msg(pPlayer, "Clazz "+ ChatColor.GREEN + clazz.clazzName());
 			}
 		}
 		
@@ -244,7 +245,7 @@ public class PlayerCommands extends AbstractClassCommand
 			ChatColor c_Color = rank.getColor(); // Rank color
 
 			plugin.msg(pPlayer, "" + playerName
-					+ " is in " + c_Color + rank.getSuperClass().clazzName + ChatColor.WHITE
+					+ " is in " + c_Color + rank.getSuperClass().clazzName() + ChatColor.WHITE
 					+ " as " + c_Color + cDispName + ChatColor.WHITE
 					+ " in " + FormatManager.formatWorld(world) + "!");
 		}

@@ -5,8 +5,8 @@ import java.util.logging.Level;
 
 import net.slipcor.classranks.ClassRanks;
 import net.slipcor.classranks.core.Clazz;
+import net.slipcor.classranks.core.ClazzList;
 import net.slipcor.classranks.core.Rank;
-import net.slipcor.classranks.managers.ClazzList;
 import net.slipcor.classranks.managers.DebugManager;
 import net.slipcor.classranks.managers.FormatManager;
 import net.slipcor.classranks.register.payment.Method.MethodAccount;
@@ -297,9 +297,9 @@ public abstract class AbstractClassCommand implements CommandExecutor
 		for (Clazz oClass : plugin.clazzList().getClazzes().values()) 
 		{
 		    //  check  Classname
-		    if (className.equalsIgnoreCase(oClass.clazzName))
+		    if (className.equalsIgnoreCase(oClass.clazzName()))
 		    {
-		    	return oClass.clazzName;
+		    	return oClass.clazzName();
 		    }
 		}
 		return "";
@@ -319,12 +319,12 @@ public abstract class AbstractClassCommand implements CommandExecutor
 		for (Clazz oClass : plugin.clazzList().getClazzes().values()) 
 		{
 		    //  check  Classname
-		    if (className.equalsIgnoreCase(oClass.clazzName))
+		    if (className.equalsIgnoreCase(oClass.clazzName()))
 		    {
-		    	plugin.db.i("Found : " + oClass.clazzName);
+		    	plugin.db.i("Found : " + oClass.clazzName());
 //		    	ArrayList<Rank> ranks = oClass.ranks;
 		    	// check for each  Rank the permName in permissionsgroups
-				for (Rank rank : oClass.ranks.values()) 
+				for (Rank rank : oClass.ranks().values()) 
 				{
 				    sPermName = rank.getPermName();
 			    	plugin.db.i("Search Perm : " + sPermName);
@@ -348,10 +348,10 @@ public abstract class AbstractClassCommand implements CommandExecutor
 		for (Clazz oClass : plugin.clazzList().getClazzes().values()) 
 		{
 		    //  check  Classname
-		    if (className.equalsIgnoreCase(oClass.clazzName))
+		    if (className.equalsIgnoreCase(oClass.clazzName()))
 		    {
-		    	plugin.db.i("Found : " + oClass.clazzName);
-				for (Rank rank : oClass.ranks.values()) 
+		    	plugin.db.i("Found : " + oClass.clazzName());
+				for (Rank rank : oClass.ranks().values()) 
 				{
 				    sPermName = rank.getPermName();
 			    	plugin.db.i("Search Perm : " + sPermName);
@@ -408,11 +408,11 @@ public abstract class AbstractClassCommand implements CommandExecutor
 		for (Clazz oClass : plugin.clazzList().getClazzes().values()) 
 		{
 		    //  pruefe ob KLassenname identisch 
-		    if (className.equalsIgnoreCase(oClass.clazzName))
+		    if (className.equalsIgnoreCase(oClass.clazzName()))
 		    {
-		    	plugin.db.i("Found : " + oClass.clazzName);
+		    	plugin.db.i("Found : " + oClass.clazzName());
 //				ArrayList<Rank> ranks = oClass.getRanks();
-				for (Rank rank : oClass.ranks.values()) 
+				for (Rank rank : oClass.ranks().values()) 
 				{
 				    sPermName = rank.getPermName();
 			    	plugin.db.i("Search Perm : " + sPermName);
@@ -442,7 +442,7 @@ public abstract class AbstractClassCommand implements CommandExecutor
 		for (Clazz oClass : plugin.clazzList().getClazzes().values()) 
 		{
 		    //  pruefe ob KLassenname identisch 
-		    if (className.equalsIgnoreCase(oClass.clazzName))
+		    if (className.equalsIgnoreCase(oClass.clazzName()))
 		    {
 		    	return true;
 		    }
@@ -690,7 +690,7 @@ public abstract class AbstractClassCommand implements CommandExecutor
 		Clazz oClass = rank.getSuperClass();   // actual Rank class
 
 		int rID = plugin.clazzList().getRankIndex(rank, oClass );	//  Index des Rank
-		int iMaxRank = oClass.ranks.size() - 1; // Classes max tree rank
+		int iMaxRank = oClass.ranks().size() - 1; // Classes max tree rank
 		plugin.db.i("rank " + rID + " of " + iMaxRank);
 		// placeholder: cost
 //		double rank_cost = 0;
@@ -862,7 +862,7 @@ public abstract class AbstractClassCommand implements CommandExecutor
 		Clazz oClass = rank.getSuperClass();   // actual Rank class
 
 		int rID = plugin.clazzList().getRankIndex(rank, oClass );	//  Index des Rank
-		int iMaxRank = oClass.ranks.size() - 1; // Classes max tree rank
+		int iMaxRank = oClass.ranks().size() - 1; // Classes max tree rank
 		plugin.db.i("rank " + rID + " of " + iMaxRank);
 
 			if (rID < 1) 

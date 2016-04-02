@@ -20,10 +20,10 @@ import org.bukkit.inventory.ItemStack;
  */
 public class Rank 
 {
-	String sPermissionName;  // is also the rankName for references
-	String sDisplayName;
-	ChatColor cColor;
-	Clazz crcSuper;
+	private String sPermissionName;  // is also the rankName for references
+	private String sDisplayName;
+	private ChatColor cColor;
+	private Clazz crcSuper;
 
 	ItemStack[] items;
 	private Double cost;

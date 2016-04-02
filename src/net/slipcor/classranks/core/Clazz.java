@@ -29,8 +29,8 @@ import org.bukkit.inventory.ItemStack;
 
 public class Clazz
 {
-	public HashMap<Integer,Rank> ranks = new HashMap<Integer,Rank>();
-	public String clazzName;
+	private RankList rankList;
+	private String clazzName;
 
 	/**
 	 * create a class instance
@@ -41,18 +41,28 @@ public class Clazz
 	public Clazz(String sClassName)
 	{
 		this.clazzName = sClassName;
+		rankList = new RankList();
 	}
 
+	
+	public RankList ranks()
+	{
+		return rankList;
+	}
+
+	public String clazzName()
+	{
+		return clazzName;
+	}
+	
+	public void setClazzName(String sClassNewName)
+	{
+		clazzName = sClassNewName;
+	}
+	
 	public boolean containRank(String sPermName)
 	{
-		for (Rank rank : ranks.values())
-		{
-			if (rank.sPermissionName.equalsIgnoreCase(sPermName) == true)
-			{
-				return true;
-			}
-		}
-		return false;
+		return this.rankList.hasRank(sPermName);
 	}
 	
 	/**
@@ -65,15 +75,11 @@ public class Clazz
 	 * @param dCost       the rank cost (money)
 	 * @param iExp        the rank exp cost
 	 */
-	public void add(String sPermName, String sDispName, ChatColor cColor,
+	public void addRank(String sPermName, String sDispName, ChatColor cColor,
 			ItemStack[] isItems, double dCost, int iExp)
 	{
-		if (containRank(sPermName) == false)
-		{
-			int nextIndex = this.ranks.size()+1;
-			this.ranks.put(nextIndex,new Rank(sPermName, sDispName, cColor, this, isItems,
-				dCost, iExp));
-		}
+		Rank rank = new Rank(sPermName, sDispName, cColor, this, isItems,dCost, iExp);
+		this.rankList.addRank(rank);
 	}
 
 	/**
@@ -82,115 +88,24 @@ public class Clazz
 	 * 
 	 * @param sPermName  the rank name to remove
 	 */
-	public void remove(String sPermName)
+	public void removeRank(String sPermName)
 	{
 		if (containRank(sPermName))
 		{
-			HashMap<Integer,Rank> newRanks = new HashMap<Integer,Rank>();
-			for (Rank rank : ranks.values())
+			RankList newRanks = new RankList();
+			for (int index : this.rankList.keySet())
 			{
-				if (rank.sPermissionName.equalsIgnoreCase(sPermName) == false)
+				Rank rank = this.rankList.get(index);
+				if (rank.getPermName().equalsIgnoreCase(sPermName) == false)
 				{
-					int nextIndex = this.ranks.size()+1;
-					newRanks.put(nextIndex, rank);
+					newRanks.addRank(rank);
 				}
 			}
-			ranks = newRanks;
+			rankList = newRanks;
 		}
 	}
 	
-	/**
-	 * search for next rank in ranklist
-	 * 
-	 * @param sPermName
-	 * @return sPermissionName or null
-	 */
-	public String nextRankPerm(String sPermName)
-	{
-		int lastIndex = 0;
-		for (Integer key : this.ranks.keySet())
-		{
-			
-			if (key < lastIndex)
-			{
-				Rank rank = this.ranks.get(key+1);
-				return rank.sPermissionName;
-			}
-		}
-		return null;
-	}
 
 	
-	public Rank nextRank(String sPermName)
-	{
-		int lastIndex = 0;
-		for (Integer key : this.ranks.keySet())
-		{
-			
-			if (key < lastIndex)
-			{
-				Rank rank = this.ranks.get(key+1);
-				return rank;
-			}
-		}
-		return null;
-	}
 	
-	/**
-	 * search for prev rank in ranklist
-	 * 
-	 * @param sPermName
-	 * @return sPermissionName or null
-	 */
-	public String prevRankName(String sPermName)
-	{
-		for (Integer key : this.ranks.keySet())
-		{
-			Rank rank = this.ranks.get(key);
-			if (rank.sPermissionName.equalsIgnoreCase(sPermName))
-			{
-				if (key > 1)
-				{
-					rank = this.ranks.get(key-1);
-					return rank.sPermissionName;
-				}
-				return null;
-			}
-		}
-		return null;
-	}
-	
-	
-	public Rank prevRank(String sPermName)
-	{
-		for (Integer key : this.ranks.keySet())
-		{
-			Rank rank = this.ranks.get(key);
-			if (rank.sPermissionName.equalsIgnoreCase(sPermName))
-			{
-				if (key > 1)
-				{
-					rank = this.ranks.get(key-1);
-					return rank;
-				}
-				return null;
-			}
-		}
-		return null;
-	}
-
-	
-	public int getIndexOf(Rank rRank)
-	{
-		String sPermName = rRank.getPermName();
-		for (Integer key : this.ranks.keySet())
-		{
-			Rank rank = this.ranks.get(key);
-			if (rank.sPermissionName.equalsIgnoreCase(sPermName))
-			{
-				return key;
-			}
-		}
-		return 0;
-	}
 }

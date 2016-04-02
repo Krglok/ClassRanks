@@ -6,7 +6,7 @@ import java.util.logging.Level;
 
 import net.milkbowl.vault.permission.Permission;
 import net.slipcor.classranks.ClassRanks;
-import net.slipcor.classranks.managers.ClazzList;
+import net.slipcor.classranks.core.ClazzList;
 //import net.slipcor.classranks.managers.DebugManager;
 import net.slipcor.classranks.managers.PlayerManager;
 

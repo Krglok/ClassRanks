@@ -1,4 +1,4 @@
-package net.slipcor.classranks.managers;
+package net.slipcor.classranks.core;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,10 +6,8 @@ import java.util.logging.Level;
 
 import net.slipcor.classranks.ClassRanks;
 import net.slipcor.classranks.core.Clazz;
-import net.slipcor.classranks.core.Clazz;
-import net.slipcor.classranks.core.Rank;
+import net.slipcor.classranks.managers.FormatManager;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -17,9 +15,7 @@ import org.bukkit.inventory.ItemStack;
 /**
  * This class hold the list of defined Clazzes
  * 
- * - List  of Clazzes as Key / Value
- * - key = ClazzName
- * - value = Clazz
+ * - List of Clazzes as Key / Value - key = ClazzName - value = Clazz
  * 
  * 
  * @version v0.7.1
@@ -29,7 +25,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class ClazzList
 {
-	private HashMap<String,Clazz> clazzes = new HashMap<String,Clazz>();
+	private HashMap<String, Clazz> clazzes = new HashMap<String, Clazz>();
 	private ClassRanks plugin;
 
 	// private static DebugManager db;
@@ -45,15 +41,15 @@ public class ClazzList
 		int index = 0;
 		for (Clazz clazz : clazzes.values())
 		{
-			if (clazz.clazzName.equalsIgnoreCase(cClazz.clazzName))
+			if (clazz.clazzName().equalsIgnoreCase(cClazz.clazzName()))
 			{
-				return index; 
+				return index;
 			}
 			index++;
 		}
 		return 0;
 	}
-	
+
 	/**
 	 * search for ClazzName with ignoreCase
 	 * 
@@ -71,21 +67,26 @@ public class ClazzList
 		}
 		return false;
 	}
-	
+
 	/**
-	 * create new Clazz and add to the List of clazzes
-	 * check if clazzName are always available
-	 * the key is uppercase , ignoreCase in the list
+	 * create new Clazz and add to the List of clazzes check if clazzName are
+	 * always available the key is uppercase , ignoreCase in the list
 	 * 
 	 * @param sClassName
 	 */
-	public void add(String sClassName)
+	public Clazz add(String sClassName)
 	{
+		Clazz clazz;
 		if (this.containClazz(sClassName) == false)
 		{
 			String key = sClassName.toUpperCase();
-			clazzes.put(key,new Clazz(sClassName));
+			clazz = new Clazz(sClassName); 
+			clazzes.put(key, clazz);
+		} else
+		{
+			clazz = getClassbyClassName(sClassName);
 		}
+		return clazz;
 	}
 
 	public String getFirstPermNameByClassName(String sClassName)
@@ -95,28 +96,29 @@ public class ClazzList
 		{
 			String key = sClassName.toUpperCase();
 			Clazz clazz = this.clazzes.get(key);
-			if (clazz.ranks.size() > 0)
+			if (clazz.ranks().size() > 0)
 			{
-				return clazz.ranks.get(1).getPermName();
+				return clazz.ranks().get(1).getPermName();
 			}
 		}
 		return null;
 	}
 
-//	public static String getFirstPermNameByClassName(String cString, String sPlayer)
-//	{
-//		// extended version: get rank
-//		for (Clazz c : clazzes)
-//		{
-//			if (c.name.equals(cString))
-//			{
-//				return c.ranks
-//						.get(ClazzList.loadClassProcess(
-//								Bukkit.getPlayer(sPlayer), c)).getPermName();
-//			}
-//		}
-//		return null;
-//	}
+	// public static String getFirstPermNameByClassName(String cString, String
+	// sPlayer)
+	// {
+	// // extended version: get rank
+	// for (Clazz c : clazzes)
+	// {
+	// if (c.name.equals(cString))
+	// {
+	// return c.ranks
+	// .get(ClazzList.loadClassProcess(
+	// Bukkit.getPlayer(sPlayer), c)).getPermName();
+	// }
+	// }
+	// return null;
+	// }
 
 	/**
 	 * search for classname by Rank / sPermname
@@ -128,10 +130,12 @@ public class ClazzList
 	{
 		for (Clazz clazz : clazzes.values())
 		{
-			for (Rank r : clazz.ranks.values())
+			for (Rank r : clazz.ranks().values())
 			{
 				if (r.getPermName().equalsIgnoreCase(permName))
-					return clazz.clazzName;
+				{
+					return clazz.clazzName();
+				}
 			}
 		}
 		return null;
@@ -143,15 +147,14 @@ public class ClazzList
 	 * @param permGroups
 	 * @return permissionName or emptyString
 	 */
-	public String getLastPermNameByPermGroups(
-			ArrayList<String> permGroups)
+	public String getLastPermNameByPermGroups(ArrayList<String> permGroups)
 	{
 		String sPermName = "";
 		for (Clazz clazz : clazzes.values())
 		{
-			for (Rank rank : clazz.ranks.values())
+			for (Rank rank : clazz.ranks().values())
 			{
-				plugin.db.i(clazz.clazzName + " => " + rank.getPermName());
+				plugin.db.i(clazz.clazzName() + " => " + rank.getPermName());
 				if (permGroups.contains(rank.getPermName()))
 				{
 					sPermName = rank.getPermName();
@@ -161,9 +164,8 @@ public class ClazzList
 		return sPermName;
 	}
 
-
 	/**
-	 * search for Rank by permissionName 
+	 * search for Rank by permissionName
 	 * 
 	 * @param sPermName
 	 * @return Rank or null
@@ -172,7 +174,7 @@ public class ClazzList
 	{
 		for (Clazz clazz : clazzes.values())
 		{
-			for (Rank rank : clazz.ranks.values())
+			for (Rank rank : clazz.ranks().values())
 			{
 				if (rank.getPermName().equals(sPermName))
 				{
@@ -193,11 +195,12 @@ public class ClazzList
 	{
 		for (Clazz clazz : clazzes.values())
 		{
-			for (Rank rank : clazz.ranks.values())
+			for (Rank rank : clazz.ranks().values())
 			{
 				for (String permName : sPermName)
 				{
-					plugin.db.i("Rank: " + rank.getPermName() + " Group: "+ permName);
+					plugin.db.i("Rank: " + rank.getPermName() + " Group: "
+							+ permName);
 					if (rank.getPermName().equals(permName))
 					{
 						return rank;
@@ -212,69 +215,70 @@ public class ClazzList
 	{
 		for (Clazz clazz : this.clazzes.values())
 		{
-			if (clazz.clazzName.equalsIgnoreCase(rank.getSuperClass().clazzName))
+			if (clazz.clazzName()
+					.equalsIgnoreCase(rank.getSuperClass().clazzName()))
 			{
 				return clazz;
 			}
 		}
 		return null;
 	}
-	
+
 	public Rank getNextRank(Rank rank, int rankIndex)
 	{
 		Clazz clazz = getClazzByRank(rank);
 		if (clazz != null)
 		{
-			return clazz.nextRank(rank.getPermName());
+			return clazz.ranks().nextRank(rank.getPermName());
 		}
-		
-//		if (rankIndex + 1 < rank.getSuperClass().ranks.size())
-//		{
-//			return rank.getSuperClass().ranks.get(rankIndex + 1);
-//		} else
-//		{
-//			return null;
-//		}
+
+		// if (rankIndex + 1 < rank.getSuperClass().ranks.size())
+		// {
+		// return rank.getSuperClass().ranks.get(rankIndex + 1);
+		// } else
+		// {
+		// return null;
+		// }
 		return null;
 	}
 
-	public  Rank getPrevRank(Rank rank, int rankIndex)
+	public Rank getPrevRank(Rank rank, int rankIndex)
 	{
 		Clazz clazz = getClazzByRank(rank);
 		if (clazz != null)
 		{
-			return clazz.prevRank(rank.getPermName());
+			return clazz.ranks().prevRank(rank.getPermName());
 		}
-//		if (rankIndex > 0)
-//		{
-//			return rank.getSuperClass().ranks.get(rankIndex - 1);
-//		} else
-//		{
-//			return null;
-//		}
+		// if (rankIndex > 0)
+		// {
+		// return rank.getSuperClass().ranks.get(rankIndex - 1);
+		// } else
+		// {
+		// return null;
+		// }
 		return null;
 	}
 
-	private  Clazz getClassbyClassName(String sClassName)
+	private Clazz getClassbyClassName(String sClassName)
 	{
 		if (this.containClazz(sClassName))
 		{
 			sClassName = sClassName.toUpperCase();
 			return this.getClassbyClassName(sClassName);
 		}
-//		for (Clazz c : clazzes)
-//		{
-//			if (c.name.equals(sClassName))
-//				return c;
-//		}
+		// for (Clazz c : clazzes)
+		// {
+		// if (c.name.equals(sClassName))
+		// return c;
+		// }
 		return null;
 	}
 
-	public  boolean rankExists(String sRank)
+	public boolean rankExists(String sRank)
 	{
 		for (Clazz clazz : clazzes.values())
 		{
-			for (Rank r : clazz.ranks.values())
+			for (Rank r : clazz.ranks().values())
 			{
 				if (r.getPermName().equals(sRank))
 				{
@@ -285,12 +289,12 @@ public class ClazzList
 		return false;
 	}
 
-	public  HashMap<String,Clazz> getClazzes()
+	public HashMap<String, Clazz> getClazzes()
 	{
 		return clazzes;
 	}
 
-	public  boolean configClassRemove(String sClassName, Player pPlayer)
+	public boolean configClassRemove(String sClassName, Player pPlayer)
 	{
 		Clazz cClass = getClassbyClassName(sClassName);
 		if (cClass != null)
@@ -304,18 +308,18 @@ public class ClazzList
 		return true;
 	}
 
-	public  boolean configRankRemove(String sClassName, String sPermName,
+	public boolean configRankRemove(String sClassName, String sPermName,
 			Player pPlayer)
 	{
-		Clazz cClass = getClassbyClassName(sClassName);
-		if (cClass != null)
+		Clazz clazz = getClassbyClassName(sClassName);
+		if (clazz != null)
 		{
 			Rank rank = getRankByPermName(sPermName);
 			if (rank != null)
 			{
 				ChatColor cColor = rank.getColor();
-				cClass.ranks.remove(rank);
-				plugin.msg(pPlayer, "Rank removed: " + cColor + sPermName);
+				clazz.removeRank(rank.getPermName());
+				plugin.msg(pPlayer, "Rank removed: "+sClassName+":" + cColor + sPermName);
 				plugin.config.save_config();
 				return true;
 			}
@@ -326,60 +330,91 @@ public class ClazzList
 		return true;
 	}
 
-	public  boolean configClassAdd(String sClassName, String sPermName,
-			String sDispName, String sColor, ItemStack[] isItems, double dCost,
-			int iExp, Player pPlayer)
+	public boolean importClazz(String sClassName  	// clazz
+						, String sPermName		// rank
+						, String sDispName		// rank
+						, String sColor			// rank
+						, ItemStack[] rankItems	// rank
+						, double rankCost		// rank
+						, int rankExp			// rank
+						, Player pPlayer
+						)
 	{
-		Clazz cClass = getClassbyClassName(sClassName);
-		if (cClass == null)
+
+		Clazz clazz = getClassbyClassName(sClassName);
+
+		if (clazz == null)
 		{
-			Clazz clazz = new Clazz(sClassName);
-			clazz.add(sPermName, sDispName, (FormatManager.formatColor(sColor)),
-					isItems, dCost, iExp);
+			clazz = new Clazz(sClassName);
+			clazz.addRank(sPermName, sDispName,	(FormatManager.formatColor(sColor)), rankItems, rankCost, rankExp);
 			// add Clazz to ClazzList
-			String key = clazz.clazzName.toUpperCase();
-			clazzes.put(key,clazz);
+			String key = clazz.clazzName().toUpperCase();
+			clazzes.put(key, clazz);
 			if (pPlayer == null)
 			{
 				ClassRanks.log("Clazz added:" + sClassName, Level.INFO);
-
-				// db.i("Clazz added: " + sClassName);
 			} else
 			{
-				plugin.msg(pPlayer, "Clazz added: " + sClassName);
+				plugin.msg(pPlayer, "Clazz added: " + sClassName+":"+sPermName);
 			}
-			// plugin.config.save_config();
 			return true;
+		} else
+		{
+			if (clazz.ranks().hasRank(sPermName) == false)
+			{
+				clazz.addRank(sPermName, sDispName,	(FormatManager.formatColor(sColor)), rankItems, rankCost, rankExp);
+			}
 		}
-		if (pPlayer == null)
-			plugin.db.i("Clazz already exists: " + sClassName);
-		else
-			plugin.msg(pPlayer, "Clazz already exists for " + pPlayer);
 		return true;
 	}
-
-	public  boolean configRankAdd(String sClassName, String sPermName,
-			String sDispName, String sColor, ItemStack[] isItems, double dCost,
-			int iExp, Player pPlayer)
+	
+	
+	/**
+	 * haengt  eine neue Rank an die Clazz an.
+	 * Die neue Clazzrank wird  in der Config gespeichert.
+	 * Existiert die Clazz nicht wird sie erzeugt !
+	 *  
+	 * @param sClassName
+	 * @param sPermName
+	 * @param sDispName
+	 * @param sColor
+	 * @param rankItems
+	 * @param rankCost
+	 * @param rankExp
+	 * @param pPlayer
+	 * @return  commandExecution status true
+	 */
+	public boolean AddClazzRank(String sClassName
+							, String sPermName
+							, String sDispName
+							, String sColor
+							, ItemStack[] rankItems
+							, double rankCost
+							, int rankExp
+							, Player pPlayer)
 	{
-		Clazz cClass = getClassbyClassName(sClassName);
+		Clazz cClass;
+		if (plugin.clazzList().containClazz(sClassName))
+		{
+			cClass = getClassbyClassName(sClassName);
+		} else
+		{
+			cClass = plugin.clazzList().add(sClassName);
+		}
 		if (cClass != null)
 		{
-			int nextIndex = cClass.ranks.size()+1;
-			cClass.ranks.put(nextIndex, new Rank(sPermName, sDispName, (FormatManager
-					.formatColor(sColor)), cClass, isItems, dCost, iExp));
+			Rank rank = new Rank(sPermName, sDispName,(FormatManager.formatColor(sColor)), cClass, rankItems,rankCost, rankExp);
+			cClass.ranks().addRank(rank);
 			if (pPlayer == null)
 			{
-				// plugin.db.i("Rank added: " +
-				// (FormatManager.formatColor(sColor)) + sPermName);
-				// plugin.config.save_config();
+				ClassRanks.log("Rank added:" + sClassName+":"+sPermName, Level.INFO);
 			} else
 			{
-				plugin.msg(pPlayer,
-						"Rank added: " + (FormatManager.formatColor(sColor))
-								+ sPermName + "/" + pPlayer);
-				plugin.config.save_config();
+				plugin.msg(pPlayer,"Rank added: " + sClassName+":"+ (FormatManager.formatColor(sColor))
+								+ sPermName );
+				// speichern der ClazzRank in config
 			}
+			plugin.config.save_config();
 			return true;
 		}
 		if (pPlayer == null)
@@ -389,23 +424,41 @@ public class ClazzList
 		return true;
 	}
 
-	public  boolean configClassChange(String sClassName,
-			String sClassNewName, Player pPlayer)
+	/**
+	 * 
+	 * @param sClassName
+	 * @param sClassNewName
+	 * @param pPlayer
+	 * @return
+	 */
+	public boolean ClassChange(String sClassName, String sClassNewName,
+			Player pPlayer)
 	{
-		Clazz cClass = getClassbyClassName(sClassName);
-		if (cClass != null)
+		Clazz clazz = getClassbyClassName(sClassName);
+		if (clazz != null)
 		{
-			cClass.clazzName = sClassNewName;
-			plugin.msg(pPlayer, "Clazz changed: " + sClassName + " => "
-					+ sClassNewName);
+			clazz.setClazzName(sClassNewName);
+			plugin.msg(pPlayer, ChatColor.GREEN+"Clazz changed: " + sClassName + " => "	+ sClassNewName);
+			plugin.msg(pPlayer, ChatColor.RED+"Player(s) Clazz NOT changed");
 			plugin.config.save_config();
 			return true;
 		}
-		plugin.msg(pPlayer, "Clazz not found: " + sClassName);
+		plugin.msg(pPlayer,ChatColor.RED+ "Clazz not found: " + sClassName);
 		return true;
 	}
 
-	public  boolean configRankChange(String sClassName, String sPermName,
+	/**
+	 * Change rank data for rank sPermName
+	 * Save data to config file
+	 * 
+	 * @param sClassName
+	 * @param sPermName
+	 * @param sDispName
+	 * @param sColor
+	 * @param pPlayer
+	 * @return
+	 */
+	public boolean RankChange(String sClassName, String sPermName,
 			String sDispName, String sColor, Player pPlayer)
 	{
 		Clazz cClass = getClassbyClassName(sClassName);
@@ -434,14 +487,15 @@ public class ClazzList
 		String s = plugin.getConfig()
 				.getString("progress." + pPlayer.getName());
 		plugin.db.i("progress of " + pPlayer.getName() + ": " + s);
-		Rank rank = getRankByPermName(plugin.perms.getPermNameByPlayer(pPlayer.getWorld().getName(), pPlayer));
+		Rank rank = getRankByPermName(plugin.perms.getPermNameByPlayer(pPlayer
+				.getWorld().getName(), pPlayer));
 		if (rank == null)
 		{
 			plugin.db.i("rank is null!");
 			return;
 		}
 
-		int rankID = rank.getSuperClass().getIndexOf(rank);
+		int rankID = rank.getSuperClass().ranks().getRankIndex(rank.getPermName());
 		plugin.db.i("rank ID: " + rankID);
 		int classID = this.getIndex(rank.getSuperClass());
 		plugin.db.i("classID: " + classID);
@@ -478,7 +532,7 @@ public class ClazzList
 		plugin.saveConfig();
 	}
 
-	public  int loadClassProcess(Player pPlayer, Clazz cClass)
+	public int loadClassProcess(Player pPlayer, Clazz cClass)
 	{
 		try
 		{
@@ -494,28 +548,10 @@ public class ClazzList
 		}
 	}
 
-	public  int getRankIndex(Rank rank, Clazz clazz)
+	public int getRankIndex(Rank rank, Clazz clazz)
 	{
 		// init with 0 to set default to first Rank in Clazz
-		return clazz.getIndexOf(rank);
-//		try
-//		{
-//			ArrayList<Rank> ranks = oClass.ranks;
-//			for (Rank oRank : ranks)
-//			{
-//				if (rank.getPermName().equals(oRank.getPermName()))
-//				{
-//					return rankID;
-//				} else
-//				{
-//					rankID++;
-//				}
-//			}
-//			return rankID;
-//		} catch (Exception e)
-//		{
-//			return 0;
-//		}
+		return clazz.ranks().getRankIndex(rank.getPermName());
 	}
 
 }
