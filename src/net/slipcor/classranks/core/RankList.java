@@ -94,6 +94,11 @@ public class RankList extends HashMap<Integer, Rank>
 		}
 		return -1;
 	}
+	
+	public int getMaxIndex()
+	{
+		return size();
+	}
 
 	public Rank nextRank(String sPermName)
 	{

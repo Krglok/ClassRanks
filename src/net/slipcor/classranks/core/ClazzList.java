@@ -301,7 +301,7 @@ public class ClazzList
 		{
 			clazzes.remove(cClass);
 			plugin.msg(pPlayer, "Clazz removed: " + sClassName);
-			plugin.config.save_config();
+			plugin.config.writeClazzConfig();
 			return true;
 		}
 		plugin.msg(pPlayer, "Clazz not found: " + sClassName);
@@ -320,7 +320,7 @@ public class ClazzList
 				ChatColor cColor = rank.getColor();
 				clazz.removeRank(rank.getPermName());
 				plugin.msg(pPlayer, "Rank removed: "+sClassName+":" + cColor + sPermName);
-				plugin.config.save_config();
+				plugin.config.writeClazzConfig();
 				return true;
 			}
 			plugin.msg(pPlayer, "Rank not found: " + sPermName);
@@ -414,7 +414,7 @@ public class ClazzList
 								+ sPermName );
 				// speichern der ClazzRank in config
 			}
-			plugin.config.save_config();
+			plugin.config.writeClazzConfig();
 			return true;
 		}
 		if (pPlayer == null)
@@ -440,7 +440,7 @@ public class ClazzList
 			clazz.setClazzName(sClassNewName);
 			plugin.msg(pPlayer, ChatColor.GREEN+"Clazz changed: " + sClassName + " => "	+ sClassNewName);
 			plugin.msg(pPlayer, ChatColor.RED+"Player(s) Clazz NOT changed");
-			plugin.config.save_config();
+			plugin.config.writeClazzConfig();
 			return true;
 		}
 		plugin.msg(pPlayer,ChatColor.RED+ "Clazz not found: " + sClassName);
@@ -472,7 +472,7 @@ public class ClazzList
 				plugin.msg(pPlayer,
 						"Rank updated: " + (FormatManager.formatColor(sColor))
 								+ sPermName);
-				plugin.config.save_config();
+				plugin.config.writeClazzConfig();
 				return true;
 			}
 			plugin.msg(pPlayer, "Rank not found: " + sPermName);

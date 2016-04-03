@@ -266,13 +266,12 @@ public class ClassAdminCommand implements CommandExecutor
 		if (args[1].equalsIgnoreCase("TRUE"))
 		{
 			plugin.config.setDebug(true);
-			plugin.config.save_config();
 		}
 		if (args[1].equalsIgnoreCase("FALSE"))
 		{
 			plugin.config.setDebug(false);
-			plugin.config.save_config();
 		}
+		plugin.config.saveConfig();
 		player.sendMessage(ChatColor.YELLOW + "[ClassRanks] " + ChatColor.GREEN
 				+ "DEBUG Mode ");
 		player.sendMessage(ChatColor.YELLOW + "----------" + "Ver: "

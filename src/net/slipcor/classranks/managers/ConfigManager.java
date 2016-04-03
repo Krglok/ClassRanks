@@ -12,8 +12,7 @@ import org.bukkit.inventory.ItemStack;
 //import org.bukkit.plugin.Plugin;
 import net.slipcor.classranks.ClassRanks;
 import net.slipcor.classranks.core.Clazz;
-import net.slipcor.classranks.core.PlayerClazzList;
-import net.slipcor.classranks.core.PlayerClazzRank;
+import net.slipcor.classranks.core.PlayerClazz;
 import net.slipcor.classranks.core.Rank;
 
 /*
@@ -81,9 +80,9 @@ public class ConfigManager
 		this.clearranks = clearranks;
 	}
 
-	private HashMap<String, PlayerClazzList> playersClazzList;
+	private HashMap<String, PlayerClazz> playersClazzList;
 
-	public HashMap<String, PlayerClazzList> getPlayers()
+	public HashMap<String, PlayerClazz> getPlayers()
 	{
 		return playersClazzList;
 	}
@@ -142,7 +141,7 @@ public class ConfigManager
 		moneyCost = new Double[1];
 		expCost = new int[1];
 		signs = new String[3];
-		playersClazzList = new HashMap<String, PlayerClazzList>();
+		playersClazzList = new HashMap<String, PlayerClazz>();
 	}
 
 	private Boolean debug = new Boolean(false);
@@ -601,45 +600,35 @@ public class ConfigManager
 	 */
 	public void playerSectionRead()
 	{
-		boolean isSection = (plugin.getConfig().getConfigurationSection(
-				"players") != null);
+		boolean isSection = (plugin.getConfig().isConfigurationSection("players"));
 
-		if (!isSection)
+		if (isSection)
 		{
-			playersClazzList = null;
-		} else
-		{
-			Map<String, Object> playerList = plugin.getConfig()
-					.getConfigurationSection("players").getValues(false);
+			Map<String, Object> playerList = plugin.getConfig().getConfigurationSection("players").getValues(false);
 
 			if (playerList != null)
 			{
 				System.out.println("PlayerClassRank List");
 				for (String playerName : playerList.keySet())
 				{
-					PlayerClazzList playerClazzList = new PlayerClazzList(
-							playerName, "");
+					PlayerClazz playerClazz = new PlayerClazz(playerName, "");
 
-					Map<String, Object> playerClass = plugin.getConfig()
-							.getConfigurationSection("players." + playerName)
-							.getValues(false);
-					for (String clazzName : playerClass.keySet())
+					Map<String, Object> playerClassRank = plugin.getConfig().getConfigurationSection("players." + playerName).getValues(false);
+					for (String clazzName : playerClassRank.keySet())
 					{
-						String rankName = plugin.getConfig().getString(
-								"players." + playerName + "." + clazzName, "");
-						playerClazzList.addPlayerClassRank(clazzName, rankName);
+						String rankName = plugin.getConfig().getString("players." + playerName + "." + clazzName, "");
+						playerClazz.addPlayerClassRank(clazzName, rankName);
 
 					}
-					playersClazzList.put(playerName, playerClazzList);
+					playersClazzList.put(playerName, playerClazz);
 				}
 				// Test output
-				for (PlayerClazzList playerClazz : playersClazzList.values())
+				for (PlayerClazz playerClazz : playersClazzList.values())
 				{
-					for (String name : playerClazz.keySet())
+					for (String clazzName : playerClazz.playerClazzRanks().keySet())
 					{
-						String rankName = playerClazz.get(name);
-						System.out.println(playerClazz.getUuid() + ":" + name
-								+ ":" + rankName);
+						String rankName = playerClazz.playerClazzRanks().get(clazzName);
+						System.out.println(playerClazz.getUuid() + ":" + clazzName+ ":" + rankName);
 					}
 				}
 			}
@@ -647,45 +636,76 @@ public class ConfigManager
 		}
 
 	}
-
-	private void playerSectionWrite()
+	
+	/**
+	 * write config data to configsection
+	 * save config to file
+	 */
+	public void saveConfig()
 	{
-		plugin.getConfig().set("players", playersClazzList);
+		plugin.getConfig().set("debug", isDebug());
+		plugin.getConfig().set("checkprices", isCheckprices());
+		plugin.getConfig().set("checkexp", isCheckexp());
+		plugin.getConfig().set("checkitems", isCheckitems());
+		plugin.getConfig().set("clearranks", isClearranks());
+		plugin.getConfig().set("onlyoneclass", isOnlyoneclass());
+		plugin.getConfig().set("rankpublic", isRankpublic());
+		plugin.getConfig().set("signcheck", isSigncheck());
+		plugin.getConfig().set("cooldown", coolDown);
 		plugin.saveConfig();
 	}
 
-	public void playerSectionWrite(Player player, String className, String rank)
-	{
-		plugin.getConfig().set(
-				"players." + player.getUniqueId().toString() + "." + className,
-				rank);
-		plugin.db.i("Save to config added rank " + rank + " to player "
-				+ player + ", no world support");
-		plugin.saveConfig();
-	}
+//	private void playerSectionWrite()
+//	{
+//		plugin.getConfig().set("players", playersClazzList);
+//		plugin.saveConfig();
+//	}
 
+	/**
+	 * set PlayerSection to ConfigSection
+	 *  
+	 * @param player
+	 * @param className
+	 * @param rank
+	 */
+	public void playerSectionWrite(PlayerClazz playerClazz)
+	{
+		for (String clazzName : playerClazz.playerClazzRanks().keySet())
+		{
+			String rank = playerClazz.playerClazzRanks().get(clazzName);
+			plugin.getConfig().set("players." + playerClazz.getUuid() + "." + clazzName,rank);
+			plugin.db.i("Write to config rank " + rank + " to player "+ playerClazz.getUuid() + ", no world support");
+		}
+	}
+	/**
+	 * Remove ClazzRank from player
+	 * set PlayerSection to ConfigSection
+	 * save config to File
+	 * 
+	 * @param player
+	 * @param className
+	 */
 	public void playerSectionRemove(Player player, String className)
 	{
 		if (className != null)
 		{
-			plugin.db.i("Remove config " + player.getUniqueId().toString()
-					+ " : " + className);
-			PlayerClazzList playerClazz = playersClazzList.get(player
-					.getUniqueId().toString());
-			if (playerClazz.containsKey(className))
+			plugin.db.i("Remove config " + player.getUniqueId().toString()+ " : " + className);
+			PlayerClazz playerClazz = playersClazzList.get(player.getUniqueId().toString());
+			if (playerClazz.playerClazzRanks().containsKey(className))
 			{
-				playerClazz.remove(className);
+				playerClazz.playerClazzRanks().remove(className);
 				plugin.db.i("Save player section after remove ");
-				playerSectionWrite();
+				playerSectionWrite(playerClazz);
 			}
 		}
-
+		plugin.saveConfig();
 	}
 
 	/**
-	 * save the classrank map to the config
+	 * write ClazzRankList to Config
+	 * save config to File
 	 */
-	public void save_config()
+	public void writeClazzConfig()
 	{
 		plugin.db.i("saving config...");
 		for (Clazz cClass : plugin.clazzList().getClazzes().values())

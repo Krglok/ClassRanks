@@ -25,6 +25,7 @@ import net.slipcor.classranks.commands.PlayerCommands;
 import net.slipcor.classranks.commands.RankdownCommand;
 import net.slipcor.classranks.commands.RankupCommand;
 import net.slipcor.classranks.core.ClazzList;
+import net.slipcor.classranks.core.PlayerClazzList;
 import net.slipcor.classranks.handlers.*;
 import net.slipcor.classranks.listeners.*;
 import net.slipcor.classranks.managers.ConfigManager;
@@ -51,6 +52,7 @@ public class ClassRanks extends JavaPlugin
 	private final CRServerListener serverListener = new CRServerListener(this,cmdMgr);
 //	private final FormatManager fm = new FormatManager();
 	private ClazzList clazzList = new ClazzList(this); 
+	private PlayerClazzList playerClazzList = new PlayerClazzList();
 	
 	public boolean trackRanks = false;
 
@@ -194,6 +196,10 @@ public class ClassRanks extends JavaPlugin
 		return clazzList;
 	}
 	
+	public PlayerClazzList playerClazzList()
+	{
+		return this.playerClazzList;
+	}
 
 	/**
 	 * send a message to a player

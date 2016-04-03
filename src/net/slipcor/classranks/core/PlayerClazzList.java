@@ -1,110 +1,73 @@
 package net.slipcor.classranks.core;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 
 /**
  * 
  * @author Windu
- * 
- * define a player Class Rank List object will be used to track player
- * classes
+ * @create 03.04.2016
+ * <pre>
+ * description:
+ * Hold the list of players and Clazzes of the player.
+ * key = uuid
+ * value = playerClazz
+ *
+ * </pre>
  */
-public class PlayerClazzList extends HashMap<String, String>
+public class PlayerClazzList extends HashMap<String, PlayerClazz>
 {
+	private static final long serialVersionUID = 1L;
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3071712660629867671L;
-
-	private String uuid;
-	private String playername;
-
-	// private ArrayList<PlayerClassRank> playerClassRanks;
-
-	public PlayerClazzList(String uuid, String playerName)
+	
+	public PlayerClazzList()
 	{
-		super();
-		this.uuid =uuid;
-		this.playername = playername;
-		this.put("name", playerName);
+		
 	}
 	
 	/**
-	 * @return the uuid
+	 * add PlayerClazz tio end of List
+	 * if playerUUID not in list
+	 * 
+	 * @param pClazz
 	 */
-	public String getUuid()
+	public void addPlayerClazz(PlayerClazz pClazz)
 	{
-		return uuid;
+		if (this.containsKey(pClazz.getUuid())==false)
+		{
+			this.put(pClazz.getUuid(), pClazz);
+		}
 	}
-
+	
 	/**
-	 * @param uuid the uuid to set
+	 * add PlayerClazz to list. overwrite existing data
+	 * 
+	 * @param pClazz
 	 */
-	public void setUuid(String uuid)
+	public void importPlayerClazz(PlayerClazz pClazz)
 	{
-		this.uuid = uuid;
+		this.put(pClazz.getUuid(), pClazz);
 	}
-
-
-	public void setPlayerName(String playerName)
+	
+	public PlayerClazz getPlayerClazz(String uuid)
 	{
-		this.setUuid(playerName);
-		this.put("name", playerName);
-	}
-
-	public String getPlayerName()
-	{
-		if (this.containsKey("name"))
+		if (this.containsKey(uuid))
 		{
-			return "";
+			return this.get(uuid);
 		}
-		return this.get("name");
+		
+		return null;
 	}
 
-	public boolean equalsIgnoreCaseName(String playerName)
+	public PlayerClazz getPlayerClazzByName(String playername)
 	{
-		return playerName.equalsIgnoreCase(playerName);
-	}
-
-	public boolean addPlayerClassRank(String className, String rankName)
-	{
-		this.put(className, rankName);
-
-		return true;
-	}
-
-	public String getPlayerRank(String className)
-	{
-
-		return this.get(className);
-	}
-
-	public boolean equalsIgnoreCaseClass(String className)
-	{
-		for (String name : this.keySet())
+		for (PlayerClazz pClazz : this.values())
 		{
-			if (name.equalsIgnoreCase(className))
+			if (pClazz.getPlayerName().equalsIgnoreCase(playername))
 			{
-				return true;
+				return pClazz;
 			}
 		}
-		return false;
+		return null;
 	}
-
-	public boolean equalsIgnoreCaseRank(String rankName)
-	{
-		for (String rank : this.values())
-		{
-			if (rank.equalsIgnoreCase(rankName))
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-
-
+	
 }

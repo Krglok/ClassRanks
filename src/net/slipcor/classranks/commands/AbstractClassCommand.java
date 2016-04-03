@@ -4,9 +4,7 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 
 import net.slipcor.classranks.ClassRanks;
-import net.slipcor.classranks.core.Clazz;
-import net.slipcor.classranks.core.ClazzList;
-import net.slipcor.classranks.core.Rank;
+import net.slipcor.classranks.core.*;
 import net.slipcor.classranks.managers.DebugManager;
 import net.slipcor.classranks.managers.FormatManager;
 import net.slipcor.classranks.register.payment.Method.MethodAccount;
@@ -74,44 +72,53 @@ public abstract class AbstractClassCommand implements CommandExecutor
 	 * 
 	 * @param sender	of the Command
 	 * @param player	to promot ein class
-	 * @param className 
+	 * @param clazzName 
 	 * @param world
 	 * @return
 	 */
-	protected boolean cmdAddRank(Player sender, Player player, String className, String world)
+	protected boolean cmdAddRank(Player sender, Player player, String clazzName, String world)
 	{
 		///  ADD 
 		//  Check for Rank is always given
 		plugin.db.i("Check hasClass");
-		if (hasClass(className, player, world))
+		if (hasClass(clazzName, player, world))
 		{
 			plugin.error(sender,
 							"Player " + FormatManager.formatPlayer(player.getName())
 							+ " already has the Clazz "
-							+ ChatColor.RED + className + "!");
+							+ ChatColor.RED + clazzName + "!");
 			plugin.msg(sender,"Use  /class [rankup]  [playername] {world} | Rank user up");
 			return true;
+		}
+		String playerName = player.getName(); // store the player we want to
+		String uuid = player.getUniqueId().toString();
+		PlayerClazz pClazz;
+		if (plugin.config.isUUD())
+		{
+			pClazz = plugin.playerClazzList().getPlayerClazz(uuid);
+		} else
+		{
+			pClazz = plugin.playerClazzList().getPlayerClazz(playerName);
+		}
+		if (pClazz == null)
+		{
+			pClazz = new PlayerClazz(uuid,playerName);
+			plugin.playerClazzList().addPlayerClazz(pClazz);
 		}
 		
 		// ADD
 		plugin.db.i("Get TempRank");
-		Rank tempRank = plugin.clazzList().getRankByPermName( plugin.clazzList().getFirstPermNameByClassName(className));
+		Rank tempRank = plugin.clazzList().getRankByPermName( plugin.clazzList().getFirstPermNameByClassName(clazzName));
 		
 		//  ClassRank does not exist
 		if (tempRank == null) 
 		{
-			plugin.error(sender,"The class you entered does not exist!"+className);
+			plugin.error(sender,"The class you entered does not exist!"+clazzName);
 			return true;
 		}
 
 
 		int rID = plugin.clazzList().getRankIndex(tempRank, tempRank.getSuperClass());	//  Index des Rank
-		// Track Rank 
-//		if (plugin.trackRanks) 
-//		{
-////			rID = ClazzList.loadClassProcess(player,
-////					tempRank.getSuperClass());
-//		}
 		plugin.db.i("Get Rank Index : " + rID);
 
 		// Check for money to rank up
@@ -199,7 +206,8 @@ public abstract class AbstractClassCommand implements CommandExecutor
 		{
 			plugin.perms.rankAdd(player, cPermName);
 		}
-		plugin.config.playerSectionWrite(player, className, cPermName);
+		pClazz.addPlayerClassRank(clazzName, tempRank.getPermName());
+		plugin.config.playerSectionWrite(pClazz);
 		
 		plugin.db.i("Added Class + Rank  to config");
 		plugin.db.i("Added Group to Permission");
@@ -214,7 +222,7 @@ public abstract class AbstractClassCommand implements CommandExecutor
 			return true;
 		} else 
 		{
-			plugin.msg(player, "You now are in Class " + c_Color + cDispName);
+			plugin.msg(player, "You now are in Class :"+clazzName+" as " + c_Color + cDispName);
 			return true;
 		}
 //END ADD / REMOVE			
@@ -637,9 +645,9 @@ public abstract class AbstractClassCommand implements CommandExecutor
 	 * - add to new rank
 	 * </pre>
 	 */
-	protected boolean rankUp(Player sender, Player player, String className, String world) 
+	protected boolean rankUp(Player sender, Player player, String clazzName, String world) 
 	{
-		plugin.db.i("ranking " + player.getName() + " : " +  className);
+		plugin.db.i("ranking " + player.getName() + " : " +  clazzName);
 
 		plugin.db.i("CoolDown Check for " + player.getName());
 		int cDown = plugin.pm.coolDownCheck(player);
@@ -662,15 +670,26 @@ public abstract class AbstractClassCommand implements CommandExecutor
 
 
 		String playerName = player.getName(); // store the player we want to
-
-				
-//		Boolean self = true; // we want to change ourselves ... maybe
-
-		// does player have a rank?
-		Rank rank = null; // actual Rank
-		if (hasClass(className, player, world))
+		String uuid = player.getUniqueId().toString();
+		PlayerClazz pClazz;
+		if (plugin.config.isUUD())
 		{
-			rank = hasRank( className, player, world);
+			pClazz = plugin.playerClazzList().getPlayerClazz(uuid);
+		} else
+		{
+			pClazz = plugin.playerClazzList().getPlayerClazz(playerName);
+		}
+		if (pClazz == null)
+		{
+			pClazz = new PlayerClazz(uuid,playerName);
+			plugin.playerClazzList().addPlayerClazz(pClazz);
+		}
+		
+		// does player have a rank? in prermission
+		Rank rank = null; // actual Rank
+		if (hasClass(clazzName, player, world))
+		{
+			rank = hasRank( clazzName, player, world);
 			if (rank == null) 
 			{
 				plugin.msg(player, "You " + " are not in this class !");
@@ -679,7 +698,7 @@ public abstract class AbstractClassCommand implements CommandExecutor
 		} else
 		{
 			plugin.msg(sender, "Player " + FormatManager.formatPlayer(playerName)
-					+ " not in class "+ className);
+					+ " not in class "+ clazzName);
 			return true;
 		}
 
@@ -687,19 +706,16 @@ public abstract class AbstractClassCommand implements CommandExecutor
 
 		String cDispName = rank.getDispName(); // actual Display rank name
 		ChatColor c_Color = rank.getColor();   // actual Rank color
-		Clazz oClass = rank.getSuperClass();   // actual Rank class
+		Clazz oClazz = rank.getSuperClass();   // actual Rank class
 
-		int rID = plugin.clazzList().getRankIndex(rank, oClass );	//  Index des Rank
-		int iMaxRank = oClass.ranks().size() - 1; // Classes max tree rank
+		int rID = oClazz.ranks().getMaxIndex(); //      plugin.clazzList().getRankIndex(rank, oClazz );	//  Index des Rank
+		int iMaxRank = oClazz.ranks().size() - 1; // Classes max tree rank
 		plugin.db.i("rank " + rID + " of " + iMaxRank);
-		// placeholder: cost
-//		double rank_cost = 0;
 		
 			// we want to rank up!
 			if (rID >= iMaxRank)
 			{
-				plugin.msg(sender, "Player " + FormatManager.formatPlayer(playerName)
-						+ " is in MaxRank of class "+ className);
+				plugin.msg(sender, "Player " + FormatManager.formatPlayer(playerName)+ " has MaxRank of clazz "+ clazzName);
 				return true;
 			}
 			
@@ -772,7 +788,9 @@ public abstract class AbstractClassCommand implements CommandExecutor
 
 			plugin.db.i(">>>> adding new rank...");
 			plugin.perms.rankAdd(player, tempRank.getPermName());
-			plugin.config.playerSectionWrite(player, className, tempRank.getPermName());
+			
+			pClazz.addPlayerClassRank(clazzName, rank.getPermName());
+			plugin.config.playerSectionWrite(pClazz);
 
 			
 			if (plugin.config.isRankpublic()) 
@@ -806,13 +824,13 @@ public abstract class AbstractClassCommand implements CommandExecutor
 	 * 
 	 * @param sender
 	 * @param player
-	 * @param className
+	 * @param clazzName
 	 * @param world
 	 * @return
 	 */
-	protected boolean rankDown(Player sender, Player player, String className, String world) 
+	protected boolean rankDown(Player sender, Player player, String clazzName, String world) 
 	{
-		plugin.db.i("ranking " + player.getName() + " : " +  className);
+		plugin.db.i("ranking " + player.getName() + " : " +  clazzName);
 
 		plugin.db.i("CoolDown Check for " + player.getName());
 		int cDown = plugin.pm.coolDownCheck(player);
@@ -835,15 +853,29 @@ public abstract class AbstractClassCommand implements CommandExecutor
 
 
 		String playerName = player.getName(); // store the player we want to
+		String uuid = player.getUniqueId().toString();
+		PlayerClazz pClazz;
+		if (plugin.config.isUUD())
+		{
+			pClazz = plugin.playerClazzList().getPlayerClazz(uuid);
+		} else
+		{
+			pClazz = plugin.playerClazzList().getPlayerClazz(playerName);
+		}
+		if (pClazz == null)
+		{
+			pClazz = new PlayerClazz(uuid,playerName);
+			plugin.playerClazzList().addPlayerClazz(pClazz);
+		}
 
 				
 //		Boolean self = true; // we want to change ourselves ... maybe
 
 		// does player have a rank?
 		Rank rank = null; // actual Rank
-		if (hasClass(className, player, world))
+		if (hasClass(clazzName, player, world))
 		{
-			rank = hasRank( className, player, world);
+			rank = hasRank( clazzName, player, world);
 			if (rank == null) 
 			{
 				plugin.error(sender, "Player " + FormatManager.formatPlayer(playerName)
@@ -853,40 +885,41 @@ public abstract class AbstractClassCommand implements CommandExecutor
 		} else
 		{
 			plugin.error(sender, "Player " + FormatManager.formatPlayer(playerName)
-					+ " not in class "+ className);
+					+ " not in class "+ clazzName);
 			return true;
 		}
 
 		plugin.db.i("rank check successful");
 
-		Clazz oClass = rank.getSuperClass();   // actual Rank class
+		Clazz oClazz = rank.getSuperClass();   // actual Rank class
 
-		int rID = plugin.clazzList().getRankIndex(rank, oClass );	//  Index des Rank
-		int iMaxRank = oClass.ranks().size() - 1; // Classes max tree rank
-		plugin.db.i("rank " + rID + " of " + iMaxRank);
+		int rID = plugin.clazzList().getRankIndex(rank, oClazz );	//  Index des Rank
+		int maxRank = oClazz.ranks().size(); // Classes max tree rank
+		plugin.db.i("rank " + rID + " of " + maxRank);
 
-			if (rID < 1) 
-			{
-				// We are at lowest rank
-				plugin.error(sender, "Player " + FormatManager.formatPlayer(playerName) + " already at lowest rank!");
-				return true;
-			}
-			if (plugin.config.isDefaultrankallworlds())
-			{
-				plugin.perms.rankRemoveGlobal(player, rank.getPermName()); // do it!
-				
-			} else
-			{
-				plugin.perms.rankRemove(player, rank.getPermName()); // do it!
-			}
-
-			Rank tempRank = plugin.clazzList().getPrevRank(rank, rID);
-			plugin.perms.rankAdd(player, tempRank.getPermName());
-			plugin.config.playerSectionWrite(player, className, tempRank.getPermName());
-			plugin.db.i("Rank Down to" + tempRank.getDispName());
-			plugin.msg(sender, "Player " + FormatManager.formatPlayer(playerName)
-					+ " Rank Down to " + tempRank.getDispName());
+		if (rID < 2) 
+		{
+			// We are at lowest rank
+			plugin.error(sender, "Player " + FormatManager.formatPlayer(playerName) + " already at lowest rank!");
 			return true;
+		}
+		if (plugin.config.isDefaultrankallworlds())
+		{
+			plugin.perms.rankRemoveGlobal(player, rank.getPermName()); // do it!
+			
+		} else
+		{
+			plugin.perms.rankRemove(player, rank.getPermName()); // do it!
+		}
+
+		Rank tempRank = plugin.clazzList().getPrevRank(rank, rID);
+		plugin.perms.rankAdd(player, tempRank.getPermName());
+		pClazz.addPlayerClassRank(clazzName, tempRank.getPermName());
+		plugin.config.playerSectionWrite(pClazz);
+		plugin.db.i("Rank Down to" + tempRank.getDispName());
+		plugin.msg(sender, "Player " + FormatManager.formatPlayer(playerName)
+				+ " Rank Down to " + tempRank.getDispName());
+		return true;
 	}	
 	
 }
