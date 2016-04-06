@@ -135,6 +135,8 @@ public class PlayerCommands extends AbstractClassCommand
 			className = getClassName(className);
 			// remove permission group
 			removeRanks(className, player, world);
+//			// remove playerClazzList
+//			plugin.playerClazzList().removeClass(player,className);
 			// remove playerSection
 			plugin.config.playerSectionRemove(player, className);
 			
@@ -231,25 +233,32 @@ public class PlayerCommands extends AbstractClassCommand
 			playerName = args[1];
 		}
 
-		plugin.msg(pPlayer, "Player " + FormatManager.formatPlayer(playerName)+ " Get in " + FormatManager.formatWorld(world) + "!");
-		Rank rank = plugin.clazzList().getRankByPermName(plugin.perms.getPlayerGroups(pPlayer));
-
-		if (rank == null) 
+		plugin.msg(pPlayer, "[ClassRanks] "+ChatColor.YELLOW+"Classes for "+ ChatColor.GREEN + FormatManager.formatPlayer(playerName));
+		plugin.msg(pPlayer, " Get in " + FormatManager.formatWorld(world) + "!");
+		String[] playerGroups = plugin.perms.getPlayerGroups(pPlayer,world);
+		if (playerGroups.length > 0)
+		{
+			for (String pGroup : playerGroups)
+			{
+				Rank rank = plugin.clazzList().getRankByPermName(pGroup);
+		
+				if (rank != null) 
+				{
+		
+					String cDispName = rank.getDispName(); // Display rank name
+					ChatColor c_Color = rank.getColor(); // Rank color
+		
+					plugin.msg(pPlayer, "" + playerName
+							+ " is in " + c_Color + rank.getSuperClass().clazzName() + ChatColor.WHITE
+							+ " as " + c_Color + cDispName + ChatColor.WHITE
+							+ " in " + FormatManager.formatWorld(world) + "!");
+				}
+			}
+		} else
 		{
 			plugin.msg(pPlayer, "Player " + playerName
 					+ " has no class in " + FormatManager.formatWorld(world) + "!");
-		} else 
-		{
-
-			String cDispName = rank.getDispName(); // Display rank name
-			ChatColor c_Color = rank.getColor(); // Rank color
-
-			plugin.msg(pPlayer, "" + playerName
-					+ " is in " + c_Color + rank.getSuperClass().clazzName() + ChatColor.WHITE
-					+ " as " + c_Color + cDispName + ChatColor.WHITE
-					+ " in " + FormatManager.formatWorld(world) + "!");
 		}
-		
 	}
 	
 	private void cmdConfig (Player pPlayer, String[] args) 
@@ -281,7 +290,7 @@ public class PlayerCommands extends AbstractClassCommand
 		{
 			playerName = pPlayer.getName();
 		}
-		String[] list = plugin.perms.getPlayerGroups(pPlayer);
+		String[] list = plugin.perms.getPlayerGroups(pPlayer,"all");
 		if (list != null) 
 		{
 			int max = list.length;
@@ -381,6 +390,15 @@ public class PlayerCommands extends AbstractClassCommand
 						return true;
 					}
 					String world = getWorldArg(pPlayer.getWorld().getName(), args); // store
+					if (plugin.config.isDefaultrankallworlds()==false)
+					{
+						if (world.equals("all"))
+						{
+							plugin.msg(pPlayer,ChatColor.RED+"Config set to use world !");
+							plugin.msg(pPlayer,ChatColor.RED+"Not enough arguments ("+ String.valueOf(args.length) + ")!");
+							plugin.msg(pPlayer,ChatColor.GREEN+" /class [rankup] [playername] [classname] {world} | Rank user up");
+						}
+					}
 					String className = args[2];
 					
 					return rankUp(pPlayer, player, className, world);
@@ -412,8 +430,16 @@ public class PlayerCommands extends AbstractClassCommand
 						return true;
 					}
 					String world = getWorldArg(pPlayer.getWorld().getName(), args); // store
+					if (plugin.config.isDefaultrankallworlds()==false)
+					{
+						if (world.equals("all"))
+						{
+							plugin.msg(pPlayer,ChatColor.RED+"Config set to use world !");
+							plugin.msg(pPlayer,ChatColor.RED+"Not enough arguments ("+ String.valueOf(args.length) + ")!");
+							plugin.msg(pPlayer,ChatColor.GREEN+" /class [rankdown] [playername] [classname] {world} | Rank user down");
+						}
+					}
 					String className = args[2];
-					
 					return rankDown(pPlayer, player, className, world);
 				} else {
 					plugin.msg(pPlayer,ChatColor.RED+"Not enough arguments ( 2 )!");
@@ -484,6 +510,15 @@ public class PlayerCommands extends AbstractClassCommand
 
 				//world name auswerten und setzen
 				 world = getWorldArg(world, args);
+				if (plugin.config.isDefaultrankallworlds()==false)
+				{
+					if (world.equals("all"))
+					{
+						plugin.msg(pPlayer,ChatColor.RED+"Config set to use world !");
+						plugin.msg(pPlayer,ChatColor.RED+"Not enough arguments ("+ String.valueOf(args.length) + ")!");
+						plugin.msg(pPlayer,ChatColor.GREEN+" /class [add] [playername] [classname] {world} | Add user to a class");
+					}
+				}
 				 plugin.db.i("precheck successful");
 				// Add Rank
 				cmdAddRank(pPlayer,player,className, world);

@@ -1,38 +1,34 @@
 package net.slipcor.classranks;
 
-import java.util.Map;
 import java.util.logging.Level;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
-//import org.bukkit.Material;
-import org.bukkit.command.CommandSender;
-//import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
-//import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.PluginManager;
-import org.bukkit.plugin.RegisteredServiceProvider;
-import org.bukkit.plugin.java.JavaPlugin;
-
-import net.milkbowl.vault.Vault;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 import net.slipcor.classranks.commands.ClassAdminCommand;
-import net.slipcor.classranks.commands.AbstractClassCommand;
 import net.slipcor.classranks.commands.PlayerCommands;
 import net.slipcor.classranks.commands.RankdownCommand;
 import net.slipcor.classranks.commands.RankupCommand;
 import net.slipcor.classranks.core.ClazzList;
 import net.slipcor.classranks.core.PlayerClazzList;
-import net.slipcor.classranks.handlers.*;
-import net.slipcor.classranks.listeners.*;
+import net.slipcor.classranks.handlers.HandleVaultPerms;
+import net.slipcor.classranks.listeners.CRServerListener;
 import net.slipcor.classranks.managers.ConfigManager;
 import net.slipcor.classranks.managers.DebugManager;
-import net.slipcor.classranks.managers.FormatManager;
 import net.slipcor.classranks.managers.PlayerManager;
 import net.slipcor.classranks.register.payment.Method;
+
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginManager;
+import org.bukkit.plugin.RegisteredServiceProvider;
+import org.bukkit.plugin.java.JavaPlugin;
+//import org.bukkit.Material;
+//import org.bukkit.configuration.ConfigurationSection;
+//import org.bukkit.inventory.ItemStack;
 
 /**
  * main plugin class

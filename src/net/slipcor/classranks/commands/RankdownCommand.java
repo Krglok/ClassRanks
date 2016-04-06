@@ -123,6 +123,15 @@ public class RankdownCommand extends AbstractClassCommand
 			{
 				world = args[1];
 			}
+			if (plugin.config.isDefaultrankallworlds()==false)
+			{
+				if (world.equals(""))
+				{
+					plugin.msg(pPlayer,ChatColor.RED+"Config set to use world !");
+					plugin.msg(pPlayer,ChatColor.RED+"Not enough arguments ("+ String.valueOf(args.length) + ")!");
+					plugin.msg(pPlayer,ChatColor.GREEN+" /rankup [classname] {world} | Rank user up");
+				}
+			}
 			className = args[0];
 			return rankDown(pPlayer, pPlayer, className, world);
 		}
@@ -135,7 +144,7 @@ public class RankdownCommand extends AbstractClassCommand
 			return true;
 		} else
 		{
-			Rank rank = plugin.clazzList().getRankByPermName(plugin.perms.getPlayerGroups(pPlayer));
+			Rank rank = plugin.clazzList().getRankByPermName(plugin.perms.getPlayerGroups(pPlayer,world));
 			if (rank != null)
 			{
 

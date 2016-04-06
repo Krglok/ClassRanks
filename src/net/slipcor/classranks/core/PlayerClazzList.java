@@ -2,6 +2,8 @@ package net.slipcor.classranks.core;
 
 import java.util.HashMap;
 
+import org.bukkit.entity.Player;
+
 /**
  * 
  * @author Windu
@@ -69,5 +71,17 @@ public class PlayerClazzList extends HashMap<String, PlayerClazz>
 		}
 		return null;
 	}
-	
+
+	public void removeClass(Player player, String className)
+	{
+		PlayerClazz pClazz = this.get(player.getUniqueId().toString());
+		for (String clazzName : pClazz.playerClazzRanks().keySet() )
+		{
+			if (clazzName.equalsIgnoreCase(className))
+			{
+				pClazz.playerClazzRanks().remove(clazzName);
+			}
+		}
+				
+	}
 }

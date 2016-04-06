@@ -135,7 +135,8 @@ public class ClassAdminCommand implements CommandExecutor
 					for (Rank r : clazz.ranks().values())
 					{
 						plugin.msg(pPlayer,
-								"=> " + r.getPermName() + " : " + r.getColor()
+						+ clazz.ranks().getRankIndex(r.getPermName())+":" 
+						+ r.getPermName() + " : " + r.getColor()
 										+ r.getDispName());
 					}
 				}

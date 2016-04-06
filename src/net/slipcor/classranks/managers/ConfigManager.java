@@ -32,13 +32,6 @@ public class ConfigManager
 
 	public static String debugVersion = "0400";
 
-	private Map<String, Object> classes;
-
-	public Map<String, Object> getClasses()
-	{
-		return classes;
-	}
-
 	// private void setClasses(Map<String, Object> classes) {
 	// this.classRanks = classes;
 	// }
@@ -102,7 +95,7 @@ public class ConfigManager
 
 	public Double getMoneyCost(int index)
 	{
-		if (index <= moneyCost.length)
+		if (index < moneyCost.length)
 		{
 			return moneyCost[index];
 		} else
@@ -324,6 +317,18 @@ public class ConfigManager
 		this.defaultRankAllWorlds = defaultrankallworlds;
 	}
 
+	private boolean permissionpluginhasworldsupport = true;
+	
+	public boolean permissionpluginhasworldsupport()
+	{
+		return permissionpluginhasworldsupport;
+	}
+	
+	public void setPermissionpluginhasworldsupport(boolean value)
+	{
+		permissionpluginhasworldsupport = value;
+	}
+	
 	private boolean onlyOneClass = new Boolean(false);
 
 	public Boolean isOnlyoneclass()
@@ -364,7 +369,8 @@ public class ConfigManager
 
 		// useUUID
 		useUUID = plugin.getConfig().getBoolean("useUUID", false);
-
+		// permissionpluginhasworldsupport
+		permissionpluginhasworldsupport = plugin.getConfig().getBoolean("permissionpluginhasworldsupport",true);
 		boolean isSection = false;
 		if (plugin.getConfig().getConfigurationSection("prices") != null)
 		{
@@ -539,7 +545,7 @@ public class ConfigManager
 		setRankItems(itemStacks);
 
 		// read basis class and ranks initialize the object
-		classes = plugin.getConfig().getConfigurationSection("classes").getValues(false);
+		Map<String, Object> classes = plugin.getConfig().getConfigurationSection("classes").getValues(false);
 		for (String sClassName : classes.keySet())
 		{
 			Map<String, Object> ranks = ((ConfigurationSection) classes.get(sClassName)).getValues(false);
@@ -676,6 +682,7 @@ public class ConfigManager
 			plugin.getConfig().set("players." + playerClazz.getUuid() + "." + clazzName,rank);
 			plugin.db.i("Write to config rank " + rank + " to player "+ playerClazz.getUuid() + ", no world support");
 		}
+		plugin.saveConfig();
 	}
 	/**
 	 * Remove ClazzRank from player
@@ -691,14 +698,17 @@ public class ConfigManager
 		{
 			plugin.db.i("Remove config " + player.getUniqueId().toString()+ " : " + className);
 			PlayerClazz playerClazz = playersClazzList.get(player.getUniqueId().toString());
-			if (playerClazz.playerClazzRanks().containsKey(className))
+			if (playerClazz != null)
 			{
-				playerClazz.playerClazzRanks().remove(className);
-				plugin.db.i("Save player section after remove ");
-				playerSectionWrite(playerClazz);
+				if (playerClazz.playerClazzRanks().containsKey(className))
+				{
+					playerClazz.playerClazzRanks().remove(className);
+					plugin.db.i("Save player section after remove ");
+					playerSectionWrite(playerClazz);
+					plugin.saveConfig();
+				}
 			}
 		}
-		plugin.saveConfig();
 	}
 
 	/**

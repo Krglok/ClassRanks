@@ -51,14 +51,14 @@ public abstract class CRHandler
 	 */
 	public abstract void classAdd(String world, Player player, String cString);
 	
-	/**
-	 * add rank/group to player permission in all worlds
-	 * use world = null
-	 * 
-	 * @param player
-	 * @param cString
-	 */
-	public abstract void classAddGlobal(Player player, String cString);
+//	/**
+//	 * add rank/group to player permission in all worlds
+//	 * use world = null
+//	 * 
+//	 * @param player
+//	 * @param cString
+//	 */
+//	public abstract void classAddGlobal(Player player, String cString);
 	
 	/**
 	 * Add rank/group to player permission
@@ -68,16 +68,16 @@ public abstract class CRHandler
 	 * @param player
 	 * @param rank
 	 */
-	public abstract void rankAdd( Player player, String rank);
+	public abstract void rankAdd( Player player, String rank, String world);
 	
-	/**
-	 * add rank/group to player permission in all worlds
-	 * use world = null
-	 * 
-	 * @param player
-	 * @param rank
-	 */
-	public abstract void rankAddGlobal(Player player, String rank);
+//	/**
+//	 * add rank/group to player permission in all worlds
+//	 * use world = null
+//	 * 
+//	 * @param player
+//	 * @param rank
+//	 */
+//	public abstract void rankAddGlobal(Player player, String rank);
 	
 	/**
 	 * remove rank/group from player
@@ -87,22 +87,22 @@ public abstract class CRHandler
 	 * @param player
 	 * @param cString
 	 */
-	public abstract void rankRemove(Player player, String cString);
+	public abstract void rankRemove(Player player, String cString, String world);
 	
-	/**
-	 * remove rank/group from player permission in all worlds
-	 * use world = null
-	 * 
-	 * @param player
-	 * @param cString
-	 */
-	public abstract void rankRemoveGlobal(Player player, String cString);
+//	/**
+//	 * remove rank/group from player permission in all worlds
+//	 * use world = null
+//	 * 
+//	 * @param player
+//	 * @param cString
+//	 */
+//	public abstract void rankRemoveGlobal(Player player, String cString);
 	
 	public abstract String getPermNameByPlayer(String world, Player player);
 	
-	public abstract String getPermNameByPlayerGlobal(Player player);
+//	public abstract String getPermNameByPlayerGlobal(Player player);
 	
-	public abstract void removeGroups(Player player);
+	public abstract void removeGroups(Player player, String world);
 	
-	public abstract String[] getPlayerGroups(Player player);
+	public abstract String[] getPlayerGroups(Player player, String world);
 }

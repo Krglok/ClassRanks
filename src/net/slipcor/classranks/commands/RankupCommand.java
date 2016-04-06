@@ -1,15 +1,11 @@
 package net.slipcor.classranks.commands;
 
 import net.slipcor.classranks.ClassRanks;
-import net.slipcor.classranks.core.ClazzList;
 import net.slipcor.classranks.core.Rank;
-import net.slipcor.classranks.managers.DebugManager;
 import net.slipcor.classranks.managers.FormatManager;
-import net.slipcor.classranks.managers.PlayerManager;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -160,7 +156,7 @@ public class RankupCommand extends AbstractClassCommand
 				return true;
 			} else
 			{
-				Rank rank = plugin.clazzList().getRankByPermName(plugin.perms.getPlayerGroups(pPlayer));
+				Rank rank = plugin.clazzList().getRankByPermName(plugin.perms.getPlayerGroups(pPlayer,world));
 				if (rank != null)
 				{
 					className = plugin.clazzList().getClassNameByPermName(rank.getPermName());

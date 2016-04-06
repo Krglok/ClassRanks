@@ -25,7 +25,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class ClazzList
 {
-	private HashMap<String, Clazz> clazzes = new HashMap<String, Clazz>();
+	private HashMap<String, Clazz> clazzes ;
 	private ClassRanks plugin;
 
 	// private static DebugManager db;
@@ -33,6 +33,7 @@ public class ClazzList
 	public ClazzList(ClassRanks plugin)
 	{
 		this.plugin = plugin;
+		clazzes = new HashMap<String, Clazz>();
 		// db = new DebugManager(cr);
 	}
 
@@ -224,38 +225,23 @@ public class ClazzList
 		return null;
 	}
 
-	public Rank getNextRank(Rank rank, int rankIndex)
+	public Rank getNextRank(Rank rank)
 	{
 		Clazz clazz = getClazzByRank(rank);
 		if (clazz != null)
 		{
 			return clazz.ranks().nextRank(rank.getPermName());
 		}
-
-		// if (rankIndex + 1 < rank.getSuperClass().ranks.size())
-		// {
-		// return rank.getSuperClass().ranks.get(rankIndex + 1);
-		// } else
-		// {
-		// return null;
-		// }
 		return null;
 	}
 
-	public Rank getPrevRank(Rank rank, int rankIndex)
+	public Rank getPrevRank(Rank rank)
 	{
 		Clazz clazz = getClazzByRank(rank);
 		if (clazz != null)
 		{
 			return clazz.ranks().prevRank(rank.getPermName());
 		}
-		// if (rankIndex > 0)
-		// {
-		// return rank.getSuperClass().ranks.get(rankIndex - 1);
-		// } else
-		// {
-		// return null;
-		// }
 		return null;
 	}
 
@@ -264,13 +250,8 @@ public class ClazzList
 		if (this.containClazz(sClassName))
 		{
 			sClassName = sClassName.toUpperCase();
-			return this.getClassbyClassName(sClassName);
+			return this.clazzes.get(sClassName);
 		}
-		// for (Clazz c : clazzes)
-		// {
-		// if (c.name.equals(sClassName))
-		// return c;
-		// }
 		return null;
 	}
 

@@ -102,79 +102,68 @@ public class RankList extends HashMap<Integer, Rank>
 
 	public Rank nextRank(String sPermName)
 	{
-		int lastIndex = 0;
-		for (Integer key : this.keySet())
+		int index = getRankIndex(sPermName);
+		if (index+1 <= this.size())
 		{
-			
-			if (key < lastIndex)
-			{
-				Rank rank = this.get(key+1);
-				return rank;
-			}
+			Rank rank = this.get(index+1);
+			return rank;
 		}
 		return null;
 	}
 
-	/**
-	 * search for next rank in ranklist
-	 * 
-	 * @param sPermName
-	 * @return sPermissionName or null
-	 */
-	public String nextRankName(String sPermName)
-	{
-		for (Integer key : this.keySet())
-		{
-			
-			if (key+1 < this.size())
-			{
-				Rank rank = this.get(key+1);
-				return rank.getPermName();
-			}
-		}
-		return null;
-	}
+//	/**
+//	 * search for next rank in ranklist
+//	 * 
+//	 * @param sPermName
+//	 * @return sPermissionName or null
+//	 */
+//	public String nextRankName(String sPermName)
+//	{
+//		for (Integer key : this.keySet())
+//		{
+//			
+//			if (key+1 < this.size())
+//			{
+//				Rank rank = this.get(key+1);
+//				return rank.getPermName();
+//			}
+//		}
+//		return null;
+//	}
 
 	
-	/**
-	 * search for prev rank in ranklist
-	 * 
-	 * @param sPermName
-	 * @return sPermissionName or null
-	 */
-	public String prevRankName(String sPermName)
-	{
-		for (Integer key : this.keySet())
-		{
-			Rank rank = this.get(key);
-			if (rank.getPermName().equalsIgnoreCase(sPermName))
-			{
-				if (key > 1)
-				{
-					rank = this.get(key-1);
-					return rank.getPermName();
-				}
-				return null;
-			}
-		}
-		return null;
-	}
+//	/**
+//	 * search for prev rank in ranklist
+//	 * 
+//	 * @param sPermName
+//	 * @return sPermissionName or null
+//	 */
+//	public String prevRankName(String sPermName)
+//	{
+//		for (Integer key : this.keySet())
+//		{
+//			Rank rank = this.get(key);
+//			if (rank.getPermName().equalsIgnoreCase(sPermName))
+//			{
+//				if (key > 1)
+//				{
+//					rank = this.get(key-1);
+//					return rank.getPermName();
+//				}
+//				return null;
+//			}
+//		}
+//		return null;
+//	}
 	
 	
 	public Rank prevRank(String sPermName)
 	{
-		for (Integer key : this.keySet())
+		int index = getRankIndex(sPermName);
+		if (index > 1)
 		{
-			Rank rank = this.get(key);
-			if (rank.getPermName().equalsIgnoreCase(sPermName))
-			{
-				if (key > 1)
-				{
-					rank = this.get(key-1);
-					return rank;
-				}
-				return null;
-			}
+			Rank rank = this.get(index-1);
+			return rank;
 		}
 		return null;
 	}

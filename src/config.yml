@@ -10,6 +10,9 @@ useUUID: false
 rankpublic: true
 trackRanks: false
 defaultrankallworlds: false
+# some plugin dont support worlds, like PermissionBukkit
+# defaultValue = true
+permissionpluginhasworldsupport: true
 onlyoneclass: true
 clearranks: false
 signcheck: false
