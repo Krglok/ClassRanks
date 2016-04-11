@@ -614,7 +614,7 @@ public class ConfigManager
 
 			if (playerList != null)
 			{
-				System.out.println("PlayerClassRank List");
+//				System.out.println("PlayerClassRank List");
 				for (String playerName : playerList.keySet())
 				{
 					PlayerClazz playerClazz = new PlayerClazz(playerName, "");
@@ -634,7 +634,7 @@ public class ConfigManager
 					for (String clazzName : playerClazz.playerClazzRanks().keySet())
 					{
 						String rankName = playerClazz.playerClazzRanks().get(clazzName);
-						System.out.println(playerClazz.getUuid() + ":" + clazzName+ ":" + rankName);
+//						System.out.println(playerClazz.getUuid() + ":" + clazzName+ ":" + rankName);
 					}
 				}
 			}

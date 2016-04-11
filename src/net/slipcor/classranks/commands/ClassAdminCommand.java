@@ -189,6 +189,18 @@ public class ClassAdminCommand implements CommandExecutor
 														+ item.getAmount());
 									}
 								}
+							} else
+							{
+								int index = clazz.ranks().getRankIndex(r.getPermName())-1;
+								for (int j = 0; j < plugin.config.getItemStacks()[index].length; j++)
+								{
+									pPlayer.sendMessage(ChatColor.YELLOW + "   => "
+											+ ChatColor.GREEN
+											+ plugin.config.getItemStacks()[index][j].getType() + " : "
+											+ plugin.config.getItemStacks()[index][j].getAmount());
+								}
+
+								
 							}
 							plugin.msg(pPlayer, " ");
 						}

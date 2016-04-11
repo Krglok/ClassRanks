@@ -109,7 +109,7 @@ public class PlayerCommands extends AbstractClassCommand
 		{
 			// not enough arguments ;)
 			plugin.msg(sender,"Not enough arguments ("+ String.valueOf(args.length) + ")!");
-			plugin.msg(sender,"/class [remove] [playername] [classname] {world} | Remove user from a class");
+			plugin.msg(sender,"/class REMOVE [playername] [classname] {world} | Remove user from a class");
 
 			return false;
 		} else
@@ -463,6 +463,7 @@ public class PlayerCommands extends AbstractClassCommand
 			if (hasAdminPerms(pPlayer))
 			{
 				cmdRemove(pPlayer, args);
+				return true;
 			} else 
 			{
 				plugin.error(pPlayer, "You don't have the right permission !");
