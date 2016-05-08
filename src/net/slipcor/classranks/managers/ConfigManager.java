@@ -724,8 +724,6 @@ public class ConfigManager
 			for (Rank rRank : cClass.ranks().values())
 			{
 
-				rRank.debugPrint();
-
 				plugin.getConfig().set(
 						"classes." + cClass.clazzName() + "."
 								+ rRank.getPermName() + ".name",

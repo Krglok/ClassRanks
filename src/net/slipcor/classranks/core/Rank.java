@@ -156,21 +156,4 @@ public class Rank
 		return items;
 	}
 
-	public void debugPrint() {
-		//return;
-		/*
-		 * 
-		System.out.print("--"+sPermissionName+"--");
-		System.out.print(sDisplayName);
-		System.out.print(cColor+"color");
-		if (items == null) {
-			System.out.print("null");
-		} else
-			System.out.print(FormatManager.formatItemStacks(items));
-		System.out.print(cost);
-		System.out.print(exp);
-		
-		 */
-		
-	}
 }

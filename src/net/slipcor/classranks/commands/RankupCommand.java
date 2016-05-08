@@ -41,7 +41,7 @@ public class RankupCommand extends AbstractClassCommand
 
 		// if we use the shortcut /rankup or /rankdown, shift the array
 		String[] tStr = new String[args.length+1];
-		System.arraycopy(args, 0, tStr, 1, args.length);
+//		System.arraycopy(args, 0, tStr, 1, args.length);
 		tStr[0] = cmd.getName();
 		db.i("shortcut detected, parsed '" + FormatManager.formatStringArray(args) + "' to '" + tStr.toString() + "'");
 		return parseCommand((Player) sender, tStr);
@@ -60,34 +60,6 @@ public class RankupCommand extends AbstractClassCommand
 		plugin.msg(pPlayer, ChatColor.YELLOW+"need permissions <classranks.self.rank>");
 		
 	}
-	
-//	public boolean parseSelfRankUp(Player pPlayer, String[] args) 
-//	{
-//		String className = "";
-//		if (plugin.config.isOnlyoneclass() == false)
-//		{
-//			if (args.length == 0)
-//			{
-//				//zeigt command description aus Plugi.yml
-//				cmdRankUpInfo (pPlayer);
-//				return true;  
-//			} 
-//			className = args[0];
-//		    // rankUp  [classname] | Add yourself to a class
-//		} else
-//		{
-//			
-//		}
-//		String world = "";
-//		
-//		//world name auswerten und setzen
-//		world = getWorldArg(world, args);
-//		plugin.db.i("precheck successful");
-//		// Add Rank
-//		
-//		rankUp(pPlayer, pPlayer, className, world);
-//		return true;
-//	}
 	
 	
 	/**

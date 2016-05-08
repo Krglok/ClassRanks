@@ -46,7 +46,6 @@ public class HandleVaultPerms extends CRHandler
 	{
 		if (plugin.config.isDefaultrankallworlds())
 		{
-			System.out.println("CR rankAddGlobal");
 			world = null;
 		}
 		if (plugin.config.permissionpluginhasworldsupport() == false)
@@ -89,7 +88,7 @@ public class HandleVaultPerms extends CRHandler
 		}
 		if (plugin.config.isDefaultrankallworlds())
 		{
-			System.out.println("CR rankAddGlobal");
+//			System.out.println("CR rankAddGlobal");
 			world = null;
 		}
 		if (plugin.config.permissionpluginhasworldsupport() == false)
@@ -112,7 +111,7 @@ public class HandleVaultPerms extends CRHandler
 
 		if (plugin.config.isDefaultrankallworlds())
 		{
-			System.out.println("CR rankAddGlobal");
+//			System.out.println("CR rankAddGlobal");
 			world = null;
 		}
 		if (plugin.config.permissionpluginhasworldsupport() == false)
@@ -173,7 +172,7 @@ public class HandleVaultPerms extends CRHandler
 	{
 		if (plugin.config.isDefaultrankallworlds())
 		{
-			System.out.println("CR rankAddGlobal");
+//			System.out.println("CR rankAddGlobal");
 			world = null;
 		}
 		if (plugin.config.permissionpluginhasworldsupport() == false)
@@ -202,7 +201,7 @@ public class HandleVaultPerms extends CRHandler
 				plugin.db.i("ERROR Vault added rank " + rank
 						+ " to player " + player + " in world "
 						+ world);
-				System.out.println("ERROR Vault add rank :" + rank+ " : " + player + " in "+ world);
+//				System.out.println("ERROR Vault add rank :" + rank+ " : " + player + " in "+ world);
 			}
 		} catch (Exception e)
 		{
@@ -339,7 +338,7 @@ public class HandleVaultPerms extends CRHandler
 		// playername
 		if (plugin.config.isDefaultrankallworlds())
 		{
-			System.out.println("CR rankAddGlobal");
+//			System.out.println("CR rankAddGlobal");
 			world = null;
 		}
 		if (plugin.config.permissionpluginhasworldsupport() == false)
@@ -389,7 +388,7 @@ public class HandleVaultPerms extends CRHandler
 	{
 		if (plugin.config.isDefaultrankallworlds())
 		{
-			System.out.println("CR rankAddGlobal");
+//			System.out.println("CR rankAddGlobal");
 			world = null;
 		}
 		if (plugin.config.permissionpluginhasworldsupport() == false)
@@ -411,7 +410,7 @@ public class HandleVaultPerms extends CRHandler
 	{
 		if (plugin.config.isDefaultrankallworlds())
 		{
-			System.out.println("CR rankAddGlobal");
+//			System.out.println("CR rankAddGlobal");
 			world = null;
 		}
 		if (plugin.config.permissionpluginhasworldsupport() == false)
